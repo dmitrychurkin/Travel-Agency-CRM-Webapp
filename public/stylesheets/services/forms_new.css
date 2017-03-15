@@ -1,0 +1,347 @@
+.S7__form-wrapper_close{
+    display: flex;
+    justify-content: flex-end;
+}
+.S7__form-wrapper_close button{
+    width: 36px;
+    padding: 0;
+    background-color: #9e9e9e;
+}
+.S7__form-wrapper_close svg {
+    width:24px;
+    height:24px;
+}
+.F__formarea{
+    background: #fff;
+    font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
+    padding-top: 30px;
+    padding-left: 20px;
+    padding-right: 20px;
+    user-select: none;
+}
+.F__form-wrap{
+    display: flex;
+    justify-content: space-around;
+}
+.F__layout-block{
+    width:40%;
+}
+.F__input-block, .F__input-cb{
+    position: relative;
+    padding-bottom: 30px;
+}
+.F__input-block input, .F__input-block textarea{
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid #9e9e9e;
+    border-radius: 0;
+    outline: none;
+    height: 48px;
+    width: 100%;
+    font-size: 1.5em;
+    margin: 0 0 20px 0;
+    padding: 0;
+    box-shadow: none;
+    box-sizing: content-box;
+    transition: 0.3s;
+}
+.F__input-block label{
+    width: 100%;
+}
+.F__input-block.F__active input, .F__input-block.F__active textarea{
+    border-bottom: 1px solid #26a69a;
+}
+.F__input-block.F__valid input, .F__input-block.F__valid textarea{
+    border-bottom: 1px solid #4CAF50;
+}
+.F__input-block.F__invalid input, .F__input-block.F__invalid textarea{
+    border-bottom: 1px solid #F44336;
+}
+.F__field-attr{
+    position: relative;
+    top: 40px;
+    display: flex;
+    font-size: 1.5em;
+    color: #9e9e9e;
+    transition: .2s ease-out;
+}
+ .F__input-block.F__active .F__field-attr{
+    transform: translate(-11%,-100%) scale(0.8);
+    color: #26a69a;
+}
+.F__input-block.F__dirty .F__field-attr{
+    transform: translate(-11%,-100%) scale(0.8);
+}
+.F__input-block svg, .F__input-cb svg, .F__btn svg, .F__svg-wrapper {
+    width: 30px;
+    height: 30px;
+}
+.F__input-block path, .F__cb-attr path{
+    fill: #9e9e9e;
+}
+.F__input-block.F__active path{
+    fill: #26a69a;
+}
+.F__input-block.F__invalid path{
+    fill: #F44336;
+}
+.F__input-block.F__valid path{
+    fill: #4CAF50;
+}
+.F__input-block.F__invalid label{
+    color: #F44336;
+}
+.F__input-block.F__valid label{
+    color: #4CAF50;
+}
+.F__inform{
+    position: absolute;
+    top: 60%;
+    font-size: 1em;
+    opacity: 0;
+    transition: .2s ease-out;
+}
+.F__input-block.F__valid .F__inform {
+    color: #4CAF50;
+    opacity: 1;
+}
+.F__input-block.F__invalid .F__inform {
+    color: #F44336;
+    opacity: 1;
+}
+
+
+.F__subhead{
+    color: #383636;
+    text-transform: uppercase;
+}
+
+
+/*Checkbox block*/
+
+.F__input-cb{
+    display: flex;
+}
+.F__input-cb input {
+    display: none;
+}
+
+.F__input-cb label {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #9e9e9e;
+    transition: 0.3s;
+}
+input[type="radio"]:checked + label{
+    border-bottom: 1px solid #4CAF50;
+    
+}
+.F__input-cb p{
+    margin: 0;
+    padding: 0;
+}
+.F__cb-attr{
+    font-size: 1.5em;
+    color: #9e9e9e;
+    width: 100%;
+    display: flex;
+    flex: 1;
+    position: relative;
+    bottom: -9px;
+    transition: 0.3s;
+}
+input[type="radio"]:checked + label .F__cb-attr{
+    color: #4CAF50;
+}
+input[type="radio"]:checked + label path{
+    fill: #4CAF50;
+}
+/*end checkbox*/
+/*Checkbox*/
+.F__cb-wrapper{
+    position: relative;
+    display: flex;
+    width: 60px;
+    height: 60px;
+}
+
+.F__cb-container{
+    display: flex;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: rgba(38, 166, 154, .0);
+    margin: auto;
+    z-index: 0;
+    transition: .3s ease-in-out .3s;
+}
+input[type="radio"]:checked + label .F__cb-container{
+    background-color: rgba(38, 166, 154, 0.15);
+    width: 60px;
+    height: 60px;
+}
+
+.F__ripple{
+    background-color: #4CAF50;
+    border-radius: 50%;
+    position: relative;
+    width: 0;
+    height: 0;
+    z-index: 1;
+    margin: auto;
+    transition: .3s ease-in-out;
+}
+input[type="radio"]:checked + label .F__ripple{
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+}
+.F__cb-custom {
+    display: flex;
+    width: 30px;
+    height: 30px;
+    border: 3px solid #26a69a;
+    border-radius: 7px;
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    z-index: 2;
+    transition: .3s ease-in-out;
+    overflow: hidden;
+}
+input[type="radio"]:checked + label .F__cb-custom{
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+input[type="radio"]:checked + label .F__cb-custom::after{
+    transform: scale(1);
+}
+.F__cb-custom::after{
+    content: '\2713';
+    display: block;
+    position: absolute;
+    left: 4px;
+    bottom: -5px;
+    font-size: 2em;
+    z-index: 3;
+    color: #fff;
+    transform: scale(0);
+    transition: .3s ease-in-out .3s;
+}
+
+
+
+/*end checkbox*/
+
+/*Textarea*/
+.F__input-block textarea{
+    resize: none;
+    font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
+    min-height: 48px;
+    transition: .3s;
+}
+.F__input-block.F__active textarea, .F__input-block.F__dirty textarea{
+    min-height: 150px;
+}
+
+
+.F__input-block.F__active.F__textarea .F__field-attr, .F__input-block.F__dirty.F__textarea .F__field-attr{
+    transform: translate(-11%,-140%) scale(0.8);
+}
+.F__input-block.F__compensate{
+    margin-top: 30px;
+}
+/*end*/
+
+/*Button submit*/
+.F__submit{
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 200px;
+}
+.F__btn{
+    transition: .3s ease-out;
+    color: #fff;
+    background-color: #26a69a;
+    letter-spacing: .5px;
+    transition: .2s ease-out;
+    cursor: pointer;
+    outline: 0;
+    border: none;
+    border-radius: 2px;
+    display: flex;
+    justify-content: center;
+    height: 36px;
+    width: 200px;
+    line-height: 36px;
+    padding: 0 30px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 1px 5px 0 rgba(0,0,0,0.12), 0 3px 1px -2px rgba(0,0,0,0.2);
+}
+.F__btn:focus{
+    background-color: #1d7d74;
+    box-shadow: 0 3px 3px 0 rgba(0,0,0,0.14), 0 1px 7px 0 rgba(0,0,0,0.12), 0 3px 1px -1px rgba(0,0,0,0.2);
+}
+.F__btn:disabled{
+    background-color: #9e9e9e;
+}
+.F__btn-capt{
+    width: 50%;
+    text-align: right;
+    padding-right: 10px;
+    line-height: 37px;
+}
+.F__btn-ico{
+    display: flex;
+    height: 36px;
+}
+.F__btn svg {
+    margin: auto;
+}
+.F__btn path{
+    fill: #fff;
+}
+
+/*end button submit*/
+
+/*Responsive breakpoints*/
+@media all and (min-width: 1px){
+    .F__form-wrap{
+        flex-direction: column;
+    }
+    .F__layout-block{
+        width: 100%;
+    }
+    .F__input-block{
+        margin-bottom: 30px;
+    }
+    
+    .F__input-cb label {
+        height: 79px;
+    }
+}
+
+@media all and (min-width: 320px){
+    .F__input-cb label {
+        height: auto;
+    }
+}
+
+
+@media all and (min-width: 649px){
+    .F__input-block{
+        margin-bottom: 0;
+    }
+}
+@media all and (min-width: 940px){
+    .F__form-wrap{
+        flex-direction: row;
+    }
+    .F__layout-block{
+        width: 40%;
+    }
+    
+}
+/*end Responsive breakpoints*/

@@ -1,0 +1,33 @@
+{
+  "name": "tester-bundler",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "prebuild:ru": "tslint --test src",
+    "build:ru": "rollup -c rollup.config.main.js",
+    "watch:main": "tslint --test src & rollup -c rollup.config.main.js -w",
+    "watch:services": "tslint --test src & rollup -c rollup.config.services.js -w",
+    "pretest": "npm run build",
+    "test": "mocha"
+  },
+  "dependencies": {
+    "@types/greensock": "^1.15.32",
+    "body-parser": "~1.15.2",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.2.0",
+    "ejs": "~2.5.2",
+    "express": "~4.14.0",
+    "morgan": "~1.7.0",
+    "serve-favicon": "~2.3.0",
+
+    
+    "parallax": "^1.0.0",
+    "httpmodule": "^1.0.0"
+  },
+  "devDependencies": {
+    "tslib": "^1.5.0",
+    "tslint": "^4.4.2",
+    "typescript": "^2.2.0"
+  }
+}

@@ -1,0 +1,92 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+button {
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+a {
+    text-decoration: none;
+}
+.👍 {
+    overflow: hidden;
+}
+.👍 .Root__w {
+    overflow-y: scroll;
+}
+
+.Root__w {
+    overflow: hidden;
+    max-width: 1366px;
+    background-color: #2C2A2A;
+    position: relative;
+    margin: auto;
+    height:inherit;
+}
+.Intersector {
+    transition: .5s ease-out;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0px 22px 54px rgba(0, 0, 0, 0.5);
+}
+.I__edge {
+    height: 1px;
+    width: 100%;
+    position: absolute;
+    top: 99%;
+    display: none;
+}
+.S2__lim,
+.S3__lim,
+.S4__lim, 
+.S5__lim,
+.S6__lim,
+.S7__lim, 
+.S8__lim,
+.S10__lim,
+.S14__lim {
+    width: 100%;
+    height: 1px;
+    position: absolute;
+    top: 50%;
+}
+.S3__lim {
+    top: 100%;
+}
+.S3__lim.S3__lim1 {
+    top: 50%;
+}
+
+.S5__lim.S5__lim1 {
+    top: 30%;
+}
+.S5__lim {
+    top: 80%;
+}
+.S6__lim.S6__lim1 {
+    top: 0;
+}
+.S6__lim {
+    top: 100%;
+}
+.S7__lim {
+    top: 100%;
+}
+.S10__lim.S10__lim1 {
+    top: 100%;
+}
+
+.S3 h1, .S3 h3, .S3 div, .S4 h1, .S4 p {
+    font-weight: 200;
+}
+@media all and (min-width: 1140px){
+    .Intersector.I__a {
+        /*transform: translateY(-260px) scale(0.9);*/
+        transform: scale(.935);
+    }
+    .I__edge {
+        display: block;
+    }
+}

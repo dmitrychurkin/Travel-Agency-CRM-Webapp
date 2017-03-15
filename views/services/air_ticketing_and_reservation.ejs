@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Air ticketing and reservation</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro"/>
+    <link rel="stylesheet" href="/stylesheets/services/forms_new.css">
+    <link rel="stylesheet" href="/stylesheets/rippleMaterialModule.css">
+    <link rel="stylesheet" href="/stylesheets/snackProgressBar.css">
+    <style>*{margin:0;padding:0;}</style>
+    
+</head>
+<body>
+    <section class="form_test_container">
+    <div class="S7__form-wrapper">
+        <div class="S7__form-wrapper_close">
+            <button class="F__btn ripple">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19,3H16.3H7.7H5A2,2 0 0,0 3,5V7.7V16.4V19A2,2 0 0,0 5,21H7.7H16.4H19A2,2 0 0,0 21,19V16.3V7.7V5A2,2 0 0,0 19,3M15.6,17L12,13.4L8.4,17L7,15.6L10.6,12L7,8.4L8.4,7L12,10.6L15.6,7L17,8.4L13.4,12L17,15.6L15.6,17Z" />
+                </svg>
+            </button>
+        </div>
+        <div class="F__formarea">
+                <form>
+                    <div class="F__form-wrap">
+                        <div class="F__layout-block">
+                            <div class="F__input-block">
+                                <div class="F__field-attr">
+                                    <div class="F__svg-wrapper">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
+                                        </svg>
+                                    </div>
+                                    <label for="first_name">First Name</label>
+                                </div>   
+                                <input id="first_name" type="text" name="fname" autocomplete="given-name" minlength="2" requiredonly />
+                                
+                            </div>
+                            <div class="F__input-block">
+                                <div class="F__field-attr">
+                                    <div class="F__svg-wrapper">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M12,13C9.33,13 4,14.33 4,17V20H20V17C20,14.33 14.67,13 12,13M12,4A4,4 0 0,0 8,8A4,4 0 0,0 12,12A4,4 0 0,0 16,8A4,4 0 0,0 12,4M12,14.9C14.97,14.9 18.1,16.36 18.1,17V18.1H5.9V17C5.9,16.36 9,14.9 12,14.9M12,5.9A2.1,2.1 0 0,1 14.1,8A2.1,2.1 0 0,1 12,10.1A2.1,2.1 0 0,1 9.9,8A2.1,2.1 0 0,1 12,5.9Z" />
+                                        </svg>
+                                    </div>
+                                    <label for="last_name">Last Name</label>
+                                </div>   
+                                <input id="last_name" type="text" name="lname" autocomplete="family-name" minlength="2" requiredonly />
+                    
+                            </div>
+                            <div class="F__input-block">
+                                <div class="F__field-attr">
+                                    <div class="F__svg-wrapper">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z" />
+                                        </svg>
+                                    </div>
+                                    <label for="phone">Phone Number</label>
+                                </div> 
+                                <input id="phone" type="tel" name="phone" autocomplete="tel" minlength="5" requiredonly />
+                                
+                            </div>
+
+                            <h2 class="F__subhead">number of pax</h2>
+
+                            <div class="F__input-block">
+                                <div class="F__field-attr">
+                                    <div class="F__svg-wrapper">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M7.5,2A2,2 0 0,1 9.5,4A2,2 0 0,1 7.5,6A2,2 0 0,1 5.5,4A2,2 0 0,1 7.5,2M6,7H9A2,2 0 0,1 11,9V14.5H9.5V22H5.5V14.5H4V9A2,2 0 0,1 6,7M16.5,2A2,2 0 0,1 18.5,4A2,2 0 0,1 16.5,6A2,2 0 0,1 14.5,4A2,2 0 0,1 16.5,2M15,22V16H12L14.59,8.41C14.84,7.59 15.6,7 16.5,7C17.4,7 18.16,7.59 18.41,8.41L21,16H18V22H15Z" />
+                                        </svg>
+                                    </div>
+                                    <label for="adult_num">Number Of Adult</label>
+                                </div> 
+                                <input id="adult_num" type="number" name="number_of_adult" value="1" min="0" autocomplete="off" requiredonly />
+                                
+                            </div>
+                            <div class="F__input-block">
+                                <div class="F__field-attr F__Fix_NC">
+                                    <div class="F__svg-wrapper">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M12,2A3,3 0 0,1 15,5A3,3 0 0,1 12,8A3,3 0 0,1 9,5A3,3 0 0,1 12,2M11,22H8V16H6V9H18V16H16V22H13V18H11V22Z" />
+                                        </svg>
+                                    </div>
+                                    <label for="child_num">Number Of Children</label>
+                                </div>
+                                <input id="child_num" type="number" name="number_of_children" min="0" autocomplete="off" />
+                                
+                            </div>
+                            <div class="F__input-block">
+                                <div class="F__field-attr">
+                                    <div class="F__svg-wrapper">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M18.5,4A2.5,2.5 0 0,1 21,6.5A2.5,2.5 0 0,1 18.5,9A2.5,2.5 0 0,1 16,6.5A2.5,2.5 0 0,1 18.5,4M4.5,20A1.5,1.5 0 0,1 3,18.5A1.5,1.5 0 0,1 4.5,17H11.5A1.5,1.5 0 0,1 13,18.5A1.5,1.5 0 0,1 11.5,20H4.5M16.09,19L14.69,15H11L6.75,10.75C6.75,10.75 9,8.25 12.5,8.25C15.5,8.25 15.85,9.25 16.06,9.87L18.92,18C19.2,18.78 18.78,19.64 18,19.92C17.22,20.19 16.36,19.78 16.09,19Z" />
+                                        </svg>
+                                    </div>
+                                    <label for="infant_num">Infants</label>
+                                </div>
+                                <input id="infant_num" type="number" name="number_of_infants" min="0" autocomplete="off" />  
+                                
+                            </div>
+                            <div class="F__input-block F__compensate F__textarea">
+                                <div class="F__field-attr F__Fix">
+                                    <div class="F__svg-wrapper">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M20.71,7.04C20.37,7.38 20.04,7.71 20.03,8.04C20,8.36 20.34,8.69 20.66,9C21.14,9.5 21.61,9.95 21.59,10.44C21.57,10.93 21.06,11.44 20.55,11.94L16.42,16.08L15,14.66L19.25,10.42L18.29,9.46L16.87,10.87L13.12,7.12L16.96,3.29C17.35,2.9 18,2.9 18.37,3.29L20.71,5.63C21.1,6 21.1,6.65 20.71,7.04M3,17.25L12.56,7.68L16.31,11.43L6.75,21H3V17.25Z"/>
+                                        </svg>
+                                    </div>
+                                    <label for="remarks">Remarks and wishes</label>
+                                </div>   
+                                <textarea id="remarks" name="remarks" cols="50" spellcheck="false" autocomplete="off"></textarea>
+
+                            </div>
+                        </div>
+
+                        <div class="F__layout-block">
+                            <div class="F__input-block">
+                                <div class="F__field-attr">
+                                    <div class="F__svg-wrapper">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                                        </svg>
+                                    </div>
+                                    <label for="email">E-Mail address</label>
+                                </div>
+                                <input id="email" type="email" name="email" autocomplete="email" requiredonly />
+
+                            </div>
+                            <div class="F__input-block">
+                                <div class="F__field-attr F__Fix_TD">
+                                    <div class="F__svg-wrapper">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M17.9,17.39C17.64,16.59 16.89,16 16,16H15V13A1,1 0 0,0 14,12H8V10H10A1,1 0 0,0 11,9V7H13A2,2 0 0,0 15,5V4.59C17.93,5.77 20,8.64 20,12C20,14.08 19.2,15.97 17.9,17.39M11,19.93C7.05,19.44 4,16.08 4,12C4,11.38 4.08,10.78 4.21,10.21L9,15V16A2,2 0 0,0 11,18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+                                        </svg>
+                                    </div>
+                                    <label for="destination">Travelling Destination</label>
+                                </div>
+                                <input id="destination" type="text" name="destination" minlength="2"  autocomplete="on" requiredonly />
+                        
+                            </div>
+
+                            <h2 class="F__subhead">pick dates</h2>
+                            
+                            <div class="F__input-block">
+                                <div class="F__field-attr">
+                                    <div class="F__svg-wrapper">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                                        </svg>
+                                    </div>
+                                    <label for="dep_date">Depature Date</label>
+                                </div>
+                                <input id="dep_date" type="date" name="date" autocomplete="on" required />
+
+                            </div>
+                            <div class="F__input-block">
+                                <div class="F__field-attr">
+                                    <div class="F__svg-wrapper">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M19,19H5V8H19M16,1V3H8V1H6V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3H18V1M17,12H12V17H17V12Z"/>
+                                        </svg>
+                                    </div>
+                                    <label for="arrive_date">Arrival Date</label>
+                                </div>
+                                <input id="arrive_date" type="date" name="date" autocomplete="on" required />
+
+                            </div>
+
+                            <h2 class="F__subhead">class</h2>
+                            <div class="F__cb-set">
+                                <div class="F__input-cb">
+                                    
+                                    <input id="first_cl" type="radio" name="class"/>
+
+                                    <label for="first_cl">
+                                        <div class="F__cb-attr">
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M17,17.5L12,15L7,17.5V5H5V19H19V5H17V17.5M12,12.42L14.25,13.77L13.65,11.22L15.64,9.5L13,9.27L12,6.86L11,9.27L8.36,9.5L10.35,11.22L9.75,13.77L12,12.42M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3Z"/>
+                                            </svg>
+                                            <p>First Class</p>
+                                        </div>
+                                        <div class="F__cb-wrapper">
+                                            <div class="F__cb-custom">
+                                                <div class="F__ripple"></div>
+                                            </div>
+                                            <div class="F__cb-container"></div> 
+                                        </div>
+                                        
+                                    </label>
+                                </div>
+
+                                <div class="F__input-cb">
+                                    
+                                    <input id="business_cl" type="radio" name="class"/>
+
+                                    <label for="business_cl">
+                                        <div class="F__cb-attr">
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M14,6H10V4H14M20,6H16V4L14,2H10L8,4V6H4C2.89,6 2,6.89 2,8V19A2,2 0 0,0 4,21H20A2,2 0 0,0 22,19V8C22,6.89 21.1,6 20,6Z"/>
+                                            </svg>
+                                            <p>Business Class</p>
+                                        </div>
+                                        <div class="F__cb-wrapper">
+                                            <div class="F__cb-custom">
+                                                <div class="F__ripple"></div>
+                                            </div>
+                                            <div class="F__cb-container"></div> 
+                                        </div>
+                                        
+                                    </label>
+                                </div>
+
+                                <div class="F__input-cb">
+                                    
+                                    <input id="econom_cl" type="radio" checked name="class"/>
+
+                                    <label for="econom_cl">
+                                        <div class="F__cb-attr">
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M20,14H4V8H7V10H9V8H15V10H17V8H20M20,19H4V17H20M9,4H15V6H9M20,6H17V4C17,2.89 16.11,2 15,2H9C7.89,2 7,2.89 7,4V6H4C2.89,6 2,6.89 2,8V19C2,20.11 2.89,21 4,21H20C21.11,21 22,20.11 22,19V8C22,6.89 21.11,6 20,6Z"/>
+                                            </svg>
+                                            <p>Economy Class</p>
+                                        </div>
+                                        <div class="F__cb-wrapper">
+                                            <div class="F__cb-custom">
+                                                <div class="F__ripple"></div>
+                                            </div>
+                                            <div class="F__cb-container"></div> 
+                                        </div>
+                                        
+                                    </label>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div class="F__submit">
+                        <button class="F__btn ripple" type="submit" name="action">
+                            <div class="F__btn-capt">Submit</div>
+                            <div class="F__btn-ico">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
+                                </svg>
+                            </div>
+                        </button>
+                    </div>
+                </form>
+            
+        </div>
+    </div>
+    </section>
+    <!--Notification messages-->
+        <div style="display:none;">
+            <div id="N__success">
+                <div class="mes">Your data has been sent, our agent will contact you</div>
+                <div class="btn">OK</div>
+            </div>
+            <div id="N__fail">
+                <div class="mes">Error occured, try again later</div>
+                <div class="btn">OK</div>
+            </div>
+        </div>
+    <!--end-->
+    <!-- Snake Bar Component -->
+    <div class="SB">
+        <div class="SB__bar-primary SB__bar-fill SB_stop"></div>
+        <div class="SB__bar-secondary SB__bar-fill SB_stop"></div>
+    </div>
+    <div class="SBP">
+        <div class="SBP__container">
+            <div class="SBP__message">Hello world</div>
+            <div class="SBP__btn-holder"><button class="SBP__btn ripple" id="SBP__action">Push</button></div>
+        </div>
+    </div>
+  <!--end-->
+
+<script src="/javascripts/services.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,202 @@
+
+    .S3{
+		width: 100%;
+		max-width: 1366px;
+			
+		background-color: #ffe4aa;
+			
+		font-family: 'Source Sans Pro', sans-serif;
+		font-weight: 400;
+		color: #5a6173;
+
+		overflow: hidden;
+	}
+    
+    .S3__mw{
+        overflow: inherit;
+    }
+    .S3__h {
+		text-align: center;
+		background-image: radial-gradient(rgba(0,0,0,0.1) 15%, transparent 16%), radial-gradient(rgba(0,0,0,0.1) 15%, transparent 16%), radial-gradient(rgba(255, 255, 255, 0.1) 15%, transparent 20%), radial-gradient(rgba(255, 255, 255, 0.1) 15%, transparent 20%);
+		background-position: 0 0px, 4px 4px, 0 1px, 4px 5px;
+		background-size: 8px 8px;
+	}
+    .S3__t {
+		font-size: 3em;
+		transform: translate(0,50px);
+		opacity: 0;
+		transition: all 1s ease-out;
+	}
+
+    .S3__a_o {
+		transform: translate(0,0);
+		opacity: 1;
+	}
+
+    .S3__ht {
+		font-size: 2em;
+		transform: scale(0);
+		transition: transform .4s ease-out;
+	}
+
+    .S3__ht-w {
+		position: relative;
+	}
+
+    .S3__ht-w::before {
+		content: "";
+		display: block;
+		position: absolute;
+		border-bottom: 2px solid #a77b7b;
+		width: 0%;
+		left: 0;
+		top: 48%;
+		transition: width .4s ease-out;
+	}
+		
+	.S3__ht-w::after {
+        content: "";
+		display: block;
+		position: absolute;
+		border-bottom: 2px solid #a77b7b;
+		width: 0%;
+		right: 0;
+        top: 48%;
+		transition: width .4s ease-out;
+	}
+
+    .S3__a_tw {
+		transform: scale(1);
+	}
+
+    .S3__pr {
+		display: flex;
+        margin-top: 20px;
+	}
+    
+	.S3__a-a {
+		overflow-x: hidden;
+	}
+	.S3__pr-p {
+		display: flex;
+	}
+	.S3__pr-w {
+		display: flex;
+        position: relative;
+	}
+		
+	.S3__pr-svg {
+		width: 150px;
+		height: 150px;
+		border-radius: 50%;
+	}
+		
+	.S3__pr-c {
+		align-self: center;
+		font-size: 1.2em;
+		transform: translate(10px);
+		opacity: 0;
+	}
+
+
+    @media all and (min-width: 1px) {
+        
+        .S3__h{
+            padding-top: 70px;
+            padding-bottom: 45px;
+        }
+        .S3__ht-w.S3__a_th::before, 
+		.S3__ht-w.S3__a_th::after{
+			width: 23%;
+		}
+        .S3__pr {
+            flex-direction: column;
+            padding-bottom: 50px;
+        }
+        .S3__pr-p{
+            flex-direction: column;
+        }
+        .S3__pr-w{
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 50px;
+        }
+        .S3__pr-svg{
+            padding-bottom: 20px;
+        }
+        .S3__pr-c{
+            padding-left: 25px;
+            padding-right: 25px;
+            text-align: center;
+        }
+    }
+    @media all and (min-width: 320px){
+        .S3__ht-w.S3__a_th::before, 
+		.S3__ht-w.S3__a_th::after{
+			width: 26%;
+		}
+    }
+    @media all and (min-width: 500px) {
+        .S3__ht-w.S3__a_th::before, 
+		.S3__ht-w.S3__a_th::after{
+			width: 32%;
+		}
+        .S3__pr-w {
+            flex-direction: row;
+            padding-bottom: 70px; 
+        }
+        .S3__pr-svg {
+            padding-left: 25px;
+            padding-bottom: 0; 
+        }
+    }
+    @media all and (min-width: 650px) {
+        .S3__pr {
+            width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+    @media all and (min-width: 800px) {
+        .S3__ht-w.S3__a_th::before, 
+		.S3__ht-w.S3__a_th::after{
+			width: 37%;
+		}
+        .S3__pr {
+            width: auto;
+            margin-left: 0;
+            margin-right: 0;
+        }
+        .S3__pr-p {
+            flex-direction: row;
+        }
+        .S3__t-i {
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+    @media all and (min-width: 1000px) {
+        
+        .S3__t-i {
+            width: 60%;
+            
+        }
+    }
+     @media all and (min-width: 1280px) {
+        .S3__ht-w.S3__a_th::before, 
+		.S3__ht-w.S3__a_th::after{
+			width: 43%;
+		}
+         .S3__pr {
+             flex-direction: row;
+         }
+         .S3__t-i {
+            width: auto;
+            margin-left: 0;
+            margin-right: 0;
+        }
+        .S3__pr-c{
+            text-align: left;
+        }
+     }

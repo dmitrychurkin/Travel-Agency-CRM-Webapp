@@ -1,0 +1,288 @@
+
+.S8{
+    overflow: hidden;
+    max-width: 1366px;
+    height: 100%;
+    position: relative;
+}
+.S8__slider{
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    user-select: none;
+}
+
+/*Controls*/
+
+.S8__ctrl{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    width: 12%;
+    transition: opacity 0.3s;
+    will-change: opacity;
+    opacity: 0;
+}
+.S8__ctrl:not(.S8__inactive):hover{
+    opacity: 1;
+    cursor: pointer;
+}
+.S8__c_left{
+    left: 0;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0) 100%);
+}
+.S8__c_right{
+    right: 0;
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0) 100%);
+}
+
+/*Bulets*/
+.S8__bulets{
+    position: absolute;
+    left: 50%;
+    bottom: 30px;
+    transform: translateX(-50%);
+    z-index: 4;
+}
+.S8__b{
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+    font-size: 0;
+}
+.S8__b-el{
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    width: 20px;
+    height: 20px;
+    margin: 0 5px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    cursor: pointer;
+}
+.S8__b-el::before{
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 15px;
+    height: 15px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s;
+    transform: translate(-50%, -50%) scale(0);
+}
+
+.S8__b-el.S8__active::before {
+    transform: translate(-50%, -50%) scale(1);
+}
+/*slides*/
+.S8__slides{
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    min-height: 500px;
+    max-height: 638px;
+}
+.S8__slide:nth-child(1){
+    left: 0%;
+}
+.S8__slide:nth-child(2){
+    left: 100%;
+}
+.S8__slide:nth-child(3){
+    left: 200%;
+}
+.S8__slide:nth-child(4){
+    left: 300%;
+}
+
+.S8__slide{
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+.S8__s-b{
+    position: absolute;
+    top: 0;
+    background-size: cover;
+    height: 100%;
+    width: 100%;
+}
+.IReady .S8__slide:nth-child(1) .S8__s-b{
+    left: 0;
+    background-image: url("../images/3d-slider-3.jpg");
+}
+.IReady .S8__slide:nth-child(2) .S8__s-b{
+    left: -50%;
+    background-image: url("../images/3d-slider-2.jpg");
+}
+.IReady .S8__slide:nth-child(3) .S8__s-b{
+    left: -100%;
+    background-image: url("../images/3d-slider-1.jpg");
+}
+.IReady .S8__slide:nth-child(4) .S8__s-b{
+    left: -150%;
+    background-image: url("../images/3d-slider-4.jpg");
+}
+.S8__slides.S8__animating,
+.S8__slides.S8__animating .S8__s-b {
+  transition: transform 0.5s;
+  will-change: transform;
+}
+
+/*Content*/
+.S8__s-c{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+}
+.S8__slide.S8__active .S8__s-c::before{
+    transform: translateX(-44%) rotateZ(45deg);
+    opacity: 1;
+    
+}
+.S8__slide .S8__s-c::before{
+    content: '';
+    display: block;
+    position: absolute;
+    z-index: 1;
+    width: 200%;
+    height: 200%;
+    opacity: 0;
+    transform: translateX(-50%) rotateZ(45deg);
+    transition: .3s .8s ease-out;
+}
+.S8__slide:nth-child(3n + 1) .S8__s-c::before{
+    background-color: rgba(233, 156, 126, .7);
+}
+.S8__slide:nth-child(3n + 2) .S8__s-c::before{
+    background-color: rgba(225, 204, 174, 0.7);
+}
+.S8__slide:nth-child(3n + 3) .S8__s-c::before{
+    background-color: rgba(173, 197, 205, 0.7);
+}
+.S8__slide:nth-child(3n + 4) .S8__s-c::before{
+     background-color: rgba(203, 198, 195, 0.7);
+}
+
+.S8__slide.S8__active .S8__t{
+    opacity: 1;
+    transform: translateY(0%);
+}
+.S8__slide .S8__t{
+    font-family: 'Pathway Gothic One', Arial, Helvetica, sans-serif;
+    position: absolute;
+    z-index: 2;
+
+    top: 15%;
+    left: 7%;
+    color: #fff;
+    transition: transform .5s 1s ease-out, opacity .5s 1s ease-out;
+    will-change: transform, opacity;
+    transform: translateY(-20%);
+    opacity: 0;
+    max-height: 375px;
+    overflow: hidden;
+}
+.S8__t-h-link, .S8__t-link{
+    color: #fff;
+    text-decoration: none;
+    display: inline-block;
+    margin: auto;
+    border-radius: 16px;
+    border: 2px solid #fff;
+}
+.S8__t-h-link {
+    border: none;
+}
+
+.S8__t-link button, .S8__t-h-link button {
+    outline: none;
+    border-radius: 16px;
+    border: none;
+    cursor: pointer;
+    width: 256px;
+    height: 55px;
+    color: #fff;
+    background-color: transparent;
+    font-size: 1.8em;
+    font-family: 'Pathway Gothic One', Arial, Helvetica, sans-serif;
+}
+.S8__t-h-link button {
+    width: 390px;
+    height: auto;
+    max-width: 390px;
+    padding: 0 20px;
+    min-height: 55px;
+    font-size: 3em;
+    text-align: left;
+}
+
+.S8__t-desc{
+    margin-top: 20px;
+    margin-bottom: 40px;
+    font-size: 1.3em;
+    width: 400px;
+}
+
+
+.S8__plugin{
+    position: absolute;
+    top: 20%;
+    left: 60%;
+    z-index: 3;
+}
+
+
+@media all and (max-width: 945px){
+    .S8__slide:nth-child(3n + 1) .S8__s-c{
+        background-color: rgba(233, 156, 126, .7);
+    }   
+    .S8__slide:nth-child(3n + 2) .S8__s-c{
+        background-color: rgba(225, 204, 174, 0.7);
+    }
+    .S8__slide:nth-child(3n + 3) .S8__s-c{
+        background-color: rgba(173, 197, 205, 0.7);
+    }
+    .S8__slide:nth-child(3n + 4) .S8__s-c{
+        background-color: rgba(203, 198, 195, 0.7);
+    }
+    .S8__slide .S8__s-c, .S8__slide.S8__active .S8__s-c{
+         height: 30%;
+         transition: height .3s .8s ease-out;
+    }
+    .S8__slide .S8__s-c{
+        height: 0%;
+        bottom: 0;
+    }
+    .S8__t-link, .S8__t-desc, .S8__slide .S8__s-c::before{
+        display: none;
+    }
+    .S8__slide .S8__t{
+        width: 100%;
+        left: 0;
+        display: flex;
+    }
+    
+    .S8__plugin{
+        left: 0;
+        width: 100%;
+        display: flex;
+    }
+    .S8__t-h-link {
+        border: 2px solid #fff;
+    }
+    .S8__t-h-link button {
+        width: auto;
+        font-size: 1.5em;
+        text-align: center;
+        max-width: initial;
+    }
+}

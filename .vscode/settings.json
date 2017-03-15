@@ -1,0 +1,13 @@
+// Поместите параметры в этот файл, чтобы перезаписать параметры по умолчанию и пользовательские параметры.
+{
+    "eslint.enable": false,
+    "tslint.enable": true,
+    "tslint.autoFixOnSave": true,
+    "files.exclude": {
+        "**/*.js": { "when": "$(basename).ts"},
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true
+    }
+}

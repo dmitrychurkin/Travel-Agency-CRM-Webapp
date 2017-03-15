@@ -1,0 +1,49 @@
+
+	.S5 {
+		max-width: 1366px;
+		overflow: hidden;
+		background-color: #fff;
+		position: relative;
+	}
+	.S5__m-w {
+		height: 100%;
+		overflow: hidden;
+		max-width: 1366px;
+	}
+	.S5__c-s{
+		width: 100%;
+		height: 100%;
+		cursor: none;
+		background: -webkit-radial-gradient(center, circle, #ffffff 24%, #ffffff 50%, #ffffff 100%); 
+		background: -ms-radial-gradient(center, circle, #ffffff 24%, #ffffff 50%, #ffffff 100%);
+		background: radial-gradient(center, circle, #ffffff 24%, #ffffff 50%, #ffffff 100%);
+		opacity: 0;
+		transition: all 1s ease-in-out;
+	}
+	
+	.S5_v {
+		background: -webkit-radial-gradient(center, circle, #ffffff 24%, #727be8 50%, #ffffff 100%);
+		background: -ms-radial-gradient(center, circle, #ffffff 24%, #727be8 50%, #ffffff 100%);
+		background: radial-gradient(center, circle, #ffffff 24%, #727be8 50%, #ffffff 100%);
+		opacity: 1;
+	}
+
+	#airplane2, #airplane1,
+	#floatingGlobe,
+	#countryObjects ,
+	#circle1,
+	#circle2,
+	#circle3,
+	#circle4,
+	#circle5{
+	  transform-origin: 200px 200px;
+	}
+	
+	#windmill {
+	  transform-origin: 331px 201px;
+	}
+
+	
+	
+
+	

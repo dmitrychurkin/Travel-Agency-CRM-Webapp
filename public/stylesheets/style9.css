@@ -1,0 +1,151 @@
+
+.S9{
+    max-width: 1366px;
+    overflow: hidden;
+    background-color: #fff;
+}
+.S9__wrap{
+    font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
+    font-size: 2em;
+    color: #222;
+}
+.S9__head{
+    padding: 0 15px;
+    padding-bottom: 20px;
+    padding-top: 50px;
+}
+.S9__head-cap{
+    font-weight: 200;
+    text-align: center;
+}
+.S9__peo-cont{
+    background-color: rgba(95, 158, 160, 0.37);
+    position: relative;
+}
+.S9__mask{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    background: linear-gradient(180deg,#fff,hsla(0,0%,100%,0), hsla(0,0%,100%,0),#fff);
+}
+.S9__p-img{
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin: 0 auto;
+    background-size: cover;
+}
+.S9__peo-list{
+    overflow: hidden;
+}
+
+.S9__peo-list h3{
+    color: #2b3848;
+    font-size: .8em;
+    font-weight: 600;
+}
+.S9__peo-list h4{
+    font-weight: 100;
+    font-size: .6em;
+    color: inherit;
+}
+.S9__peo-list ul{
+    list-style-type: none;
+    width: 100%;
+    height: 400px;
+    padding-right: 17px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    display: flex;
+    flex-flow: wrap row;
+    justify-content: center;
+}
+.S9__peo-list ul::after, .S9__peo-list ul::before{
+    content: '';
+    display: block;
+    height: 375px;
+    width: 100%;
+}
+.S9__peo-list blockquote{
+    position: relative;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin: 32px 0 0;
+    background: #fff;
+    font-size: .5em;
+    text-align: left;
+    box-shadow: 0 0 10px rgba(0,0,0,.3);
+    color: inherit;
+}
+.S9__peo-list blockquote:last-child {
+    text-align: center;
+}
+.S9__peo-list b {
+    font-weight: 700;
+}
+.IReady .S9__p1{
+    background-image: url('../images/CharlieSuttie-b-200w.jpg');
+}
+.IReady .S9__p2{
+    background-image: url('../images/JacobCheriathundam-200w.jpg');
+}
+.IReady .S9__p3{
+    background-image: url('../images/IvaDopud-200w.jpg');
+}
+.IReady .S9__p4{
+    background-image: url('../images/ChuckDuncan-200w.jpg');
+}
+.IReady .S9__p5{
+    background-image: url('../images/MattDuvall-200w.jpg');
+}
+.IReady .S9__p6{
+    background-image: url('../images/FredericFiliatrault-200w.jpg');
+}
+.IReady .S9__p7{
+    background-image: url('../images/BrianPrince-200w.jpg');
+}
+.IReady .S9__p8{
+    background-image: url('../images/GrahamChurchley-200w.jpg');
+}
+.IReady .S9__p9{
+    background-image: url('../images/JustinMurphy-200w.jpg');
+}
+.IReady .S9__p10{
+    background-image: url('../images/RobertDunaway-200w.jpg');
+}
+.IReady .S9__p11{
+    background-image: url('../images/JegorUglov-200w.jpg');
+}
+.IReady .S9__p12{
+    background-image: url('../images/SeanMcGill-200w.jpg');
+}
+.IReady .S9__p13{
+    background-image: url('../images/SenthilChinnathambi-200w.jpg');
+}
+.IReady .S9__p14{
+    background-image: url('../images/MiquelFonolleda-200w.jpg');
+}
+.IReady .S9__p15{
+    background-image: url('../images/VijayGanta-200w.jpg');
+}
+.IReady .S9__p16{
+    background-image: url('../images/question.svg');
+    background-color: #fff;
+}
+.S9__peo-rew{
+    width: 306px;
+    display: block;
+    text-align: center;
+    padding: 35px;
+}
+@media all and (min-width: 1px){
+    .S9__head-cap{
+        font-size: 1.1em;
+    }
+}
+@media all and (min-width: 400px){
+    .S9__head-cap{
+        font-size: 1.5em;
+    }
+}

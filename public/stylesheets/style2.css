@@ -1,0 +1,27 @@
+
+    .S2 {
+         max-width: 1366px;
+         overflow: hidden;
+         background-color: #fff;
+         position: relative;
+    }
+    
+    .S2__lC {
+        display: block;
+    }
+
+    @media all and (min-width: 1px) {
+        .S2__lC {
+            height: 190px;
+        }
+    }
+    @media all and (min-width: 500px) {
+        .S2__lC {
+            height: 300px;
+        }
+    }
+     @media all and (min-width: 900px) {
+        .S2__lC {
+            height: 320px;
+        }
+    }

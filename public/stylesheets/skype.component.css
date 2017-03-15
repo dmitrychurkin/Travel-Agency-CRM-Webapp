@@ -1,0 +1,36 @@
+
+.skype {
+    width: 50px;
+    height: 50px;
+    fill: #00bfff;
+}
+.sk__tt {
+    height: 100px;
+    width: 200px;
+    background-color: #fff;
+    border: 2px solid #00bfff;
+    border-radius: 7px;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .5s linear;
+    position: absolute;
+    z-index: 3;
+    top:0;
+}
+.sk__btn {
+    height: 50px;
+    width: 100%;
+}
+.sk__link {
+    display: block;
+    height: inherit;
+    width: inherit;
+    line-height: 50px;
+    font-size: 1.5em;
+    font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
+    text-align: center;
+    color: #00bfff;
+}
+.sk__link .rippleEffect {
+    background-color: #00bfff;
+}

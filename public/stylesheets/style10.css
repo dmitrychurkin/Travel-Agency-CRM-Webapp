@@ -1,0 +1,248 @@
+
+.S10{
+    max-width: 1366px;
+    overflow: hidden;
+    background-color: #fff;
+}
+.S10 ul{
+    list-style-type: none;
+}
+.S10 p {
+    font-weight: 200;
+}
+.S10__wrap1, .S10__wrap2, .S10__wrap3{
+    background-color: rgba(0, 0, 0, 0.3);
+    font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
+    color: #fff;
+    position: relative;
+}
+.IReady .S10__serv{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    /*z-index: -1;*/
+    background: rgba(0, 0, 0, 0.3) url("/images/Lonely-Blue_100.jpg") no-repeat;
+    background-size: cover;
+    transition: .3s ease-out;
+}
+
+.S10__vid{
+    width: 100%;
+}
+
+.S10__cont{
+    text-align: center;
+    transform: translateY(50px);
+    opacity: 0;
+    margin: auto;
+    transition: 1s ease-out;
+}
+.S10__cont.S10__a{
+    opacity: 1;
+    transform: translateY(0);
+}
+.S10__hgroup h1{
+    font-weight: 200;
+    padding: 0 10px;
+}
+.S10__hgroup h2 {
+    font-weight: 400;
+    padding: 0 10px;
+}
+.S10__art{
+    margin: 0 auto;
+    padding: 0 10px;
+}
+.S10__wrap2{
+    height: 214px;
+    background-color: #222;
+    position: relative;
+}
+.S10__wrap2::after{
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-top: 25px solid transparent;
+    border-right: 30px solid transparent;
+    border-left: 30px solid transparent;
+    border-top-color: #222222;
+    position: absolute;
+    left: 50%;
+    margin-left: -30px;
+    bottom: -25px;
+}
+.S10__sub-cont{
+    padding-top: 20px;
+    text-align: center;
+}
+.S10__sub-cont h2{
+    font-size: 2em;
+    font-weight: 200;
+    transform: translateX(100%);
+}
+.S10__sub-cont p {
+    transform: translateX(-100%);
+}
+.S10__sub-cont h2, .S10__sub-cont p {
+    padding: 0 20px;
+}
+.S10__wrap2.S10__a h2, .S10__wrap2.S10__a p {
+    transform: translateX(0%);
+    transition: .5s ease-out;
+}
+.S10__wrap3{
+    background-color: #fff;
+    /*z-index: -1;*/
+}
+.S10__c-cont {
+    margin-top: 65px;
+    padding-bottom: 40px;
+    /*border-bottom: 2px solid black;*/
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+.S10__it{
+    color: #444;
+    text-align: center;
+    padding: 20px;
+}
+.S10__it ul {
+    position: relative;
+}
+.S10__icon-c{
+    width: 30px;
+    margin: 0 auto;
+}
+.S10__icon-c path{
+    fill: #da4545;
+}
+.S10__num{
+    font-size: 3em;
+    position: relative;
+    z-index: 2;
+    background-color: #fff;
+}
+.S10__sep{
+    position: relative;
+    z-index: 2;
+}
+
+.S10__sep::after{
+    content: '';
+    display: block;
+    border-top: 2px solid grey;
+}
+.S10__num ~ .S10__it-c{
+    text-transform: uppercase;
+    position: relative;
+    z-index: 1;
+    transform: translateY(-100%);
+    
+}
+.S10__num.S10__a ~ .S10__it-c {
+    transform: translateY(0%);
+    transition: .5s ease-out;
+}
+.S10__btn button {
+    outline: none;
+    width: 230px;
+    height: 56px;
+    background-color: rgba(255, 255, 255, 0.19);
+    color: #fff;
+    border-radius: 16px;
+    border: none;
+    
+    cursor: pointer;
+}
+@media all and (min-width: 1px){
+    .S10__wrap1{
+        min-height: 430px;
+        display: flex;
+    }
+    .S10__vid{
+        display: none;
+    }
+    
+    .S10__wrap1 .S10__cont{
+        padding-top: 0;
+    }
+    .S10__serv {
+        filter: blur(5px);
+        box-shadow: 0px 0px 13px 14px black;
+    }
+    .S10__art{
+        width: auto;
+    }
+    
+    .S10__hgroup h1 {
+        font-size: 2em;
+    }
+    .S10__hgroup h2{
+        font-size: 1.5em;
+    }
+    .S10__btn{
+        margin-top: 5%;
+    }
+    .S10__btn button {
+        font-size: 1.3em;
+    }
+}
+@media all and (min-width: 550px){
+    .S10__hgroup h1 {
+        font-size: 2.5em;
+    }
+    .S10__hgroup h2{
+        font-size: 2em;
+    }
+}
+
+@media all and (min-width: 775px){
+    .S10__wrap1{
+        min-height: auto;
+    }
+    .S10__vid{
+        display: block;
+    }
+    .S10__serv {
+        filter: blur(0px);
+        box-shadow: 0px 0px 0px 0px black;
+    }
+    .S10__art{
+        width: 436px;
+    }
+    .S10__hgroup h1 {
+        font-size: 3em;
+    }
+    .S10__hgroup h2{
+        font-size: 2.5em;
+    }
+    
+}
+@media all and (min-width: 900px){
+    .S10__wrap1{
+        display: block;
+    }
+    .S10__wrap1 .S10__cont{
+        padding-top: 100px;
+    }
+    S10__hgroup h1 {
+        font-size: 4em;
+    }
+    .S10__hgroup h2{
+        font-size: 3em;
+    }
+    .S10__btn{
+        margin-top: 7%;
+    }
+    .S10__btn button {
+        font-size: 1.7em;
+    }
+    
+}
+@media all and (min-width: 1100px) {
+    .S10__btn{
+        margin-top: 15%;
+    }
+}

@@ -1,0 +1,49 @@
+        .chips-material{
+            display: inline-block;
+            margin: auto;
+        }
+        .chip{
+            transform: translateX(500%);
+        }
+        .chip__anim{
+            transform: translateX(0%);
+            transition: .3s;
+        }
+        .chip__cont{
+            display: inline-flex;
+            background-color: #e4e4e4;
+            color: rgba(0,0,0,0.6);
+            border-radius: 16px;
+        }
+       .IReady .chip__bg{
+           background: #fff url('../images/yuna.jpg');
+           background-size: cover;
+           width: 30px;
+           height: 30px;
+           border-radius: 50%;
+       }
+       .chip__capt{
+            margin: 0;
+            padding: 0;
+            font-family: 'Pathway Gothic One', Arial, Helvetica, sans-serif;
+            font-weight: 600;
+            padding-left: 7px;
+            font-size: 1.2em;
+            line-height: 28px;
+       }
+       .chip__stars{
+           display: flex;
+           align-items: center;
+           padding-left: 7px;
+       }
+       
+       .chip__stars svg{
+           width: 24px; 
+           height: 24px;
+           padding-right: 3px;
+           transform: scale(0);
+       }
+       .chip__stars .chip__star_init{
+           transform: scale(1);
+           transition: .3s;
+       }

@@ -1,0 +1,16 @@
+node_modules/**
+**/vendor/*.js
+regenerator.js
+build/**
+bin/**
+public/**
+routes/**
+views/**
+/app.js
+
+
+
+**/DOM_polyfills.js
+
+
+
