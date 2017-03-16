@@ -7,8 +7,8 @@ import uglify from 'rollup-plugin-uglify';
 import json from 'rollup-plugin-json';
 
 export default{
-    entry: 'src/main.js',
-    dest: 'public/javascripts/build.js',
+    entry: 'src/client/main.js',
+    dest: 'dist/public/javascripts/build.js',
     format: 'iife',
     sourceMap: false,
     moduleName: '_WFW_',
