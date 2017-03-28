@@ -2,6 +2,9 @@
     padding: 0;
     margin: 0;
 }
+.B {
+    overflow-x: hidden;
+}
 button {
     border: none;
     outline: none;

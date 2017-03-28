@@ -1,6 +1,7 @@
 "use strict";
 const express = require("express");
 const path = require("path");
+const favicon = require("serve-favicon");
 const logger = require("morgan");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
@@ -21,6 +22,7 @@ class App {
         this.express.set("view engine", "ejs");
     }
     _middleware() {
+        this.express.use(favicon(path.join(__dirname, "public", "favicon.ico")));
         this.express.use(logger("dev"));
         this.express.use(bodyParser.json());
         this.express.use(bodyParser.urlencoded({ extended: false }));

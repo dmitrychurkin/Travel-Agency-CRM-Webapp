@@ -6,7 +6,7 @@ var Section2 = (function (_super) {
         var _this = _super.call(this) || this;
         _this.MainText = document.querySelector(".S2__mT");
         _this.BottomTextAll = Array.from(document.querySelectorAll(".S2__bc"));
-        _this._U_IntersectionObserver(".S2__lim", function () { return _this._combineScene1(); });
+        _this._U_IntersectionObserver(".S2", function () { return _this._combineScene1(); }, true, .5);
         return _this;
     }
     Section2.prototype._combineScene1 = function () {

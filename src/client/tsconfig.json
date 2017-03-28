@@ -51,7 +51,6 @@
         "./app.js",
         "public",
         "routes",
-        "services",
         "./*.json"
     ]
 }

@@ -30,6 +30,7 @@ export default class Section1 extends Utilities {
     // private offer = document.querySelector(".S1__r-g");
     Scene: HTMLElement = document.getElementById("S1__sc")!;
     BgImg: string = ".S1__bgi";
+    private isReadyForCl = false;
 
     constructor() {
         super();
@@ -38,6 +39,7 @@ export default class Section1 extends Utilities {
     }
     _onCl() {
         return (e: any) => {
+            if (!this.isReadyForCl) return;
             let targ = e.target;
             if (targ.closest(".S1__r-g")) {
                 TweenLite.to(window, 3, {
@@ -62,6 +64,7 @@ export default class Section1 extends Utilities {
 
                 ParallaxNsp.P_mod.classList.add("S1__ok");
                 ParallaxNsp.set(this.Scene);
+                setTimeout(() => { this.isReadyForCl = true; }, 2000);
                 this._U_IntersectionObserver(".S1", this._U_StateTrigger(
                     () => ParallaxNsp.enableParallax(),
                     () => ParallaxNsp.disableParallax()

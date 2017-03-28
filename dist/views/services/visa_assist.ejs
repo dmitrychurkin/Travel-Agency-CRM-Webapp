@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Air ticketing and reservation</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400"/>
+    <link rel="stylesheet" href="/stylesheets/services/forms_new.css">
+    <link rel="stylesheet" href="/stylesheets/rippleMaterialModule.css">
+    <link rel="stylesheet" href="/stylesheets/services/articles.css">
+    <link rel="stylesheet" href="/stylesheets/services/snackProgressBar.css">
+    <link rel="stylesheet" href="/stylesheets/services/modalPopup.css">
+    <style>*{margin:0;padding:0;}</style>
+    
+</head>
+<body>
+<main class="Root">
+<article class="S__ar">
+    <header class="S__tit">
+        <h1>Visa assistance</h1>
+    </header>
+    <div class="S__cont">
+        <p>Visa allows people to visit countries for a holiday or to visit family and friends or for short business visits. Visitor Visas are granted for a specific duration depending on the applicant’s circumstances at the time of application. They can be single entry visas, permitting just one entry into a country or they can be granted for multiple visits should you have a necessity to visit a number of times within a specified period. The multiple entry visas are generally aimed at business people, however, anyone can apply for such status with a valid reason.</p>
+        <p>The company has expertise and experience in following visa categories such as Tourist Visa Applications, Appeals of Rejected Visas, Business visa and Transit visa.</p>
+    </div>
+<%-include('../partials/visa_assist_body');%>
+</article>
+</main>
+<div class="Modal">
+    <button class="Modal__close-btn">
+        <span class="Modal__closeIcon">×</span>
+        <span class="Modal__closeLabel">Close</span>
+    </button>
+    <div class="Modal__cont">
+        <!--<div class="Modal__pad"></div>-->
+    </div>
+    <footer class="Modal__ctrls">
+        <button class="Modal__call"><a class="Modal__call-link" href="skype:echo123?call">Online consultant</a></button>
+        <button class="Modal__can">Cancel</button>
+    </footer>
+</div>
+<script src="/javascripts/debug/modalPop.js"></script>
+</body>
+</html>

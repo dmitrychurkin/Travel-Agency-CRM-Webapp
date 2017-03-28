@@ -1,5 +1,6 @@
 import * as tslib_1 from "tslib";
 import Utilities from "./Utilities";
+import ParserS7 from "../plugins/parserS7";
 var Section7 = (function (_super) {
     tslib_1.__extends(Section7, _super);
     function Section7(Http, URIs) {
@@ -14,6 +15,7 @@ var Section7 = (function (_super) {
         _this.ease = Sine.easeOut;
         _this.permitToClose = false;
         _this.permitToOpen = true;
+        _this.Parser = new ParserS7();
         _this.isCanSendForm = true;
         _this._U_EventListSetter("click", _this._onCl());
         var cards = document.querySelectorAll(".S7__flipper"), cardsIt = cards[Symbol.iterator]();
@@ -51,28 +53,23 @@ var Section7 = (function (_super) {
             }
             var f = target.closest(".S7__flipper");
             if (f && f.classList.contains("S7__anim-end") && permitToOpen) {
-                var _b = _this, S7_1 = _b.S7, ResponseStore = _b.ResponseStore, Http = _b.Http, services = _b.URIs.services;
+                var _b = _this, Parser_1 = _b.Parser, Http = _b.Http, services = _b.URIs.services;
                 _this.permitToOpen = false;
                 _this.flipTarget = f;
                 _this._openPane(_this.flipTarget.parentNode);
-                var actionFn_1 = function (resObj) {
-                    var codeId = _this.flipTarget.dataset, objWithData = resObj.get(S7_1.id)[codeId.code], locator = objWithData.meta, assets = resObj.get(S7_1.id)[locator];
-                    if (assets.isWatched)
-                        return {
-                            c: objWithData.c,
-                            w: true
-                        };
-                    var atob = window.atob, c = objWithData.c, s = assets.s, j = assets.j;
-                    assets.isWatched = true;
-                    assets.s = assets.j = null;
-                    return {
-                        c: objWithData.c = atob(c),
-                        s: atob(s),
-                        j: atob(j)
-                    };
+                var parserFn_1 = function () {
+                    var dataset = _this.flipTarget.dataset;
+                    var LC = _this.LoadedContent.style;
+                    if (dataset.tint) {
+                        LC.backgroundColor = "rgba(128, 128, 128, 0.34)";
+                    }
+                    else {
+                        LC.backgroundColor = "";
+                    }
+                    return Parser_1.InitParsing(dataset.code);
                 };
-                if (ResponseStore) {
-                    _this.fetchedContent = Promise.resolve(ResponseStore).then(actionFn_1);
+                if (Parser_1.Model) {
+                    _this.fetchedContent = Promise.resolve().then(parserFn_1);
                 }
                 else {
                     _this.fetchedContent = Http.sendReq({
@@ -83,8 +80,9 @@ var Section7 = (function (_super) {
                         }
                     })
                         .then(function (res) {
-                        _this.ResponseStore = new Map().set(S7_1.id, JSON.parse(res));
-                        return actionFn_1(_this.ResponseStore);
+                        Parser_1.Model = JSON.parse(res);
+                        setTimeout(function () { return Parser_1.AllocateAddons(); });
+                        return parserFn_1();
                     });
                 }
             }
@@ -188,38 +186,44 @@ var Section7 = (function (_super) {
             ContWrapper.style.zIndex = "-1";
             LoadedContent.style.display = "block";
             _this.fetchedContent.then(function (objWithData) {
-                var c = objWithData.c, s = objWithData.s, j = objWithData.j, w = objWithData.w;
+                var c = objWithData.c, s = objWithData.s, j = objWithData.j;
                 _this.ContainerContent = _this._insertContent(c);
-                if (!w) {
+                if (s && j) {
                     _this._U_TagsFact("style", s);
                     _this._U_TagsFact("script", j);
                 }
-                var FormModule = new window._FM_;
-                FormModule.setModule({
-                    onClS: function () { return FormModule.canceller(); },
-                    onClF: function (enableAll) { return FormModule.snackBar.closePane(null, enableAll); },
-                    onAfClose: function () { return _this.isCanSendForm = true; }
-                }, function () { return (FormModule.onCloseForm(), _this._closePane()); });
-                commonActions();
+                var dataset = _this.flipTarget.dataset;
+                _this.ServiceModule = new window._FM_(dataset.subject);
+                var ServiceModule = _this.ServiceModule;
+                if (dataset.subject === "form") {
+                    ServiceModule.setModule({
+                        onClS: function () { return ServiceModule.canceller(); },
+                        onClF: function (enableAll) { return ServiceModule.snackBar.closePane(null, enableAll); },
+                        onAfClose: function () { _this.isCanSendForm = true; ServiceModule.snackBar.destroyPane(); }
+                    }, function () { ServiceModule.unsetModule(); _this._closePane(); });
+                }
             })
                 .catch(function () {
                 var prob = Placeholder.querySelector(".S7__network-problem");
                 prob.style.display = "block";
                 prob.querySelector("h2").innerHTML = _this._notificator;
                 _this.ContainerContent = LoadedContent;
-                commonActions();
-            });
+            })
+                .then(commonActions);
         });
     };
     Section7.prototype._closePane = function () {
         var _this = this;
-        var _a = this, S7 = _a.S7, Placeholder = _a.Placeholder, LoadedContent = _a.LoadedContent, ContWrapper = _a.ContWrapper, CardsWrapper = _a.CardsWrapper, ContainerContent = _a.ContainerContent, flipTarget = _a.flipTarget, clonedFlipper = _a.clonedFlipper, ease = _a.ease;
+        var _a = this, S7 = _a.S7, Placeholder = _a.Placeholder, LoadedContent = _a.LoadedContent, ContWrapper = _a.ContWrapper, CardsWrapper = _a.CardsWrapper, ContainerContent = _a.ContainerContent, flipTarget = _a.flipTarget, clonedFlipper = _a.clonedFlipper, ease = _a.ease, ServiceModule = _a.ServiceModule;
         var helperFn = function () {
             if (Placeholder.style.height) {
                 return Placeholder;
             }
             return LoadedContent.offsetHeight < ContWrapper.offsetHeight ? LoadedContent : Container;
         }, activeTarget = flipTarget.parentNode, Container = S7.firstElementChild, flipperChild = clonedFlipper.firstElementChild;
+        if (ServiceModule) {
+            ServiceModule.unsetModule();
+        }
         return this._U_timelineFactory(this._U_objVarsForTimeline({ paused: false }, [function () {
                 activeTarget.classList.remove("S7__active");
                 clonedFlipper.remove();

@@ -5,11 +5,12 @@
     position: fixed;
     width: 100%;
     top: 0;
-    transition: .5s;
     opacity: 0;
     z-index: 1000;
 }
-
+.SB__r {
+    transition: .5s;
+}
 .SB__bar-fill{
     height: 100%;
     position: absolute;

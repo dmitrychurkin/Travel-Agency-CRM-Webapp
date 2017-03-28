@@ -2,7 +2,7 @@ import HttpController, { ICommonOptionsToPass }  from "../plugins/http.module";
 
 type HttpOptions = { url: string | string[], options: ICommonOptionsToPass };
 export default class Scheduller {
-    private Timer: number | null;
+    private Timer: NodeJS.Timer | null;
     private col: null | Array<string>;
     private OnLine: null | (() => void);
     private Timeout: number = 5000;

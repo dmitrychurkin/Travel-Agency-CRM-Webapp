@@ -50,12 +50,15 @@
 }
 .F__input-block.F__active input, .F__input-block.F__active textarea{
     border-bottom: 1px solid #26a69a;
+    box-shadow: 0px 2px 0px 0px #26a69a;
 }
 .F__input-block.F__valid input, .F__input-block.F__valid textarea{
     border-bottom: 1px solid #4CAF50;
+    box-shadow: 0px 2px 0px 0px #4CAF50;
 }
 .F__input-block.F__invalid input, .F__input-block.F__invalid textarea{
     border-bottom: 1px solid #F44336;
+    box-shadow: 0px 2px 0px 0px #F44336;
 }
 .F__field-attr{
     position: relative;
@@ -96,7 +99,7 @@
 }
 .F__inform{
     position: absolute;
-    top: 60%;
+    top: 62%;
     font-size: 1em;
     opacity: 0;
     transition: .2s ease-out;
@@ -345,3 +348,7 @@ input[type="radio"]:checked + label .F__cb-custom::after{
     
 }
 /*end Responsive breakpoints*/
+
+.F__input-block.F__active label span {
+    color: #ff9b00;
+}

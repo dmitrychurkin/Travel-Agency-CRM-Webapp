@@ -70,7 +70,7 @@
     backface-visibility: visible;
     width: 100%;
     height: 100%;
-    
+    transform: translateZ(1px);
     border-radius: 3px;
     overflow: hidden;
     
@@ -79,7 +79,7 @@
     display: flex;
 }*/
 .S7__card_back{
-    transform: rotateY(180deg);
+    transform: rotateY(180deg) translateZ(1px);
     display: flex;
     flex-flow: nowrap column;
     align-items: center;

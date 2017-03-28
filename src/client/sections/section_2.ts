@@ -7,7 +7,7 @@ export default class Section2 extends Utilities {
 
         constructor() {
             super();
-            this._U_IntersectionObserver(".S2__lim", () => this._combineScene1());
+            this._U_IntersectionObserver(".S2", () => this._combineScene1(), true, .5);
         }
         private _combineScene1() {
             let Plane = document.querySelector(".S2__plane")!;

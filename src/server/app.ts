@@ -1,7 +1,7 @@
 import { Application, Request, Response, NextFunction } from "express";
 import * as express from "express";
 import * as path from "path";
-// import * as favicon from "serve-favicon";
+import * as favicon from "serve-favicon";
 import * as logger from "morgan";
 import * as cookieParser from "cookie-parser";
 import * as bodyParser from "body-parser";
@@ -27,7 +27,7 @@ class App {
   }
   private _middleware() {
     // uncomment after placing your favicon in /public
-    // this.express.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+    this.express.use(favicon(path.join(__dirname, "public", "favicon.ico")));
     this.express.use(logger("dev"));
     this.express.use(bodyParser.json());
     this.express.use(bodyParser.urlencoded({ extended: false }));

@@ -1,78 +1,63 @@
-// for debag only
-/*import Utilities from "../sections/Utilities";
-window._WFW_ = new Utilities;
-let a: any = window._WFW_;
-a._U_FnShim();*/
-//
+
 import SnackBarService from "./snackBarService";
 import Scheduller from "./schedullerService";
-
+import ClientFormValidator from "./formValidator";
+import LocalStorageService from "./localStorageService";
+import ModalPop from "./modalPop";
 type FormModuleInitParamsObject = {
     onClS?: (a?: any) => void;
     onClF?: (a?: any) => void;
     onAfClose?: (a?: any) => void;
 };
-class ClientFormValidator {
-    protected _checkValidity(target: HTMLInputElement) {
-        if (target.checkValidity) {
-            return target.checkValidity();
-        }
-        // stub
-        return true;
-    }
-    protected _whiteSpaceWatcher(value: string, target: HTMLInputElement) {
-        let arrValue = value.split(" ").filter((item: string) => !!item);
-        if (arrValue.length > 1) {
-            target.value = arrValue.join(" ");
-        }else {
-            target.value = arrValue.join("");
-        }
-    }
-    protected _validateField(target: HTMLInputElement) {
-        let value = target.value.trim();
-        let targetParent = <HTMLElement>target.parentNode;
-        if (value) {
-            targetParent.classList.add("F__dirty");
-            if (this._checkValidity(target)) {
-                this._whiteSpaceWatcher(value, target);
-                this._setMessage(target);
-                targetParent.classList.add("F__valid");
-            }else {
-                this._setMessage(target);
-                targetParent.classList.add("F__invalid");
-            }
-        }else {
-            if (target.required) {
-                this._setMessage(target);
-                targetParent.classList.add("F__invalid");
-            }
-            targetParent.classList.remove("F__dirty");
-            target.value = "";
-        }
-        targetParent.classList.remove("F__active");
-    }
-    protected _setMessage(target: any) {
-        target.parentNode.querySelector(".F__inform").innerHTML = target.validationMessage || "";
-    }
+function applyMixins(derivedCtor: any, baseCtors: any[]) {
+  baseCtors.forEach(baseCtor => {
+    Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
+      derivedCtor.prototype[name] = baseCtor.prototype[name];
+    });
+  });
 }
 
 
-export default class FormModule extends ClientFormValidator {
+export default class FormModule implements ClientFormValidator, LocalStorageService {
+    // ClientFormValidator
+    checkValidity: (target: HTMLInputElement) => boolean;
+    whiteSpaceWatcher: (value: string, target: HTMLInputElement) => void;
+    validateField: (target: HTMLInputElement) => void;
+    setMessage: (target: any) => void;
+    // LocalStorageService
+    H_Flag: string = "que";
+    U_Flag: string = "user";
+    LS: boolean;
+    isLSSupport: () => void;
+    userDataBuffLS: (dataAttr?: string) => (input?: HTMLInputElement) => () => void;
+    userDataUnBuffLS: () => false | ((input: HTMLInputElement) => void);
+    userDataKillBuffLS: () => void;
+    hydratorLS: (reqId: string) => boolean;
+
+    // FormModule
     private OnRes: (a?: any) => void;
     private OnFocus: (a?: any) => void;
     private OnBlur: (a?: any) => void;
     private OnSub: (a?: any) => void;
     private Base: any = window._WFW_;
-    private H_Flag: string = "que";
     private scheduller: Scheduller;
     private snackBar: SnackBarService = new SnackBarService();
-    constructor() {
-        super();
-        this.scheduller = new Scheduller(this.Base.httpService);
-        this._setOnAllInputs();
-        this.OnRes = this._onLayoutChange(Array.from(document.querySelectorAll(".F__textarea")), document.querySelectorAll(".F__layout-block"));
-        this.OnRes();
-        this.Base._U_EventListSetter("resize", this.OnRes);
+    private modalPopIns: ModalPop;
+    constructor(subject: string) {
+        switch (subject) {
+            case "form": {
+                this.isLSSupport();
+                this.scheduller = new Scheduller(this.Base.httpService);
+                this._setOnAllInputs();
+                this.OnRes = this._onLayoutChange(Array.from(document.querySelectorAll("[data-layout]")), document.querySelectorAll(".F__layout-block"));
+                this.OnRes();
+                this.Base._U_EventListSetter("resize", this.OnRes);
+                break;
+            }
+            default : {
+                this.modalPopIns = ModalPop.setPlugin();
+            }
+        }
     }
     private get LANG(){
         return window.SITE_LANG || "EN";
@@ -94,10 +79,12 @@ export default class FormModule extends ClientFormValidator {
             }
         };
     }
-    private _formSerializer(form: HTMLFormElement) {
+    private _formSerializer(form: HTMLFormElement): [{ ACTION: string, SITE_LANG: string } & IS, () => void] {
         let resultElements = form.querySelectorAll(".F__form-wrap input:not([type=submit]), .F__form-wrap textarea");
         let outPut: IS = {};
+        let buffer = this.userDataBuffLS();
         for (let input of <any>resultElements){
+            buffer(input);
             if (input.type === "radio" || input.type === "checkbox") {
                 if (input.checked) {
                     outPut[input.id] = true;
@@ -110,26 +97,10 @@ export default class FormModule extends ClientFormValidator {
             }
         }
 
-        return Object.assign({ ACTION: "REGISTER", SITE_LANG: this.LANG }, outPut);
+        return [Object.assign({ ACTION: "REGISTER", SITE_LANG: this.LANG }, outPut), buffer()];
     }
     private _delay(fn: () => void) {
         setTimeout(fn, 1000);
-    }
-
-    private _hydratorLS(reqId: string) {
-        if ("localStorage" in window) {
-            const{ H_Flag } = this;
-            let str = localStorage.getItem(H_Flag);
-            if (!str) {
-                localStorage.setItem(H_Flag, [reqId].join(", "));
-            }else {
-                let arr = str.split(", ");
-                arr.push(reqId);
-                localStorage.setItem(H_Flag, arr.join(", "));
-            }
-            return true;
-        }
-        return false;
     }
     private _disableBtn(btn: HTMLButtonElement) {
         btn.disabled = true;
@@ -148,12 +119,13 @@ export default class FormModule extends ClientFormValidator {
             this.Base.S7.isCanSendForm = false;
             let SB: ((Extractor: any, actionFnOnClick?: ((a?: any) => void)[] | ((a?: any) => void) | undefined, onAfterPaneClose?: ((a?: any) => void)[] | ((a?: any) => void) | undefined) => void) | null = this.snackBar.config();
             this._disableBtn(submitBtn);
-
-            this.Base.httpService.sendReq(this._httpOpts(this.Base.S7.URIs.order, this._formSerializer(target)))
+            const outputFormSerializer = this._formSerializer(target);
+            this.Base.httpService.sendReq(this._httpOpts(this.Base.S7.URIs.order, outputFormSerializer[0]))
                 .then((res: any) => {
                     res = JSON.parse(res);
                     this.Base.ReqID = res.reqId;
                     if (Function.isFn(OnSuccess)) OnSuccess!();
+                    outputFormSerializer[1]();
                     SB!({ mes: res.info, btn: document.querySelector("#N__register .N__success .btn")!.innerHTML, autoClose: true, disabled: false }, onClS, onAfClose);
 
                 })
@@ -161,7 +133,7 @@ export default class FormModule extends ClientFormValidator {
                     if (Function.isFn(OnFail)) OnFail!();
                     SB!(
                         this._forWidgetExtractor({ selectorName: "#N__register .N__fail" }),
-                        () => onClF!(() => { this.Base.S7.isCanSendForm = true; this._enableBtn(submitBtn); }),
+                        () => onClF!(() => { this.Base.S7.isCanSendForm = true; this._enableBtn(submitBtn); this.snackBar.destroyPane(); }),
                         [() => this._enableBtn(submitBtn)!, onAfClose!]
                     );
 
@@ -215,10 +187,13 @@ export default class FormModule extends ClientFormValidator {
             },
             this.OnBlur = (e: Event) => {
                 let target: any = e.target;
-                this._validateField(target);
+                this.validateField(target);
             };
-
+        const userDataFromLS = this.userDataUnBuffLS();
         for (let input of inputsArr){
+            if (userDataFromLS) {
+                userDataFromLS(input);
+            }
             if (input.type === "checkbox" || input.type === "radio") continue;
             this._createMesPh(input);
             this._setDefDate(input);
@@ -229,14 +204,21 @@ export default class FormModule extends ClientFormValidator {
     }
     private _onLayoutChange(elementsToAppend: Array<Element>, appendTo: NodeListOf<Element>) {
         const DEADLINE = 923;
+        const insertionPointToUp = document.querySelectorAll("[data-ins-point]");
+        let isLayoutChanged = false;
         return () => {
-            if (document.documentElement.offsetWidth < DEADLINE) {
+            const docWidth = document.documentElement.offsetWidth;
+            if (docWidth < DEADLINE && !isLayoutChanged) {
+                isLayoutChanged = true;
                 elementsToAppend.forEach(el => {
-                    appendTo[1].appendChild(el);
+                    let isDataLayoutUp = el.hasAttribute("data-layout-up");
+                    isDataLayoutUp ? appendTo[0].insertBefore(el, insertionPointToUp[0]) : appendTo[1].appendChild(el);
                 });
-            }else {
+            }else if (docWidth >= DEADLINE && isLayoutChanged) {
+                isLayoutChanged = false;
                 elementsToAppend.forEach(el => {
-                    appendTo[0].appendChild(el);
+                    let isDataLayoutUp = el.hasAttribute("data-layout-up");
+                    isDataLayoutUp ? appendTo[1].insertBefore(el, insertionPointToUp[1]) : appendTo[0].appendChild(el);
                 });
             }
         };
@@ -245,6 +227,8 @@ export default class FormModule extends ClientFormValidator {
         const{ LANG, Base, H_Flag, scheduller, snackBar } = this;
         let onAfterClose = () => {
                 Base.S7.isCanSendForm = true;
+                Base.ReqID = null;
+                snackBar.destroyPane();
             },
             Fn = (mes: string, onClick= () => snackBar.closePane(null!, onAfterClose)) => snackBar.setNotificator({ mes, btn: this.Default_btn, autoClose: true, disabled: false }, onClick, onAfterClose),
             body = { ACTION: "CANCEL", SITE_LANG: LANG, reqId: Base.ReqID };
@@ -254,9 +238,10 @@ export default class FormModule extends ClientFormValidator {
         Base.httpService.sendReq(httpOptions)
             .then((res: any) => this._delay(() => Fn(res)))
             .catch(() => this._delay(() => {
-                this._hydratorLS(Base.ReqID) ? (scheduller && Function.isFn(scheduller.watch) && scheduller.watch(H_Flag, httpOptions)) : null;
+                this.hydratorLS(Base.ReqID) ? (scheduller && Function.isFn(scheduller.watch) && scheduller.watch(H_Flag, httpOptions)) : null;
                 Fn(document.querySelector("#N__cancel .N__fail .mes")!.innerHTML);
-            }));
+            }))
+            .then(() => this.userDataKillBuffLS());
     }
     onCloseForm() {
         window.removeEventListener("resize", this.OnRes);
@@ -275,4 +260,12 @@ export default class FormModule extends ClientFormValidator {
             this.Base._U_EventListSetter("submit", this.OnSub, form);
         }
     }
+    unsetModule() {
+        if (this.modalPopIns) {
+            this.modalPopIns.unsetPlugin();
+        }else {
+            this.onCloseForm();
+        }
+    }
 };
+applyMixins(FormModule, [ClientFormValidator, LocalStorageService]);

@@ -1,6 +1,6 @@
 import Utilities from "./Utilities";
 import HttpController from "../plugins/http.module";
-
+import ParserS7 from "../plugins/parserS7";
 type IncomingContent = {
     c: string;
     s?: string;
@@ -21,8 +21,10 @@ export default class Section7 extends Utilities {
     private permitToClose: boolean = false;
     private permitToOpen: boolean = true;
     private fetchedContent: Promise<IncomingContent>;
-    private ResponseStore: Map<string, IS>;
+    // private ResponseStore: Map<string, IS>;
+    private Parser: ParserS7 = new ParserS7();
     isCanSendForm: boolean = true;
+    private ServiceModule: any;
     constructor(private Http: HttpController,  private URIs: { services: string , order: string}) {
         super();
         this._U_EventListSetter("click", this._onCl());
@@ -64,13 +66,13 @@ export default class Section7 extends Utilities {
 
             let f = target.closest(".S7__flipper");
             if (f && f.classList.contains("S7__anim-end") && permitToOpen) {
-                const{ S7, ResponseStore, Http, URIs: { services } } = this;
+                const{ /*S7, ResponseStore,*/ Parser, Http, URIs: { services } } = this;
 
                 this.permitToOpen = false;
                 this.flipTarget = f;
 
                 this._openPane(<HTMLElement>this.flipTarget.parentNode);
-                let actionFn = (resObj: Map<string, IS>) => {
+                /*let actionFn = (resObj: Map<string, IS>) => {
                     let codeId: any = this.flipTarget.dataset,
                         objWithData = resObj.get(S7.id)![codeId.code],
                         locator = objWithData.meta,
@@ -88,9 +90,19 @@ export default class Section7 extends Utilities {
                         s: atob(s),
                         j: atob(j)
                     };
+                };*/
+                const parserFn = () => {
+                    const dataset: any = this.flipTarget.dataset;
+                    const LC = this.LoadedContent.style;
+                    if (dataset.tint) {
+                        LC.backgroundColor = "rgba(128, 128, 128, 0.34)";
+                    }else {
+                        LC.backgroundColor = "";
+                    }
+                    return Parser.InitParsing(dataset.code);
                 };
-                if (ResponseStore) {
-                    this.fetchedContent = Promise.resolve(ResponseStore).then(actionFn);
+                if (/*ResponseStore*/Parser.Model) {
+                    this.fetchedContent = Promise.resolve(/*ResponseStore*/).then(/*actionFn*/ parserFn);
                 }else {
                     this.fetchedContent = Http.sendReq({
                         url: services,
@@ -100,8 +112,11 @@ export default class Section7 extends Utilities {
                         }
                     })
                     .then((res: string) => {
-                        this.ResponseStore = new Map().set(S7.id, JSON.parse(res));
-                        return actionFn(this.ResponseStore);
+                        // this.ResponseStore = new Map().set(S7.id, JSON.parse(res));
+                        Parser.Model =  JSON.parse(res);
+                        setTimeout(() => Parser.AllocateAddons());
+                        // return actionFn(this.ResponseStore);
+                        return parserFn();
                     });
                 }
             }
@@ -205,34 +220,39 @@ export default class Section7 extends Utilities {
                 LoadedContent.style.display = "block";
                 // async
                 this.fetchedContent.then(objWithData => {
-                    const{ c, s, j, w } = objWithData;
+                    const{ c, s, j/*, w*/ } = objWithData;
                     this.ContainerContent = <HTMLElement>this._insertContent(c);
-                    if (!w) {
+                    if (/*!w*/s && j) {
                         this._U_TagsFact("style", s!);
                         this._U_TagsFact("script", j!);
                     }
 
-                    const FormModule: any = new window._FM_;
-                    FormModule.setModule({
-                        onClS: () => FormModule.canceller(),
-                        onClF: (enableAll: () => void) => FormModule.snackBar.closePane(null, enableAll),
-                        onAfClose: () => this.isCanSendForm = true
-                    }, () => (FormModule.onCloseForm(), this._closePane()) );
-                    commonActions();
+                    let dataset: any = this.flipTarget.dataset;
+
+                    this.ServiceModule = new window._FM_(dataset.subject);
+                    const{ServiceModule} = this;
+                    if (dataset.subject === "form") {
+                        ServiceModule.setModule({
+                            onClS: () => ServiceModule.canceller(),
+                            onClF: (enableAll: () => void) => ServiceModule.snackBar.closePane(null, enableAll),
+                            onAfClose: () => { this.isCanSendForm = true; ServiceModule.snackBar.destroyPane(); }
+                        }, () => { ServiceModule.unsetModule(); this._closePane(); } );
+                    }
+                    // commonActions();
                 })
                 .catch(() => {
                     let prob = <HTMLElement>Placeholder.querySelector(".S7__network-problem")!;
                     prob.style.display = "block";
                     prob.querySelector("h2")!.innerHTML = this._notificator;
                     this.ContainerContent = LoadedContent;
-                    commonActions();
-                });
-
+                    // commonActions();
+                })
+                .then(commonActions);
                 // end async
             });
     }
     private _closePane() {
-        const{ S7, Placeholder, LoadedContent, ContWrapper, CardsWrapper, ContainerContent, flipTarget, clonedFlipper, ease } = this;
+        const{ S7, Placeholder, LoadedContent, ContWrapper, CardsWrapper, ContainerContent, flipTarget, clonedFlipper, ease, ServiceModule } = this;
         let helperFn = () => {
                 if (Placeholder.style.height) {
                     return Placeholder;
@@ -243,6 +263,9 @@ export default class Section7 extends Utilities {
 
             Container = S7.firstElementChild,
             flipperChild = <HTMLElement>clonedFlipper.firstElementChild;
+        if (ServiceModule) {
+            ServiceModule.unsetModule();
+        }
         return this._U_timelineFactory(this._U_objVarsForTimeline({paused: false}, [() => {
             activeTarget.classList.remove("S7__active");
             clonedFlipper.remove();

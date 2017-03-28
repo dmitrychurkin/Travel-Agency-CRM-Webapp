@@ -57,6 +57,7 @@
 .👍 .M__ol {
 	background-color: rgba(136, 126, 126, 0.83);
 	visibility: visible;
+	overflow-y: scroll;
 }
 .M__b {
 	overflow: visible;
@@ -129,6 +130,12 @@
 }
 .👍 .M__b .M__li:nth-child(5)  {
 	transition-delay: 0.8s;
+}
+.👍 .M__b .M__li:nth-child(6)  {
+	transition-delay: 0.9s;
+}
+.👍 .M__b .M__li:nth-child(7)  {
+	transition-delay: 1s;
 }
 .👍 .M__b .M__li {
 	opacity: 1;
@@ -235,7 +242,7 @@
 		width: 210px;
 	}
 	.M__l  {
-		font-size: 1.6em;
+		font-size: 1.3em;
 		line-height: 2.3em;
 	}
 }
@@ -256,7 +263,7 @@
 		width: 270px;
 	}
 	.M__l  {
-		font-size: 1.7em;
+		font-size: 1.5em;
 		line-height: 2.4em;
 	}
 }

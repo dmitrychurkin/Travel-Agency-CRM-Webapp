@@ -21,7 +21,7 @@ export default class Section3 extends Utilities {
         this.Figure_1 = this._Obj;
         this.Figure_2 = this._Obj;
         this.Figure_3 = this._Obj;
-        this._U_IOSetter(".S3__lim", [ () => (this.Figure_1.visible = true, this._icon1(), fn()), () => (this.Figure_2.visible = true, this._icon2()), () => (this.Figure_3.visible = true, this._icon3()) ]);
+        this._U_IOSetter(".S3__pr-w", [ () => (this.Figure_1.visible = true, this._icon1(), fn()), () => (this.Figure_2.visible = true, this._icon2()), () => (this.Figure_3.visible = true, this._icon3()) ], true, 0);
     }
     private get _Obj() {
         return {

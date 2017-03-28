@@ -2,7 +2,10 @@ var SnackBarService = (function () {
     function SnackBarService() {
         this._isCicleFinish = true;
         this.delayToClose = 5000;
-        setTimeout(function () { return document.querySelector(".SBP").classList.add("SBP__r"); }, 500);
+        setTimeout(function () {
+            SnackBarService.SBP.classList.add("SBP__r");
+            SnackBarService.SB.classList.add("SB__r");
+        }, 500);
     }
     SnackBarService.prototype._resetTime = function () {
         clearTimeout(this.TimerId);
@@ -47,7 +50,7 @@ var SnackBarService = (function () {
         return this.OnRes;
     };
     SnackBarService.prototype._alignPane = function (pane) {
-        if (pane === void 0) { pane = document.querySelector(".SBP"); }
+        if (pane === void 0) { pane = SnackBarService.SBP; }
         var winWidth = document.body.offsetWidth, paneWidth = pane.offsetWidth;
         if (paneWidth >= winWidth) {
             pane.style.left = 0 + "px";
@@ -62,11 +65,15 @@ var SnackBarService = (function () {
             this.TimerId = setTimeout(function () { return _this.closePane(onBeforePaneClose, onAfterPaneClose, linkToPane); }, this.delayToClose);
         }
     };
+    SnackBarService.prototype.destroyPane = function () {
+        var SBP_btn = SnackBarService.SBP_btn, SBP_mes = SnackBarService.SBP_mes;
+        SBP_mes.innerHTML = SBP_btn.innerHTML = "";
+    };
     SnackBarService.prototype.showBar = function (withBar) {
         if (withBar === void 0) { withBar = true; }
         if (!withBar)
             return;
-        var SB = document.querySelector(".SB");
+        var SB = SnackBarService.SB;
         for (var _i = 0, _a = SB.children; _i < _a.length; _i++) {
             var b = _a[_i];
             b.classList.remove("SB_stop");
@@ -75,18 +82,18 @@ var SnackBarService = (function () {
     };
     SnackBarService.prototype.setNotificator = function (_a, actionFnOnClick, onAfterPaneClose) {
         var mes = _a.mes, btn = _a.btn, _b = _a.disabled, disabled = _b === void 0 ? false : _b, _c = _a.autoClose, autoClose = _c === void 0 ? false : _c;
-        var linkToPane = document.querySelector(".SBP"), b = document.querySelector(".SBP__btn");
-        document.querySelector(".SBP__message").innerHTML = mes;
-        b.removeEventListener("click", this.OnClickBtn);
-        b.innerHTML = btn;
-        b.disabled = disabled;
+        var SBP = SnackBarService.SBP, SBP_btn = SnackBarService.SBP_btn, SBP_mes = SnackBarService.SBP_mes;
+        SBP_mes.innerHTML = mes;
+        SBP_btn.removeEventListener("click", this.OnClickBtn);
+        SBP_btn.innerHTML = btn;
+        SBP_btn.disabled = disabled;
         if (!this._isCicleFinish) {
-            this._alignPane(linkToPane);
+            this._alignPane(SBP);
         }
         if (!disabled) {
-            b.addEventListener("click", this._onClickBtn(b, actionFnOnClick, linkToPane));
+            SBP_btn.addEventListener("click", this._onClickBtn(SBP_btn, actionFnOnClick, SBP));
         }
-        this._delayedClose(autoClose, null, onAfterPaneClose, linkToPane);
+        this._delayedClose(autoClose, null, onAfterPaneClose, SBP);
     };
     SnackBarService.prototype.hideBar = function (withBar, openSnakeBar) {
         var _this = this;
@@ -94,7 +101,7 @@ var SnackBarService = (function () {
         if (openSnakeBar === void 0) { openSnakeBar = null; }
         setTimeout(function () {
             if (withBar) {
-                var SB = document.querySelector(".SB");
+                var SB = SnackBarService.SB;
                 SB.addEventListener("transitionend", _this._onTransitEnd(SB, [function (transTarg) { return Array.from(transTarg.children).forEach(function (child) { return child.classList.add("SB_stop"); }); }, openSnakeBar]));
                 SB.classList.remove("SB__show");
             }
@@ -107,18 +114,18 @@ var SnackBarService = (function () {
     };
     SnackBarService.prototype.closePane = function (onBeforePaneClose, onAfterPaneClose, paneTarg) {
         var _this = this;
-        if (paneTarg === void 0) { paneTarg = document.querySelector(".SBP"); }
+        if (paneTarg === void 0) { paneTarg = SnackBarService.SBP; }
         this._resetTime();
-        var b = document.querySelector(".SBP__btn");
-        b.disabled = true;
+        var SBP_btn = SnackBarService.SBP_btn;
+        SBP_btn.disabled = true;
         this._normCbs(onBeforePaneClose).forEach(function (fn) { return Function.isFn(fn) ? fn(paneTarg) : fn; });
-        paneTarg.addEventListener("transitionend", this._onTransitEnd(paneTarg, [function () { return b.removeEventListener("click", _this.OnClickBtn); }, function (paneTarg) { return _this._resetPane(paneTarg); }, function () { _this._isCicleFinish = true; }].concat(this._normCbs(onAfterPaneClose))));
+        paneTarg.addEventListener("transitionend", this._onTransitEnd(paneTarg, [function () { return SBP_btn.removeEventListener("click", _this.OnClickBtn); }, function (paneTarg) { return _this._resetPane(paneTarg); }, function () { _this._isCicleFinish = true; }].concat(this._normCbs(onAfterPaneClose))));
         paneTarg.classList.remove("SBP__open");
     };
     SnackBarService.prototype.openPane = function (onBeforePaneOpen, onAfterPaneOpen, onBeforePaneClose, onAfterPaneClose, withAutoClose) {
         var _this = this;
         if (withAutoClose === void 0) { withAutoClose = false; }
-        var SBP = document.querySelector(".SBP");
+        var SBP = SnackBarService.SBP;
         this._normCbs(onBeforePaneOpen).forEach(function (fn) { return Function.isFn(fn) ? fn(SBP) : fn; });
         this._alignPane(SBP);
         window.addEventListener("resize", this._onRes(SBP));
@@ -140,4 +147,8 @@ var SnackBarService = (function () {
     return SnackBarService;
 }());
 export default SnackBarService;
+SnackBarService.SBP = document.querySelector(".SBP");
+SnackBarService.SB = document.querySelector(".SB");
+SnackBarService.SBP_btn = document.querySelector(".SBP__btn");
+SnackBarService.SBP_mes = document.querySelector(".SBP__message");
 ;

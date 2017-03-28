@@ -32,12 +32,16 @@ var Section1 = (function (_super) {
         var _this = _super.call(this) || this;
         _this.Scene = document.getElementById("S1__sc");
         _this.BgImg = ".S1__bgi";
+        _this.isReadyForCl = false;
         _this._U_EventListSetter("click", _this._onCl());
         _this.ScrollerPlg = new ScrollerCustom({ $target: ".S1__p_h", $placeholder: ".S1" });
         return _this;
     }
     Section1.prototype._onCl = function () {
+        var _this = this;
         return function (e) {
+            if (!_this.isReadyForCl)
+                return;
             var targ = e.target;
             if (targ.closest(".S1__r-g")) {
                 TweenLite.to(window, 3, {
@@ -61,6 +65,7 @@ var Section1 = (function (_super) {
             mockLayer.remove();
             ParallaxNsp.P_mod.classList.add("S1__ok");
             ParallaxNsp.set(_this.Scene);
+            setTimeout(function () { _this.isReadyForCl = true; }, 2000);
             _this._U_IntersectionObserver(".S1", _this._U_StateTrigger(function () { return ParallaxNsp.enableParallax(); }, function () { return ParallaxNsp.disableParallax(); }), false, 0);
             _this._U_GC_TO_DEL({
                 Scene: !!1,

@@ -7,8 +7,8 @@ import uglify from 'rollup-plugin-uglify';
 import json from 'rollup-plugin-json';
 
 export default{
-    entry: 'src/services/services.js',
-    dest: 'public/javascripts/services.min.js',
+    entry: 'src/client/services/services.js',
+    dest: 'dist/public/javascripts/services.min.js',
     format: 'iife',
     sourceMap: false,
     moduleName: '_FM_',

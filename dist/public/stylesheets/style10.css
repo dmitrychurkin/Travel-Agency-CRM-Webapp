@@ -6,6 +6,7 @@
 }
 .S10 ul{
     list-style-type: none;
+    background-color: inherit;
 }
 .S10 p {
     font-weight: 200;

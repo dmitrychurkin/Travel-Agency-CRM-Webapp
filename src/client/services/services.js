@@ -1,67 +1,35 @@
-import * as tslib_1 from "tslib";
 import SnackBarService from "./snackBarService";
 import Scheduller from "./schedullerService";
-var ClientFormValidator = (function () {
-    function ClientFormValidator() {
-    }
-    ClientFormValidator.prototype._checkValidity = function (target) {
-        if (target.checkValidity) {
-            return target.checkValidity();
-        }
-        return true;
-    };
-    ClientFormValidator.prototype._whiteSpaceWatcher = function (value, target) {
-        var arrValue = value.split(" ").filter(function (item) { return !!item; });
-        if (arrValue.length > 1) {
-            target.value = arrValue.join(" ");
-        }
-        else {
-            target.value = arrValue.join("");
-        }
-    };
-    ClientFormValidator.prototype._validateField = function (target) {
-        var value = target.value.trim();
-        var targetParent = target.parentNode;
-        if (value) {
-            targetParent.classList.add("F__dirty");
-            if (this._checkValidity(target)) {
-                this._whiteSpaceWatcher(value, target);
-                this._setMessage(target);
-                targetParent.classList.add("F__valid");
+import ClientFormValidator from "./formValidator";
+import LocalStorageService from "./localStorageService";
+import ModalPop from "./modalPop";
+function applyMixins(derivedCtor, baseCtors) {
+    baseCtors.forEach(function (baseCtor) {
+        Object.getOwnPropertyNames(baseCtor.prototype).forEach(function (name) {
+            derivedCtor.prototype[name] = baseCtor.prototype[name];
+        });
+    });
+}
+var FormModule = (function () {
+    function FormModule(subject) {
+        this.H_Flag = "que";
+        this.U_Flag = "user";
+        this.Base = window._WFW_;
+        this.snackBar = new SnackBarService();
+        switch (subject) {
+            case "form": {
+                this.isLSSupport();
+                this.scheduller = new Scheduller(this.Base.httpService);
+                this._setOnAllInputs();
+                this.OnRes = this._onLayoutChange(Array.from(document.querySelectorAll("[data-layout]")), document.querySelectorAll(".F__layout-block"));
+                this.OnRes();
+                this.Base._U_EventListSetter("resize", this.OnRes);
+                break;
             }
-            else {
-                this._setMessage(target);
-                targetParent.classList.add("F__invalid");
+            default: {
+                this.modalPopIns = ModalPop.setPlugin();
             }
         }
-        else {
-            if (target.required) {
-                this._setMessage(target);
-                targetParent.classList.add("F__invalid");
-            }
-            targetParent.classList.remove("F__dirty");
-            target.value = "";
-        }
-        targetParent.classList.remove("F__active");
-    };
-    ClientFormValidator.prototype._setMessage = function (target) {
-        target.parentNode.querySelector(".F__inform").innerHTML = target.validationMessage || "";
-    };
-    return ClientFormValidator;
-}());
-var FormModule = (function (_super) {
-    tslib_1.__extends(FormModule, _super);
-    function FormModule() {
-        var _this = _super.call(this) || this;
-        _this.Base = window._WFW_;
-        _this.H_Flag = "que";
-        _this.snackBar = new SnackBarService();
-        _this.scheduller = new Scheduller(_this.Base.httpService);
-        _this._setOnAllInputs();
-        _this.OnRes = _this._onLayoutChange(Array.from(document.querySelectorAll(".F__textarea")), document.querySelectorAll(".F__layout-block"));
-        _this.OnRes();
-        _this.Base._U_EventListSetter("resize", _this.OnRes);
-        return _this;
     }
     Object.defineProperty(FormModule.prototype, "LANG", {
         get: function () {
@@ -95,8 +63,10 @@ var FormModule = (function (_super) {
     FormModule.prototype._formSerializer = function (form) {
         var resultElements = form.querySelectorAll(".F__form-wrap input:not([type=submit]), .F__form-wrap textarea");
         var outPut = {};
+        var buffer = this.userDataBuffLS();
         for (var _i = 0, _a = resultElements; _i < _a.length; _i++) {
             var input = _a[_i];
+            buffer(input);
             if (input.type === "radio" || input.type === "checkbox") {
                 if (input.checked) {
                     outPut[input.id] = true;
@@ -109,26 +79,10 @@ var FormModule = (function (_super) {
                 outPut[input.id] = input.value.trim();
             }
         }
-        return Object.assign({ ACTION: "REGISTER", SITE_LANG: this.LANG }, outPut);
+        return [Object.assign({ ACTION: "REGISTER", SITE_LANG: this.LANG }, outPut), buffer()];
     };
     FormModule.prototype._delay = function (fn) {
         setTimeout(fn, 1000);
-    };
-    FormModule.prototype._hydratorLS = function (reqId) {
-        if ("localStorage" in window) {
-            var H_Flag = this.H_Flag;
-            var str = localStorage.getItem(H_Flag);
-            if (!str) {
-                localStorage.setItem(H_Flag, [reqId].join(", "));
-            }
-            else {
-                var arr = str.split(", ");
-                arr.push(reqId);
-                localStorage.setItem(H_Flag, arr.join(", "));
-            }
-            return true;
-        }
-        return false;
     };
     FormModule.prototype._disableBtn = function (btn) {
         btn.disabled = true;
@@ -147,18 +101,20 @@ var FormModule = (function (_super) {
             _this.Base.S7.isCanSendForm = false;
             var SB = _this.snackBar.config();
             _this._disableBtn(submitBtn);
-            _this.Base.httpService.sendReq(_this._httpOpts(_this.Base.S7.URIs.order, _this._formSerializer(target)))
+            var outputFormSerializer = _this._formSerializer(target);
+            _this.Base.httpService.sendReq(_this._httpOpts(_this.Base.S7.URIs.order, outputFormSerializer[0]))
                 .then(function (res) {
                 res = JSON.parse(res);
                 _this.Base.ReqID = res.reqId;
                 if (Function.isFn(OnSuccess))
                     OnSuccess();
+                outputFormSerializer[1]();
                 SB({ mes: res.info, btn: document.querySelector("#N__register .N__success .btn").innerHTML, autoClose: true, disabled: false }, onClS, onAfClose);
             })
                 .catch(function () {
                 if (Function.isFn(OnFail))
                     OnFail();
-                SB(_this._forWidgetExtractor({ selectorName: "#N__register .N__fail" }), function () { return onClF(function () { _this.Base.S7.isCanSendForm = true; _this._enableBtn(submitBtn); }); }, [function () { return _this._enableBtn(submitBtn); }, onAfClose]);
+                SB(_this._forWidgetExtractor({ selectorName: "#N__register .N__fail" }), function () { return onClF(function () { _this.Base.S7.isCanSendForm = true; _this._enableBtn(submitBtn); _this.snackBar.destroyPane(); }); }, [function () { return _this._enableBtn(submitBtn); }, onAfClose]);
             })
                 .then(function () {
                 SB = null;
@@ -210,10 +166,14 @@ var FormModule = (function (_super) {
         },
             this.OnBlur = function (e) {
                 var target = e.target;
-                _this._validateField(target);
+                _this.validateField(target);
             };
+        var userDataFromLS = this.userDataUnBuffLS();
         for (var _i = 0, inputsArr_1 = inputsArr; _i < inputsArr_1.length; _i++) {
             var input = inputsArr_1[_i];
+            if (userDataFromLS) {
+                userDataFromLS(input);
+            }
             if (input.type === "checkbox" || input.type === "radio")
                 continue;
             this._createMesPh(input);
@@ -225,15 +185,22 @@ var FormModule = (function (_super) {
     };
     FormModule.prototype._onLayoutChange = function (elementsToAppend, appendTo) {
         var DEADLINE = 923;
+        var insertionPointToUp = document.querySelectorAll("[data-ins-point]");
+        var isLayoutChanged = false;
         return function () {
-            if (document.documentElement.offsetWidth < DEADLINE) {
+            var docWidth = document.documentElement.offsetWidth;
+            if (docWidth < DEADLINE && !isLayoutChanged) {
+                isLayoutChanged = true;
                 elementsToAppend.forEach(function (el) {
-                    appendTo[1].appendChild(el);
+                    var isDataLayoutUp = el.hasAttribute("data-layout-up");
+                    isDataLayoutUp ? appendTo[0].insertBefore(el, insertionPointToUp[0]) : appendTo[1].appendChild(el);
                 });
             }
-            else {
+            else if (docWidth >= DEADLINE && isLayoutChanged) {
+                isLayoutChanged = false;
                 elementsToAppend.forEach(function (el) {
-                    appendTo[0].appendChild(el);
+                    var isDataLayoutUp = el.hasAttribute("data-layout-up");
+                    isDataLayoutUp ? appendTo[1].insertBefore(el, insertionPointToUp[1]) : appendTo[0].appendChild(el);
                 });
             }
         };
@@ -243,6 +210,8 @@ var FormModule = (function (_super) {
         var _a = this, LANG = _a.LANG, Base = _a.Base, H_Flag = _a.H_Flag, scheduller = _a.scheduller, snackBar = _a.snackBar;
         var onAfterClose = function () {
             Base.S7.isCanSendForm = true;
+            Base.ReqID = null;
+            snackBar.destroyPane();
         }, Fn = function (mes, onClick) {
             if (onClick === void 0) { onClick = function () { return snackBar.closePane(null, onAfterClose); }; }
             return snackBar.setNotificator({ mes: mes, btn: _this.Default_btn, autoClose: true, disabled: false }, onClick, onAfterClose);
@@ -252,9 +221,10 @@ var FormModule = (function (_super) {
         Base.httpService.sendReq(httpOptions)
             .then(function (res) { return _this._delay(function () { return Fn(res); }); })
             .catch(function () { return _this._delay(function () {
-            _this._hydratorLS(Base.ReqID) ? (scheduller && Function.isFn(scheduller.watch) && scheduller.watch(H_Flag, httpOptions)) : null;
+            _this.hydratorLS(Base.ReqID) ? (scheduller && Function.isFn(scheduller.watch) && scheduller.watch(H_Flag, httpOptions)) : null;
             Fn(document.querySelector("#N__cancel .N__fail .mes").innerHTML);
-        }); });
+        }); })
+            .then(function () { return _this.userDataKillBuffLS(); });
     };
     FormModule.prototype.onCloseForm = function () {
         window.removeEventListener("resize", this.OnRes);
@@ -275,7 +245,16 @@ var FormModule = (function (_super) {
             this.Base._U_EventListSetter("submit", this.OnSub, form);
         }
     };
+    FormModule.prototype.unsetModule = function () {
+        if (this.modalPopIns) {
+            this.modalPopIns.unsetPlugin();
+        }
+        else {
+            this.onCloseForm();
+        }
+    };
     return FormModule;
-}(ClientFormValidator));
+}());
 export default FormModule;
 ;
+applyMixins(FormModule, [ClientFormValidator, LocalStorageService]);

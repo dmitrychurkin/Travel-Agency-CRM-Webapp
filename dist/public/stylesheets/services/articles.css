@@ -1,0 +1,73 @@
+.S__ar {
+    font-family: "Source Sans Pro", Arial, Helvetica, sans-serif;
+    color: #5a6173;
+    padding: 50px 30px 60px 30px;
+}
+.S__tit {
+    text-align: center;
+    color: #036;
+}
+.S__tit h1 {
+    font-weight: 400;
+    font-size: 35px;
+}
+
+.S__cont {
+    font-size: 1.3em;
+    padding-top: 15px;
+    padding-bottom: 30px;
+    text-indent: 1.5em;
+    font-weight: 200;
+}
+
+.S__sub {
+    text-align: left;
+    font-weight: 400;
+    font-size: 28px;
+    padding-left: 2em;
+}
+.S__ser {
+    padding-left: 2.7em;
+    font-size: 1.3em;
+    padding-bottom: 20px;
+}
+.S__vis {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.S__cel {
+    cursor: pointer;
+}
+.S__con {
+    padding: 10px 30px;
+}
+.S__con-i {
+    width: 150px;
+    height: 100px;
+}
+.S__con figcaption {
+    text-align: center;
+}
+.S__mod {
+    display: none;
+}
+.S__embedd {
+    font-family: "Source Sans Pro", Arial, Helvetica, sans-serif;
+    color: #5a6173;
+}
+.S__embedd h2:first-child {
+    text-transform: uppercase;
+}
+.S__embedd-fee h2:first-child {
+    text-transform: capitalize;
+}
+.S__embedd-link {
+    text-decoration: none;
+    font-size: 14px;
+    color: #ff0000;
+}
+.S__embedd-warn {
+    font-size: 18px;
+    color: #84231d;
+}

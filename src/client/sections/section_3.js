@@ -13,7 +13,7 @@ var Section3 = (function (_super) {
         _this.Figure_1 = _this._Obj;
         _this.Figure_2 = _this._Obj;
         _this.Figure_3 = _this._Obj;
-        _this._U_IOSetter(".S3__lim", [function () { return (_this.Figure_1.visible = true, _this._icon1(), fn()); }, function () { return (_this.Figure_2.visible = true, _this._icon2()); }, function () { return (_this.Figure_3.visible = true, _this._icon3()); }]);
+        _this._U_IOSetter(".S3__pr-w", [function () { return (_this.Figure_1.visible = true, _this._icon1(), fn()); }, function () { return (_this.Figure_2.visible = true, _this._icon2()); }, function () { return (_this.Figure_3.visible = true, _this._icon3()); }], true, 0);
         return _this;
     }
     Object.defineProperty(Section3.prototype, "_Obj", {
