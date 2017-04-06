@@ -6,16 +6,17 @@ const logger = require("morgan");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const errors_1 = require("./errors");
-const index_1 = require("./routes/index");
-const users_1 = require("./routes/users");
-const services_1 = require("./routes/services");
+const routes_1 = require("./routes");
+const database_1 = require("./database");
+const serverConfig_1 = require("./serverConfig");
 class App {
     constructor() {
         this.express = express();
         this._middleware();
         this._views();
-        this._routes();
+        this._routes(this.express);
         this._errorHandlers();
+        database_1.MongoDB.configureAndCreate();
     }
     _views() {
         this.express.set("views", path.join(__dirname, "views"));
@@ -26,13 +27,11 @@ class App {
         this.express.use(logger("dev"));
         this.express.use(bodyParser.json());
         this.express.use(bodyParser.urlencoded({ extended: false }));
-        this.express.use(cookieParser());
+        this.express.use(cookieParser(serverConfig_1.default.COOKIE_SECRET));
         this.express.use(express.static(path.join(__dirname, "public")));
     }
-    _routes() {
-        this.express.use("/", index_1.default);
-        this.express.use("/users", users_1.default);
-        this.express.use(services_1.default);
+    _routes(app) {
+        this.express.use(new routes_1.AppRouter(app).configureAppRoutes().Router);
     }
     _errorHandlers() {
         this.express.use((...args) => {

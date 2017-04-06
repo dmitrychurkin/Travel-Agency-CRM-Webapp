@@ -7,9 +7,12 @@ import * as cookieParser from "cookie-parser";
 import * as bodyParser from "body-parser";
 import { ApplicationLevelError } from "./errors";
 
-import indexRoutes from "./routes/index";
+import { AppRouter } from "./routes";
+import { MongoDB } from "./database";
+import ServerConfig from "./serverConfig";
+/*import indexRoutes from "./routes/index";
 import usersRoutes from "./routes/users";
-import servicesRoutes from "./routes/services";
+import servicesRoutes from "./routes/services";*/
 
 class App {
   express: Application;
@@ -17,8 +20,9 @@ class App {
     this.express = express();
     this._middleware();
     this._views();
-    this._routes();
+    this._routes(this.express);
     this._errorHandlers();
+    MongoDB.configureAndCreate();
   }
   private _views() {
     // view engine setup
@@ -31,13 +35,15 @@ class App {
     this.express.use(logger("dev"));
     this.express.use(bodyParser.json());
     this.express.use(bodyParser.urlencoded({ extended: false }));
-    this.express.use(cookieParser());
+    this.express.use(cookieParser(ServerConfig.COOKIE_SECRET));
     this.express.use(express.static(path.join(__dirname, "public")));
   }
-  private _routes() {
-    this.express.use("/", indexRoutes);
+  private _routes(app: Application) {
+    /*this.express.use("/", indexRoutes);
     this.express.use("/users", usersRoutes);
-    this.express.use(servicesRoutes);
+    this.express.use(servicesRoutes);*/
+
+    this.express.use(new AppRouter(app).configureAppRoutes().Router);
   }
   private _errorHandlers() {
     // catch 404 and forward to error handler

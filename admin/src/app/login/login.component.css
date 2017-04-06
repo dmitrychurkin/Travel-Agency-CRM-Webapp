@@ -1,0 +1,31 @@
+.l__cont {
+  min-height: 500px;
+  height: 100vh;
+  background-color: #fafafa;
+
+}
+.l__wrap {
+  width: 400px;
+  margin: auto;
+}
+.l__f {
+  display: block;
+}
+.l__tit {
+  font-weight: 200;
+  text-align: center;
+  color: #00bcd4;
+  text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.7);
+  padding: 0 20px;
+}
+
+.btn {
+  width: 200px;
+  color: #fff;
+  text-transform: uppercase;
+}
+@media all and (max-width: 500px) {
+  .l__wrap {
+    width: 70%;
+  }
+}

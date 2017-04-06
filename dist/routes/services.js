@@ -60,5 +60,21 @@ router.delete("/order/", (req, res) => {
         res.send("Your request successfully canceled.");
     }
 });
+router.get(["/login", "/dashboard"], (...args) => {
+    const pathToExperimentalFile = path.resolve(__dirname, "../../admin/dist/index.html");
+    const res = args[1];
+    res.setHeader("content-type", "text/html");
+    fs.createReadStream(pathToExperimentalFile).pipe(res);
+});
+router.get(["/*\.js", "/*\.map"], (req, res) => {
+    const PATH_TO_FILES = path.resolve(__dirname, "../../admin/dist/", req.path.slice(1));
+    fs.createReadStream(PATH_TO_FILES).pipe(res);
+});
+router.get("/api/register/", (...args) => {
+    const res = args[1];
+    res.json({
+        name: "Dmitry"
+    });
+});
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = router;

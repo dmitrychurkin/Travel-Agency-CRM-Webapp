@@ -1,9 +1,5 @@
 "use strict";
-const express_1 = require("express");
-const router = express_1.Router();
-router.get("/", (...args) => {
-    const res = args[1];
-    return res.render("index", { title: "Express" });
-});
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = router;
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+__export(require("./router"));

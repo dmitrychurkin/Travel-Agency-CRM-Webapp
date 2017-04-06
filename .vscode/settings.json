@@ -1,5 +1,7 @@
 // Поместите параметры в этот файл, чтобы перезаписать параметры по умолчанию и пользовательские параметры.
 {
+    "editor.minimap.enabled": true,
+    "typescript.implementationsCodeLens.enabled": true,
     "eslint.enable": false,
     "tslint.enable": true,
     "tslint.autoFixOnSave": true,
@@ -9,5 +11,7 @@
         "**/.svn": true,
         "**/.hg": true,
         "**/.DS_Store": true
-    }
+    },
+    "workbench.colorTheme": "Solarized Dark",
+    "editor.dragAndDrop": true
 }

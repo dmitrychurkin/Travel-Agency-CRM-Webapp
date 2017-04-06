@@ -62,4 +62,28 @@ router.delete("/order/", (req: Request, res: Response) => {
         res.send("Your request successfully canceled.");
     }
 });
+
+
+/**Debag admin panel */
+router.get(["/login", "/dashboard"], (...args: Array<any>) => {
+    // const pathToExperimentalFile = path.resolve("../../../../WebstormProjects/WFW_admin/dist/index.html");
+    const pathToExperimentalFile = path.resolve(__dirname, "../../admin/dist/index.html");
+    const res: Response = args[1];
+    res.setHeader("content-type", "text/html");
+    fs.createReadStream(pathToExperimentalFile).pipe(res);
+});
+
+router.get(["/*\.js", "/*\.map"], (req: Request, res: Response) => {
+    // const PATH_TO_DIR = "../../../../WebstormProjects/WFW_admin/dist/";
+    // const PATH_TO_FILES = path.resolve(PATH_TO_DIR, req.path.slice(1));
+    const PATH_TO_FILES = path.resolve(__dirname, "../../admin/dist/", req.path.slice(1));
+    fs.createReadStream(PATH_TO_FILES).pipe(res);
+});
+router.get("/api/register/", (...args: Array<any>) => {
+    const res: Response = args[1];
+    res.json({
+        name: "Dmitry"
+    });
+});
+/**end */
 export default router;

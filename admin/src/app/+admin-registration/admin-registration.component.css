@@ -1,0 +1,36 @@
+.l__cont {
+  background-color: #fafafa;
+  /*height: 100vh;*/
+}
+.l__wrap {
+  width: 400px;
+  margin: auto;
+  padding: 50px 0;
+}
+.l__f {
+  display: block;
+}
+.l__tit {
+  font-weight: 200;
+  text-align: center;
+  color: #00bcd4;
+  text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.7);
+  padding: 0 20px;
+}
+
+.btn {
+  width: 200px;
+  color: #fff;
+  text-transform: uppercase;
+}
+@media all and (max-width: 500px) {
+  .l__wrap {
+    width: 70%;
+  }
+}
+.sub_tit {
+    color: #ffd740;
+}
+.radio-group {
+    color: rgb(117, 117, 117);
+}

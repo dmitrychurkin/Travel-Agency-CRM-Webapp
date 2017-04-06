@@ -1,0 +1,16 @@
+:host {
+    margin-top: 20px;
+    width: 100%;
+    display: block;
+}
+.ord {
+    width: 90%;
+    margin: 0 auto;
+}
+.ord__cbox {
+    visibility: hidden;
+    position: absolute;
+}
+.ord__cont {
+    padding: 0 5px;
+}
