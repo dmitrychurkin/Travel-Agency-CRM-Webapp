@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const express_1 = require("express");
 const fs = require("fs");
@@ -89,23 +90,47 @@ class AppRouter {
             });
         });
         router.post("/api/register/", (...args) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const req = args[0];
             const res = args[1];
-            for (let promise of [controllers_1.adminController.checkForNewComerAsync(), controllers_1.adminController.checkAdminSingInAsync(req, res)]) {
-                yield promise.catch(rej => rej);
-            }
             if (!res.headersSent) {
                 res.status(401).end();
             }
         }));
-        router.get("/api/test-route", (...args) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        router.get("/api/sign-admin", (...args) => {
             const res = args[1];
+            const req = args[0];
+            controllers_1.adminController.signInController(req, res);
+        });
+        router.get("/api/register-new-admin", (req, res) => {
+            controllers_1.adminController.registerAdmin(req, res);
+        });
+        router.get("/api/add-site-to-db", (...args) => {
+            const res = args[1];
+            controllers_1.adminController.recordToDB().then(() => res.send("Saved!")).catch(err => res.send(err.message));
+        });
+        router.get("/api/validate-tokens", (...args) => {
+            const res = args[1];
+            const req = args[0];
+            controllers_1.adminController.validate(req, res);
+        });
+        router.get("/api/check-signin", (...args) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const res = args[1];
+            const req = args[0];
             try {
-                const RESULT = yield controllers_1.adminController.registerAdmin(res);
-                console.log("Result adminController.registerAdmin ", RESULT);
+                let payload = yield controllers_1.adminController.adminSingInAsync(req, res);
+                console.log("payload= ", payload);
+                if (!res.headersSent)
+                    return res.send(payload);
             }
             catch (e) {
-                console.log(e);
+                return res.status(500).end(e.message);
+            }
+        }));
+        router.get("/api/unique-name", (...args) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const res = args[1];
+            try {
+                yield controllers_1.adminController.verifyUniq("admin123", res);
+            }
+            catch (e) {
                 res.send(e.message);
             }
         }));

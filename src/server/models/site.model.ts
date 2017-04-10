@@ -1,6 +1,6 @@
 import * as mongoose from "mongoose";
 const SiteSchema = new mongoose.Schema({
-
+    _id: String,
     login: {
         type: String
     },
@@ -18,4 +18,4 @@ const SiteSchema = new mongoose.Schema({
     timestamps: true,
     bufferCommands: false
 });
-export const SiteModel = mongoose.model("Site", SiteSchema);
+export const SiteModel = mongoose.model("SiteWingsForWorldSettings", SiteSchema);

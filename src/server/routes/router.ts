@@ -2,6 +2,8 @@ import { Application, Router, Request, Response } from "express";
 import * as fs from "fs";
 import * as path from "path";
 // import ServerConfig from "../serverConfig";
+// import * as HashIds from "hashids";
+// import { issueTokenJWTAsync, decodeTokenJWTSync } from "../services";
 
 import { adminController } from "../controllers";
 export class AppRouter {
@@ -102,32 +104,82 @@ export class AppRouter {
             });
         });
         router.post("/api/register/", async (...args: Array<any>) => {
-            const req: Request = args[0];
+            // const req: Request = args[0];
             const res: Response = args[1];
-            for (let promise of [adminController.checkForNewComerAsync(), adminController.checkAdminSingInAsync(req, res)]) {
-                await promise.catch(rej => rej);
-            }
+            // for (let promise of [/*adminController.checkForNewComerAsync(),  adminController.checkAdminSingInAsync(req, res)*/]) {
+                // await promise.catch(rej => rej);
+            // }
             if (!res.headersSent) {
                 res.status(401).end();
             }
         });
-        router.get("/api/test-route", async (...args: Array<any>) => {
+
+/**Test routes */
+        router.get("/api/sign-admin", (...args: Array<any>) => {
             const res: Response = args[1];
-            // const req: Request = args[0];
+            const req: Request = args[0];
 
-            // adminController.recordToDB().then(() => res.send("Saved!")).catch(err => res.send(err.message));
+            //
 
-            try {
+            // try {
                // let result: boolean = await adminController.checkForNewComerAsync(req, res); // .then(result => res.json(result)).catch(err => res.send(err.message));
-               const RESULT = await adminController.registerAdmin(res);
+                adminController.signInController(req, res);
                // result ? res.send(result) : res.status(401).end();
-               console.log("Result adminController.registerAdmin ", RESULT );
+               // console.log("Result adminController.registerAdmin ", RESULT );
                // res.end(sameNameCount.toString());
+            // }catch (e) {
+                // console.log(e);
+                // res.send(e.message);
+            // }
+        });
+        router.get("/api/register-new-admin", (req: Request, res: Response) => {
+            adminController.registerAdmin(req, res);
+        });
+        router.get("/api/add-site-to-db", (...args: Array<any>) => {
+            const res: Response = args[1];
+            adminController.recordToDB().then(() => res.send("Saved!")).catch(err => res.send(err.message));
+        });
+        // router.get("/api/issue-tokenjwt", (...args: Array<any>) => {
+        //     const res: Response = args[1];
+        //     issueTokenJWTAsync({subject: "hui"}).then((result) => {
+        //         res.send(result);
+        //     }).catch(err => res.send(err.message));
+        // });
+        // router.get("/api/decode-tokenjwt", (...args: Array<any>) => {
+        //     const res: Response = args[1];
+        //     const decodedTokenJwt = decodeTokenJWTSync("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0OTE1NjQxNzksImV4cCI6MTQ5MTU2NDIwOSwic3ViIjoielFYYTZOYVFMQnNub1dvN0xKZ3oifQ.bLaj5gIukEQOoVY9MXXSEpdlK1qIfIOPX_5qoM440ck");
+
+        //     res.send(new HashIds(ServerConfig.HASHIDS_SALT).decodeHex(decodedTokenJwt.payload.sub));
+        // });
+        router.get("/api/validate-tokens", (...args: Array<any>) => {
+            const res: Response = args[1];
+            const req: Request = args[0];
+            adminController.validate(req, res);
+            // let payload = await adminController.validate(req, res);
+            // if (!res.headersSent) res.send(payload);
+        });
+        router.get("/api/check-signin", async (...args: Array<any>) => {
+            const res: Response = args[1];
+            const req: Request = args[0];
+            try {
+                let payload = await adminController.adminSingInAsync(req, res);
+                console.log("payload= ", payload);
+                if (!res.headersSent)  return res.send(payload);
             }catch (e) {
-                console.log(e);
+                return res.status(500).end(e.message);
+            }
+
+        });
+
+        router.get("/api/unique-name", async (...args: Array<any>) => {
+            const res: Response = args[1];
+            try {
+              await adminController.verifyUniq("admin123", res);
+              // console.log(RESULT);
+              // res.end(RESULT.toString());
+            }catch (e) {
                 res.send(e.message);
             }
-            // res.send(adminController.testAsyncRejection());
         });
         return this;
     }

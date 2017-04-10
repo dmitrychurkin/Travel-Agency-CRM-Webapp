@@ -5,7 +5,7 @@ import * as favicon from "serve-favicon";
 import * as logger from "morgan";
 import * as cookieParser from "cookie-parser";
 import * as bodyParser from "body-parser";
-import { ApplicationLevelError } from "./errors";
+import { ApplicationError } from "./errors";
 
 import { AppRouter } from "./routes";
 import { MongoDB } from "./database";
@@ -49,13 +49,13 @@ class App {
     // catch 404 and forward to error handler
     this.express.use((...args: any[]) => {
       const next: NextFunction = args[2];
-      const err = new ApplicationLevelError("Not Found");
+      const err = new ApplicationError("Not Found");
       err.status = 404;
       next(err);
     });
     // error handler
     this.express.use(function(/*err, req, res, next*/...args: any[]) {
-      const err: ApplicationLevelError = args[0];
+      const err: ApplicationError = args[0];
       const req: Request = args[1];
       const res: Response = args[2];
 

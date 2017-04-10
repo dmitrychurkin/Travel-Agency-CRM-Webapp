@@ -1,6 +1,8 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose = require("mongoose");
 const SiteSchema = new mongoose.Schema({
+    _id: String,
     login: {
         type: String
     },
@@ -17,4 +19,4 @@ const SiteSchema = new mongoose.Schema({
     timestamps: true,
     bufferCommands: false
 });
-exports.SiteModel = mongoose.model("Site", SiteSchema);
+exports.SiteModel = mongoose.model("SiteWingsForWorldSettings", SiteSchema);

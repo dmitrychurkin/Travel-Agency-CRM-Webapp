@@ -11,25 +11,38 @@ const cryptoOptions = {
 };
 
 export function ttlScheduller(onTimeExpire: () => void, timeout= 5000) {
-    setTimeout(onTimeExpire.bind(null), timeout);
+    const id = setTimeout(onTimeExpire.bind(null), timeout);
+    return id;
 }
 
-export function tokenStorage({ ttl= 5000 }= {}, UniqueStorage= Set, ...tokens: any[]) {
-    const Storage = new UniqueStorage(tokens);
+export function tokenStorage(UniqueStorage?: Map<string, number>, { ttl= 5000 }= {} /*...tokens: any[]*/) {
+    let Storage: Map<string, number>;
+    if (UniqueStorage) {
+        Storage = UniqueStorage;
+    }else {
+        Storage = new Map();
+    }
+    // const Storage = new UniqueStorage(tokens);
     // test
     let tokenT: any = null;
     setTimeout(() => console.log(Storage.has(tokenT)), ttl + 1000);
     return (token: string= generateUUIDV1()) => {
         // test
         tokenT = token;
-        Storage.add(token);
-        ttlScheduller(() => Storage.delete(token), ttl);
+
+        const TimerId = ttlScheduller(() => {
+            if (Storage.has(token)) {
+                Storage.delete(token);
+            }
+        }, ttl);
+        Storage.set(token, TimerId);
+
         // test
         console.log(Storage.has(tokenT));
         return token;
     };
 }
-export function encryptPwdAsync(password: string, salt: string, options= cryptoOptions) {
+export function encryptPwdAsync(password: string, salt: string, options= cryptoOptions): Promise<string> {
     return new Promise((resolve, reject) => {
             crypto.pbkdf2(password, salt, options.iterations, options.keylen, options.digest, (err, hashRaw) => {
                 if (err) {
@@ -43,7 +56,7 @@ export function encryptPwdAsync(password: string, salt: string, options= cryptoO
 export function generateUUIDV1() {
     return uuid.v1();
 }
-export function generateRandStrAsync(lenght= 48, encoding= "hex") {
+export function generateRandStrAsync(lenght= 48, encoding= "hex"): Promise<string> {
         return new Promise((resolve, reject) => {
             crypto.randomBytes(lenght, (err, buf) => {
                 if (err) {

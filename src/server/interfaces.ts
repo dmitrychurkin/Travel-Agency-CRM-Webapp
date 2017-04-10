@@ -6,3 +6,22 @@ export interface IRegistrationAdminInfo {
     pass: string;
     role: "E" | "O";
 }
+
+export interface IVerifyPayloadJWT {
+    iat: number;
+    exp: number;
+    sub: string;
+}
+
+// export interface IIssuedPayloadJWT {
+//     jwt: string;
+// }
+
+export interface IDocOnAdminSingin {
+    password: string;
+    passwordSalt: string;
+    name: string;
+}
+export interface IDocOnAdminRegister {
+    name: string;
+}

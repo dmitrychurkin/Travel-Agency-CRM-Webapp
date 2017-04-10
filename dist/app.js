@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const path = require("path");
 const favicon = require("serve-favicon");
@@ -36,7 +37,7 @@ class App {
     _errorHandlers() {
         this.express.use((...args) => {
             const next = args[2];
-            const err = new errors_1.ApplicationLevelError("Not Found");
+            const err = new errors_1.ApplicationError("Not Found");
             err.status = 404;
             next(err);
         });

@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const fs = require("fs");
 const path = require("path");
@@ -76,5 +77,4 @@ router.get("/api/register/", (...args) => {
         name: "Dmitry"
     });
 });
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = router;

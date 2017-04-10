@@ -1,5 +1,13 @@
 import * as mongoose from "mongoose";
 const AdminsSchema = new mongoose.Schema({
+    _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        unique: true
+    },
+    siteRef: {
+        type: mongoose.SchemaTypes.String,
+        ref: "SiteWingsForWorldSettings"
+    },
     name: {
         type: String,
         unique: true
@@ -8,6 +16,7 @@ const AdminsSchema = new mongoose.Schema({
         type: String
     },
     passwordSalt: String,
+    jwt: String,
     orders: [{
         orderNumber: Number,
         date: Date,
@@ -17,11 +26,15 @@ const AdminsSchema = new mongoose.Schema({
 
 
     }],
-    ordersCount: Number,
+    ordersCount: {
+        type: Number,
+        default: 0
+    },
     role: {
         type: String,
         enum: ["E", "O"]
-    }
+    },
+    webSoketId: String
 }, {
    timestamps: true,
    bufferCommands: false

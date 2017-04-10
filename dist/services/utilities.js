@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const crypto = require("crypto");
 const fs = require("fs");
 const uuid = require("uuid");
@@ -10,17 +11,28 @@ const cryptoOptions = {
     digest: "SHA1"
 };
 function ttlScheduller(onTimeExpire, timeout = 5000) {
-    setTimeout(onTimeExpire.bind(null), timeout);
+    const id = setTimeout(onTimeExpire.bind(null), timeout);
+    return id;
 }
 exports.ttlScheduller = ttlScheduller;
-function tokenStorage({ ttl = 5000 } = {}, UniqueStorage = Set, ...tokens) {
-    const Storage = new UniqueStorage(tokens);
+function tokenStorage(UniqueStorage, { ttl = 5000 } = {}) {
+    let Storage;
+    if (UniqueStorage) {
+        Storage = UniqueStorage;
+    }
+    else {
+        Storage = new Map();
+    }
     let tokenT = null;
     setTimeout(() => console.log(Storage.has(tokenT)), ttl + 1000);
     return (token = generateUUIDV1()) => {
         tokenT = token;
-        Storage.add(token);
-        ttlScheduller(() => Storage.delete(token), ttl);
+        const TimerId = ttlScheduller(() => {
+            if (Storage.has(token)) {
+                Storage.delete(token);
+            }
+        }, ttl);
+        Storage.set(token, TimerId);
         console.log(Storage.has(tokenT));
         return token;
     };

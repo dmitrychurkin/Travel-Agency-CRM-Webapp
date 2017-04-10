@@ -12,6 +12,6 @@
         "**/.hg": true,
         "**/.DS_Store": true
     },
-    "workbench.colorTheme": "Solarized Dark",
+    "workbench.colorTheme": "Default Dark+",
     "editor.dragAndDrop": true
 }

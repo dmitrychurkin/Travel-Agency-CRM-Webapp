@@ -31,3 +31,5 @@ npm-debug.log
 nodemon.json
 credentialsForAdminRegistration.json
 rootAdmin.json
+deprecated
+.vscode
