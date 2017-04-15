@@ -1,6 +1,14 @@
 .l__cont {
   background-color: #fafafa;
-  /*height: 100vh;*/
+  position: relative;
+  z-index: 0;
+}
+.l__pr-b {
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
 }
 .l__wrap {
   width: 400px;

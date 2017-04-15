@@ -1,4 +1,4 @@
-<div fxLayout="row" fxLayoutAlign="center" class="l__cont">
+<div fxLayout="column" fxLayoutAlign="center" class="l__cont">
   <div class="l__wrap">
     <div class="l__tit">
       <h1>
@@ -15,10 +15,11 @@
           <input mdInput #pass (blur)="onBlur(ngPass, pass)" type="password" placeholder="Password" name="pass" ngModel #ngPass="ngModel" required>
           <md-hint *ngIf="ngPass.touched && ngPass.invalid" [style.color]="'#f44336'">{{pass.validationMessage || fbMess}}</md-hint>
         </md-input-container>
-        <button md-raised-button [disabled]="!f.form.valid" color="primary" fxFlexAlign="center" class="btn">SignIn</button>
+        <button md-raised-button [disabled]="!f.form.valid || isSend" color="primary" fxFlexAlign="center" class="btn">SignIn</button>
       </form>
     </div>
   </div>
+  <md-progress-bar class="l__pr-b" *ngIf="isSend" mode="query"></md-progress-bar>
 </div>
 
 

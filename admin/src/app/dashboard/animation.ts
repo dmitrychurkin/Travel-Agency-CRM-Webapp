@@ -7,7 +7,7 @@ import {
     AnimationEntryMetadata
 } from '@angular/core';
 
-export const slideInAnimation: AnimationEntryMetadata =
+/*export const slideInAnimation: AnimationEntryMetadata =
     trigger('routeAnimation', [
         state('*',
             style({
@@ -26,6 +26,17 @@ export const slideInAnimation: AnimationEntryMetadata =
             animate('500ms ease-out', style({
                 opacity: 0,
                 transform: 'translateX(100%)'
+            }))
+        ])
+    ]);*/
+export const AppearAnimation: AnimationEntryMetadata =
+    trigger('appear', [
+        transition('inactive => active', [
+            style({
+                opacity: 0
+            }),
+            animate('1s ease-in', style({
+                opacity: 1
             }))
         ])
     ]);

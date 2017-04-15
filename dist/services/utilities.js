@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const crypto = require("crypto");
 const fs = require("fs");
 const uuid = require("uuid");
+const serverConfig_1 = require("../serverConfig");
 const cryptoOptions = {
     saltLen: 32,
     encoding: "hex",
@@ -23,17 +24,13 @@ function tokenStorage(UniqueStorage, { ttl = 5000 } = {}) {
     else {
         Storage = new Map();
     }
-    let tokenT = null;
-    setTimeout(() => console.log(Storage.has(tokenT)), ttl + 1000);
     return (token = generateUUIDV1()) => {
-        tokenT = token;
         const TimerId = ttlScheduller(() => {
             if (Storage.has(token)) {
                 Storage.delete(token);
             }
         }, ttl);
         Storage.set(token, TimerId);
-        console.log(Storage.has(tokenT));
         return token;
     };
 }
@@ -103,3 +100,14 @@ function comparePwdsAsync(resolver, rejector) {
     };
 }
 exports.comparePwdsAsync = comparePwdsAsync;
+exports.basicCookieSessOptions = {
+    signed: true,
+    httpOnly: true,
+    sameSite: true
+};
+exports.basicCookieJwtOptions = {
+    signed: true,
+    httpOnly: true,
+    sameSite: true,
+    maxAge: serverConfig_1.default.JWT_MAX_AGE
+};

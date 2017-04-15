@@ -1,11 +1,11 @@
-import { Application, Router, Request, Response } from "express";
+import { Application, Router, Request, Response, NextFunction } from "express";
 import * as fs from "fs";
 import * as path from "path";
-// import ServerConfig from "../serverConfig";
-// import * as HashIds from "hashids";
-// import { issueTokenJWTAsync, decodeTokenJWTSync } from "../services";
+import * as shortid from "shortid";
+import ServerConfig from "../serverConfig";
+import { basicCookieSessOptions } from "../services";
 
-import { adminController } from "../controllers";
+import { adminController, ordersController } from "../controllers";
 export class AppRouter {
     Router = Router();
     private App: Application;
@@ -13,7 +13,34 @@ export class AppRouter {
     constructor(app: Application) {
         this.App = app;
     }
+    private ensureSameOrigin() {
+        return (req: Request, res: Response, next: NextFunction) => {
+            const isExistSessionGeneralCookie = !!req.signedCookies[ServerConfig.SESSION_COOKIE_NAME];
+            if (req.method === "POST") {
+                const HOST = req.get("host");
+                const REFERER = req.get("referer");
 
+                if ( !isExistSessionGeneralCookie || !(REFERER.includes(HOST)) || !req.xhr) {
+                    return res.status(403).end();
+                }
+            }
+            if (!isExistSessionGeneralCookie) {
+                const sessOpts: any = req.secure ? {
+                                    signed: true,
+                                    httpOnly: true,
+                                    sameSite: true,
+                                    secure: true
+                } : basicCookieSessOptions;
+
+                res.cookie(ServerConfig.SESSION_COOKIE_NAME, shortid.generate(), sessOpts);
+            }
+            return next();
+        };
+    }
+    securityMiddleware() {
+        const{ Router } = this;
+        Router.use(this.ensureSameOrigin());
+    }
     configureAppRoutes() {
         const{ Router: router } = this;
         router.get("/", (...args: Array<any>): void => {
@@ -97,22 +124,11 @@ export class AppRouter {
             const PATH_TO_FILES = path.resolve(__dirname, "../../admin/dist/", req.path.slice(1));
             fs.createReadStream(PATH_TO_FILES).pipe(res);
         });
-        router.get("/api/register/",  (...args: Array<any>) => {
-            const res: Response = args[1];
-            res.json({
-                name: "Dmitry"
-            });
-        });
-        router.post("/api/register/", async (...args: Array<any>) => {
-            // const req: Request = args[0];
-            const res: Response = args[1];
-            // for (let promise of [/*adminController.checkForNewComerAsync(),  adminController.checkAdminSingInAsync(req, res)*/]) {
-                // await promise.catch(rej => rej);
-            // }
-            if (!res.headersSent) {
-                res.status(401).end();
-            }
-        });
+        router.head("/api/validate/",  adminController.tokenValidatorController());
+        router.get("/api/get-admin-info/", [adminController.tokenValidatorController(true), adminController.getAdminInfoController()]);
+        router.post("/api/register/", adminController.signInController());
+        router.post("/api/register-new/", adminController.registerNewAdminController(false));
+        router.head("/api/sign-out/", adminController.adminSignOutSync);
 
 /**Test routes */
         router.get("/api/sign-admin", (...args: Array<any>) => {
@@ -123,7 +139,7 @@ export class AppRouter {
 
             // try {
                // let result: boolean = await adminController.checkForNewComerAsync(req, res); // .then(result => res.json(result)).catch(err => res.send(err.message));
-                adminController.signInController(req, res);
+                adminController.signInController()(req, res);
                // result ? res.send(result) : res.status(401).end();
                // console.log("Result adminController.registerAdmin ", RESULT );
                // res.end(sameNameCount.toString());
@@ -133,7 +149,7 @@ export class AppRouter {
             // }
         });
         router.get("/api/register-new-admin", (req: Request, res: Response) => {
-            adminController.registerAdmin(req, res);
+            adminController.registerNewAdminController()(req, res);
         });
         router.get("/api/add-site-to-db", (...args: Array<any>) => {
             const res: Response = args[1];
@@ -154,7 +170,8 @@ export class AppRouter {
         router.get("/api/validate-tokens", (...args: Array<any>) => {
             const res: Response = args[1];
             const req: Request = args[0];
-            adminController.validate(req, res);
+            const next: NextFunction = args[2];
+            adminController.tokenValidatorController()(req, res, next);
             // let payload = await adminController.validate(req, res);
             // if (!res.headersSent) res.send(payload);
         });
@@ -171,16 +188,16 @@ export class AppRouter {
 
         });
 
-        router.get("/api/unique-name", async (...args: Array<any>) => {
+        router.get("/api/new-order", async (...args: Array<any>) => {
             const res: Response = args[1];
             try {
-              await adminController.verifyUniq("admin123", res);
+              await ordersController.addNewOrderController()(res);
               // console.log(RESULT);
               // res.end(RESULT.toString());
             }catch (e) {
                 res.send(e.message);
             }
         });
-        return this;
+        return router;
     }
 }

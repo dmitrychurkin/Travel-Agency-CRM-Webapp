@@ -1,3 +1,4 @@
+import OrderFieldsConverter from "./orderPortService";
 import SnackBarService from "./snackBarService";
 import Scheduller from "./schedullerService";
 import ClientFormValidator from "./formValidator";
@@ -62,24 +63,30 @@ var FormModule = (function () {
     };
     FormModule.prototype._formSerializer = function (form) {
         var resultElements = form.querySelectorAll(".F__form-wrap input:not([type=submit]), .F__form-wrap textarea");
-        var outPut = {};
+        var ORDER = {};
+        ORDER.timestamp = +new Date;
+        var DataServiceCode = this.Base.S7.flipTarget.dataset.code;
+        ORDER.service = OrderFieldsConverter.serviceCodeConverter[DataServiceCode];
         var buffer = this.userDataBuffLS();
         for (var _i = 0, _a = resultElements; _i < _a.length; _i++) {
             var input = _a[_i];
             buffer(input);
             if (input.type === "radio" || input.type === "checkbox") {
                 if (input.checked) {
-                    outPut[input.id] = true;
+                    var inputId = input.id;
+                    var airClass = OrderFieldsConverter.airClassConverter[inputId];
+                    ORDER.class = airClass;
                 }
             }
             else {
                 if (!input.value.trim()) {
                     continue;
                 }
-                outPut[input.id] = input.value.trim();
+                var field = input.id;
+                ORDER[field] = input.value.trim();
             }
         }
-        return [Object.assign({ ACTION: "REGISTER", SITE_LANG: this.LANG }, outPut), buffer()];
+        return [Object.assign({ ACTION: "REGISTER", SITE_LANG: this.LANG }, ORDER), buffer()];
     };
     FormModule.prototype._delay = function (fn) {
         setTimeout(fn, 1000);
@@ -96,7 +103,7 @@ var FormModule = (function () {
         return function (e) {
             e.preventDefault();
             var target = e.target, invalidCollection = target.querySelectorAll(".F__invalid"), submitBtn = target.action;
-            if (!e.isTrusted || invalidCollection.length > 0 || !_this.Base.S7.isCanSendForm)
+            if (!e.isTrusted || !(target.checkValidity && target.checkValidity()) || invalidCollection.length > 0 || !_this.Base.S7.isCanSendForm)
                 return;
             _this.Base.S7.isCanSendForm = false;
             var SB = _this.snackBar.config();

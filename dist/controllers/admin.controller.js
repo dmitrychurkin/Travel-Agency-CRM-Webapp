@@ -7,14 +7,10 @@ const models_1 = require("../models");
 const serverConfig_1 = require("../serverConfig");
 const services_1 = require("../services");
 const errors_1 = require("../errors");
-const DefaultCookieOptions = {
-    signed: true,
-    httpOnly: true,
-    sameSite: true
-};
 class AdminController {
     constructor() {
         this.inMemoryStorage = new Map();
+        this.isMessage = process.env.NODE_ENV === "development";
     }
     recordToDB() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
@@ -45,8 +41,15 @@ class AdminController {
         }
         return false;
     }
+    adminSignOutSync(...args) {
+        const res = args[1];
+        let config = { path: "/" };
+        res.clearCookie(serverConfig_1.default.SESSION_TOKEN_NAME, config)
+            .clearCookie(serverConfig_1.default.COOKIE_JWT_NAME, config)
+            .end();
+    }
     adminSingInAsync(req, res) {
-        const ReqBody = { userName: "admin123", pass: "Mirissa007" };
+        const { userName, pass } = req.body;
         const uuidToken = req && req.signedCookies[serverConfig_1.default.ASSUMED_ADMIN_COOKIE_KEY];
         this.cancelTimer(uuidToken);
         let ADMIN_DOC;
@@ -54,16 +57,17 @@ class AdminController {
         let JWT;
         let _id;
         let hash;
+        let role;
         let passwordSalt;
         let name;
-        return this.checkUnMatchWithSiteLoginAsync(ReqBody.userName)
-            .then(() => models_1.AdminModel.findOne({ name: ReqBody.userName })
-            .select("password passwordSalt name"))
+        return this.checkUnMatchWithSiteLoginAsync(userName)
+            .then(() => models_1.AdminModel.findOne({ name: userName })
+            .select("password passwordSalt name role"))
             .then((admin) => {
             if (!admin)
                 throw new errors_1.AuthenticationError("No such user");
-            ({ password: hash, passwordSalt, _id, name } = ADMIN_DOC = admin);
-            return services_1.comparePwdsAsync()(hash, passwordSalt, ReqBody.pass);
+            ({ password: hash, passwordSalt, _id, name, role } = ADMIN_DOC = admin);
+            return services_1.comparePwdsAsync()(hash, passwordSalt, pass);
         })
             .then(ComparedResult => {
             if (ComparedResult) {
@@ -78,22 +82,45 @@ class AdminController {
         })
             .then(() => {
             if (!res.headersSent) {
+                const adminData = role === "E" ? { name, id: SESSION_TOKEN, role } : { name, id: SESSION_TOKEN };
+                const sessOpts = req.secure ? {
+                    signed: true,
+                    httpOnly: true,
+                    sameSite: true,
+                    secure: true
+                } : services_1.basicCookieSessOptions;
+                const jwtOpts = req.secure ? {
+                    signed: true,
+                    httpOnly: true,
+                    sameSite: true,
+                    secure: true,
+                    maxAge: serverConfig_1.default.JWT_MAX_AGE
+                } : services_1.basicCookieJwtOptions;
                 res.clearCookie(serverConfig_1.default.ASSUMED_ADMIN_COOKIE_KEY, { path: "/" })
-                    .cookie(serverConfig_1.default.SESSION_TOKEN_NAME, SESSION_TOKEN, DefaultCookieOptions)
-                    .cookie(serverConfig_1.default.COOKIE_JWT_NAME, JWT, DefaultCookieOptions)
-                    .json({
-                    name
-                });
+                    .cookie(serverConfig_1.default.SESSION_TOKEN_NAME, SESSION_TOKEN, sessOpts)
+                    .cookie(serverConfig_1.default.COOKIE_JWT_NAME, JWT, jwtOpts)
+                    .json(adminData);
             }
         });
     }
     checkForNewComerAsync(req, res) {
-        const ReqBody = { userName: "admin123", pass: "Mirissa007" };
-        const { userName, pass } = ReqBody;
+        const { userName, pass } = req.body;
         const uuidToken = req && req.signedCookies[serverConfig_1.default.ASSUMED_ADMIN_COOKIE_KEY];
         let thenHandler = (result, isEditorHave) => {
             if (!res.headersSent && result) {
-                res.cookie(serverConfig_1.default.ASSUMED_ADMIN_COOKIE_KEY, services_1.tokenStorage(this.inMemoryStorage, { ttl: 20000 })(), DefaultCookieOptions);
+                const CookieOpts = req.secure ? {
+                    signed: true,
+                    httpOnly: true,
+                    sameSite: true,
+                    secure: true,
+                    maxAge: serverConfig_1.default.TTL + 1000
+                } : {
+                    signed: true,
+                    httpOnly: true,
+                    sameSite: true,
+                    maxAge: serverConfig_1.default.TTL + 1000
+                };
+                res.cookie(serverConfig_1.default.ASSUMED_ADMIN_COOKIE_KEY, services_1.tokenStorage(this.inMemoryStorage, { ttl: serverConfig_1.default.TTL })(), CookieOpts);
                 if (!isEditorHave) {
                     res.json({ r: true, canEdit: true });
                 }
@@ -115,8 +142,8 @@ class AdminController {
                 .then(result => thenHandler(result, isEditorHave));
         });
     }
-    signInController(req, res) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+    signInController() {
+        return (req, res) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             try {
                 for (let promise of [this.adminSingInAsync(req, res), this.checkForNewComerAsync(req, res)]) {
                     yield promise.catch(err => console.log(err.message));
@@ -127,7 +154,7 @@ class AdminController {
             }
             catch (e) {
                 if (!res.headersSent) {
-                    res.status(500).end(e.message);
+                    res.status(500).end(this.isMessage ? e.message : null);
                 }
                 else {
                     console.log("Error from signInController ", e.message);
@@ -163,7 +190,7 @@ class AdminController {
             return 0;
         });
     }
-    verifyUniq(userName, res) {
+    verifyUniqAsync(userName, res) {
         return Promise.all([
             this.checkUnMatchWithSiteLoginAsync(userName),
             this.checkUniqueNameAsync(userName)
@@ -177,107 +204,165 @@ class AdminController {
             .catch(err => {
             if (res) {
                 if (err instanceof errors_1.RegistrationError) {
-                    return res.status(403).end(err.message);
+                    return res.status(403).end(this.isMessage ? err.message : null);
                 }
-                return res.status(500).end(err.message);
+                return res.status(500).end(this.isMessage ? err.message : null);
             }
             throw err;
         });
     }
-    registerAdmin(req, res) {
-        const ReqBody = {
-            userName: "Dmitry",
-            pass: "12345",
-            role: "E"
-        };
-        const uuidToken = req && req.signedCookies[serverConfig_1.default.ASSUMED_ADMIN_COOKIE_KEY];
-        if (!this.cancelTimer(uuidToken)) {
-            return res
-                .clearCookie(serverConfig_1.default.ASSUMED_ADMIN_COOKIE_KEY)
-                .status(403)
-                .end();
-        }
-        const { userName, pass, role } = ReqBody;
-        let _id;
-        let HASHED_ID;
-        let jwt;
-        let passwordSalt;
-        let passwordHash;
-        return this.verifyUniq(userName)
-            .then(() => {
-            _id = new mongoose.Types.ObjectId;
-            HASHED_ID = new HashIds(serverConfig_1.default.HASHIDS_SALT).encodeHex(_id.toString());
-            return Promise.all([
-                this.SaveRootAdminBackupCredentialsAsync(ReqBody),
-                services_1.generateRandStrAsync().then(salt => {
-                    passwordSalt = salt.toString();
-                    return services_1.encryptPwdAsync(pass, passwordSalt);
-                }),
-                services_1.issueTokenJWTAsync({ subject: HASHED_ID })
-            ]);
-        })
-            .then((resultArray) => {
-            [, passwordHash, jwt] = resultArray;
-            return new models_1.AdminModel({
-                _id,
-                name: userName,
-                password: passwordHash,
-                passwordSalt,
-                role,
-                siteRef: serverConfig_1.default.SITE_ID
-            }).save();
-        })
-            .then((adminDoc) => res.clearCookie(serverConfig_1.default.ASSUMED_ADMIN_COOKIE_KEY)
-            .cookie(serverConfig_1.default.SESSION_TOKEN_NAME, HASHED_ID, DefaultCookieOptions)
-            .cookie(serverConfig_1.default.COOKIE_JWT_NAME, jwt, DefaultCookieOptions)
-            .json({ name: adminDoc.name }))
-            .catch(err => {
-            if (err instanceof errors_1.RegistrationError) {
-                return res.status(403).end(err.message);
+    registerNewAdminController(isSendForbiden = true) {
+        return (req, res) => {
+            const ReqBody = req.body;
+            const { userName, pass, role } = ReqBody;
+            const uuidToken = req && req.signedCookies[serverConfig_1.default.ASSUMED_ADMIN_COOKIE_KEY];
+            if (!uuidToken || !(userName && pass && role)) {
+                return res
+                    .clearCookie(serverConfig_1.default.ASSUMED_ADMIN_COOKIE_KEY)
+                    .status(403)
+                    .json({ expired: true });
             }
-            return res.status(500).end(err.message);
-        });
+            let _id;
+            let HASHED_ID;
+            let jwt;
+            let passwordSalt;
+            let passwordHash;
+            let adminData;
+            return this.verifyUniqAsync(userName)
+                .then(() => {
+                this.cancelTimer(uuidToken);
+                _id = new mongoose.Types.ObjectId;
+                HASHED_ID = new HashIds(serverConfig_1.default.HASHIDS_SALT).encodeHex(_id.toString());
+                adminData = role === "E" ? { name: userName, id: HASHED_ID, role } : { name: userName, id: HASHED_ID };
+                return Promise.all([
+                    this.SaveRootAdminBackupCredentialsAsync(ReqBody),
+                    services_1.generateRandStrAsync().then(salt => {
+                        passwordSalt = salt.toString();
+                        return services_1.encryptPwdAsync(pass, passwordSalt);
+                    }),
+                    services_1.issueTokenJWTAsync({ subject: HASHED_ID })
+                ]);
+            })
+                .then((resultArray) => {
+                [, passwordHash, jwt] = resultArray;
+                return new models_1.AdminModel({
+                    _id,
+                    name: userName,
+                    password: passwordHash,
+                    passwordSalt,
+                    role,
+                    siteRef: serverConfig_1.default.SITE_ID
+                }).save();
+            })
+                .then(() => {
+                const sessOpts = req.secure ? {
+                    signed: true,
+                    httpOnly: true,
+                    sameSite: true,
+                    secure: true
+                } : services_1.basicCookieSessOptions;
+                const jwtOpts = req.secure ? {
+                    signed: true,
+                    httpOnly: true,
+                    sameSite: true,
+                    secure: true,
+                    maxAge: serverConfig_1.default.JWT_MAX_AGE
+                } : services_1.basicCookieJwtOptions;
+                res.clearCookie(serverConfig_1.default.ASSUMED_ADMIN_COOKIE_KEY)
+                    .cookie(serverConfig_1.default.SESSION_TOKEN_NAME, HASHED_ID, sessOpts)
+                    .cookie(serverConfig_1.default.COOKIE_JWT_NAME, jwt, jwtOpts)
+                    .json(adminData);
+            })
+                .catch(err => {
+                if (err instanceof errors_1.RegistrationError) {
+                    return isSendForbiden ? res.status(403).end(this.isMessage ? err.message : null) : res.status(403).json({ exists: true });
+                }
+                return res.status(500).end(this.isMessage ? err.message : null);
+            });
+        };
     }
-    validate(req, res) {
-        const { _xt, _st } = req.signedCookies;
-        let expireTimeHelper = (err, sessToken) => {
-            if (err.name === "TokenExpiredError") {
-                return updateJwt(sessToken);
+    tokenValidatorController(isMiddleware = false) {
+        return (req, res, next) => {
+            const { _xt, _st } = req.signedCookies;
+            let expireTimeHelper = (err, sessToken) => {
+                if (err.name === "TokenExpiredError") {
+                    return updateJwt(sessToken);
+                }
+                throw err;
+            };
+            let updateJwt = (sessToken) => {
+                return services_1.issueTokenJWTAsync({ subject: sessToken })
+                    .then(jwt => {
+                    const sessOpts = req.secure ? {
+                        signed: true,
+                        httpOnly: true,
+                        sameSite: true,
+                        secure: true
+                    } : services_1.basicCookieSessOptions;
+                    const jwtOpts = req.secure ? {
+                        signed: true,
+                        httpOnly: true,
+                        sameSite: true,
+                        secure: true,
+                        maxAge: serverConfig_1.default.JWT_MAX_AGE
+                    } : services_1.basicCookieJwtOptions;
+                    !isMiddleware ? res.cookie(serverConfig_1.default.COOKIE_JWT_NAME, jwt, jwtOpts)
+                        .cookie(serverConfig_1.default.SESSION_TOKEN_NAME, sessToken, sessOpts)
+                        .end() : next();
+                });
+            };
+            let PromiseResult = null;
+            switch (true) {
+                case (_xt !== undefined && _st !== undefined): {
+                    PromiseResult = services_1.verifyTokenJWTAsync(_xt, { subject: _st })
+                        .then(() => !isMiddleware ? res.end() : next())
+                        .catch(err => expireTimeHelper(err, _st));
+                    break;
+                }
+                case (_xt === undefined && _st !== undefined): {
+                    PromiseResult = updateJwt(_st);
+                    break;
+                }
+                case (_xt !== undefined && _st === undefined): {
+                    const sessToken = services_1.decodeTokenJWTSync(_xt).payload.sub;
+                    PromiseResult = services_1.verifyTokenJWTAsync(_xt, { subject: sessToken })
+                        .then(() => {
+                        const sessOpts = req.secure ? {
+                            signed: true,
+                            httpOnly: true,
+                            sameSite: true,
+                            secure: true
+                        } : services_1.basicCookieSessOptions;
+                        !isMiddleware ? res.cookie(serverConfig_1.default.SESSION_TOKEN_NAME, sessToken, sessOpts)
+                            .end() : next();
+                    })
+                        .catch(err => expireTimeHelper(err, sessToken));
+                    break;
+                }
+                default: {
+                    return res.status(401).end();
+                }
             }
-            throw err;
+            PromiseResult && PromiseResult.catch(err => res.status(401).end(this.isMessage ? err.message : null));
         };
-        let updateJwt = (sessToken) => {
-            return services_1.issueTokenJWTAsync({ subject: sessToken })
-                .then(jwt => res.cookie(serverConfig_1.default.COOKIE_JWT_NAME, jwt, DefaultCookieOptions)
-                .cookie(serverConfig_1.default.SESSION_TOKEN_NAME, sessToken, DefaultCookieOptions)
-                .end(jwt));
+    }
+    getAdminInfoController() {
+        return (req, res) => {
+            const { _st } = req.signedCookies;
+            if (!_st) {
+                return res.status(403).end();
+            }
+            const decodedSt = new HashIds(serverConfig_1.default.HASHIDS_SALT).decodeHex(_st);
+            return models_1.AdminModel.findById(decodedSt)
+                .select("name role")
+                .then((admin) => {
+                if (admin && admin.name) {
+                    return res.json({ name: admin.name, id: _st, role: admin.role });
+                }
+                throw new errors_1.ApplicationError("Admin with this id doesn't exists!");
+            })
+                .catch(() => res.status(403).end());
         };
-        let PromiseResult = null;
-        switch (true) {
-            case (_xt !== undefined && _st !== undefined): {
-                PromiseResult = services_1.verifyTokenJWTAsync(_xt, { subject: _st })
-                    .then(rawResult => res.json(rawResult))
-                    .catch(err => expireTimeHelper(err, _st));
-                break;
-            }
-            case (_xt === undefined && _st !== undefined): {
-                PromiseResult = updateJwt(_st);
-                break;
-            }
-            case (_xt !== undefined && _st === undefined): {
-                const sessToken = services_1.decodeTokenJWTSync(_xt).payload.sub;
-                PromiseResult = services_1.verifyTokenJWTAsync(_xt, { subject: sessToken })
-                    .then(rawResult => res
-                    .cookie(serverConfig_1.default.SESSION_TOKEN_NAME, sessToken, DefaultCookieOptions)
-                    .json(rawResult))
-                    .catch(err => expireTimeHelper(err, sessToken));
-                break;
-            }
-            default: {
-                return res.status(401).end();
-            }
-        }
-        PromiseResult && PromiseResult.catch(err => res.status(401).end(err.message));
     }
 }
 const adminController = new AdminController();

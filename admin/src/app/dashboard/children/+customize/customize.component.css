@@ -1,0 +1,32 @@
+.nav__container {
+    width: 100%;
+    height: calc(100vh - 72px);
+}
+.nav__side-nav {
+    height: calc(100vh - 72px);
+    width: 240px;
+    box-shadow: 3px 0 6px rgba(0,0,0,.24);
+}
+.list {
+    padding-top: 0;
+}
+.list__label {
+    background: rgba(0,0,0,.32);
+    color: #fff;
+    border: none;
+    font-size: 10px;
+    letter-spacing: 1px;
+    line-height: 24px;
+    text-transform: uppercase;
+    font-weight: 400;
+    margin: 0;
+    padding: 0 16px;
+}
+.card__wrap {
+    width: 100%;
+}
+.card__content {
+    width: 90%;
+    margin: auto;
+    margin-top: 30px;
+}

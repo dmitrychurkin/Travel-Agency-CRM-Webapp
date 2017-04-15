@@ -1,11 +1,35 @@
 :host {
-    margin-top: 20px;
     width: 100%;
     display: block;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: calc(100vh - 72px);
+}
+.ords__container {
+    width: 100%;
+    height: calc(100vh - 72px);
+}
+.ord__spinner {
+    margin: auto;
 }
 .ord {
+    padding-top: 20px;
     width: 90%;
     margin: 0 auto;
+}
+.ord__tab {
+    overflow-x: auto;
+}
+.ord__tab table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    border: 1px solid #ddd;
+}
+th, td {
+    border: none;
+    text-align: left;
+    padding: 8px;
 }
 .ord__cbox {
     visibility: hidden;

@@ -1,15 +1,20 @@
 import { Injectable } from '@angular/core';
-import { Response } from '@angular/http';
+import { Response, RequestMethod } from '@angular/http';
 import { Route } from '@angular/router';
 import { Router, CanActivate, CanActivateChild, CanLoad, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { BackendService } from './backend.service';
-import { REGISTER_API } from './app.config';
+import { VALIDATE } from './app.config';
 import { AdminCredentialsDataResolver } from './admin-credentials-data.service';
+// import { IAdminData, IRequestForRegistration } from './Interfaces';
 
 @Injectable()
 export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
-  constructor(private backendService: BackendService, private router: Router) {}
+  constructor(
+    private backendService: BackendService,
+    private router: Router,
+    private adminDataResolver: AdminCredentialsDataResolver
+  ) {}
   canActivate(
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
@@ -19,22 +24,40 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
     ): Observable<boolean> | Promise<boolean> | boolean {
+      if (state.url.includes('customize')) {
+        const adminData: any = this.adminDataResolver.getAdminData();
+        if (adminData && adminData.role === 'E') {
+          console.log('From can activate child target CUSTOMIZE');
+          return this._sendRequest();
+        }
+        return false;
+      }
       return this._sendRequest();
   }
   canLoad(route: Route): Observable<boolean>|Promise<boolean>|boolean {
-    if (route.path === 'registration' && AdminCredentialsDataResolver.adminData && 'r' in AdminCredentialsDataResolver.adminData) {
-      return true;
+    const adminRegisterData: any = this.adminDataResolver.getAdminData();
+    if ( route.path === 'registration' ) {
+      if (adminRegisterData && adminRegisterData.r) {
+        return true;
+      }
+      this.router.navigate(['login']);
+      return false;
+    }else if ( route.path === 'customize' ) {
+      if (adminRegisterData && adminRegisterData.role === 'E') {
+        return true;
+      }
+      return false;
     }
-    this.router.navigate(['login']);
-    return false;
   }
   private _sendRequest() {
-    return this.backendService.sendRequest(REGISTER_API)
+    return this.backendService.sendRequest(VALIDATE, { method: RequestMethod.Head })
                                 .then((data: Response) => {
                                   console.log('Everithing Ok', data);
-                                  if (!AdminCredentialsDataResolver.adminData) {
-                                    AdminCredentialsDataResolver.adminData = data.json();
-                                  }
+                                  /*if (AdminCredentialsDataResolver.adminData
+                                      && !(<IAdminData>AdminCredentialsDataResolver.adminData).tokenId) {
+
+                                    (<IAdminData>AdminCredentialsDataResolver.adminData).tokenId = data.json();
+                                  }*/
                                   return true;
                                 })
                                 .catch((err: Response) => {

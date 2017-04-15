@@ -1,4 +1,4 @@
-<div fxLayout="row" fxLayoutAlign="center" class="l__cont">
+<div fxLayout="column" fxLayoutAlign="center" class="l__cont">
   <div class="l__wrap">
     <div class="l__tit">
       <h1>
@@ -8,12 +8,12 @@
     <div>
       <form #f="ngForm" (ngSubmit)="onSubmit(f)" fxLayout="column" fxLayoutGap="7%">
         <md-input-container [dividerColor]="ngUserName.touched && ngUserName.invalid ? 'warn' : 'primary'">
-          <input mdInput #userName (blur)="onBlur(ngUserName, userName)" placeholder="Name" name="userName" ngModel #ngUserName="ngModel" required>
-          <md-hint *ngIf="ngUserName.touched && ngUserName.invalid" [style.color]="'#f44336'">{{userName.validationMessage || fbMess}}</md-hint>
+          <input mdInput #userName (blur)="onBlur(ngUserName, userName)" placeholder="Name" name="userName" ngModel #ngUserName="ngModel" minlength="3" maxlength="20" required>
+          <md-hint *ngIf="ngUserName.touched && ngUserName.invalid" [ngStyle]="userName.validationMessage.length > 30 ? { 'bottom.px': -11, 'color': '#f44336' } : { 'bottom.px': 0, 'color': '#f44336' }">{{userName.validationMessage || fbMess}}</md-hint>
         </md-input-container>
         <md-input-container [dividerColor]="ngPass.touched && ngPass.invalid ? 'warn' : 'primary'">
-          <input mdInput #pass (blur)="onBlur(ngPass, pass)" type="password" placeholder="Password" name="pass" ngModel #ngPass="ngModel" required>
-          <md-hint *ngIf="ngPass.touched && ngPass.invalid" [style.color]="'#f44336'">{{pass.validationMessage || fbMess}}</md-hint>
+          <input mdInput #pass (blur)="onBlur(ngPass, pass)" type="password" placeholder="Password" name="pass" ngModel #ngPass="ngModel" minlength="5" required>
+          <md-hint *ngIf="ngPass.touched && ngPass.invalid" [ngStyle]="pass.validationMessage.length > 30 ? { 'bottom.px': -11, 'color': '#f44336' } : { 'bottom.px': 0, 'color': '#f44336' }">{{pass.validationMessage || fbMess}}</md-hint>
         </md-input-container>
         <md-input-container [dividerColor]="ngRepeatPass.touched && ngRepeatPass.invalid || ngRepeatPass.value !== ngPass.value ? 'warn' : 'primary'">
           <input mdInput #repeatPass (blur)="onBlur(ngRepeatPass, repeatPass)" type="password" placeholder="Repeat password" name="repeatPass" ngModel #ngRepeatPass="ngModel" required>
@@ -22,12 +22,13 @@
         <div *ngIf="isCanEdit">
             <h3 class="sub_tit">Select Your Role in our business process!</h3>
             <md-radio-group class="radio-group" name="role" fxLayout="column" ngModel>
-                <md-radio-button [checked]="checked" fxFlex="50px" value="Editor">Editor</md-radio-button>
-                <md-radio-button fxFlex="50px" value="Ordinal">Just admin:)</md-radio-button>
+                <md-radio-button [checked]="checked" fxFlex="50px" value="E">Editor</md-radio-button>
+                <md-radio-button fxFlex="50px" value="O">Just admin:)</md-radio-button>
             </md-radio-group>
         </div>
-        <button md-raised-button [disabled]="!f.form.valid || ngRepeatPass.value !== ngPass.value" color="primary" fxFlexAlign="center" class="btn">SignIn</button>
+        <button md-raised-button [disabled]="!f.form.valid || ngRepeatPass.value !== ngPass.value || isSend" color="primary" fxFlexAlign="center" class="btn">SignIn</button>
       </form>
     </div>
   </div>
+  <md-progress-bar class="l__pr-b" *ngIf="isSend" mode="query"></md-progress-bar>
 </div>

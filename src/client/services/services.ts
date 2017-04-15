@@ -1,4 +1,5 @@
-
+import { IOrderPort, AirClassId, AirClass, ServiceCode, Services } from "../interfaces.client";
+import OrderFieldsConverter from "./orderPortService";
 import SnackBarService from "./snackBarService";
 import Scheduller from "./schedullerService";
 import ClientFormValidator from "./formValidator";
@@ -79,25 +80,34 @@ export default class FormModule implements ClientFormValidator, LocalStorageServ
             }
         };
     }
-    private _formSerializer(form: HTMLFormElement): [{ ACTION: string, SITE_LANG: string } & IS, () => void] {
+    private _formSerializer(form: HTMLFormElement): [{ ACTION: string, SITE_LANG: string } & IOrderPort, () => void] {
         let resultElements = form.querySelectorAll(".F__form-wrap input:not([type=submit]), .F__form-wrap textarea");
-        let outPut: IS = {};
+        // let outPut: IS = {};
+        let ORDER = <IOrderPort>{};
+        ORDER.timestamp = +new Date;
+        const DataServiceCode = <ServiceCode>this.Base.S7.flipTarget.dataset.code;
+        ORDER.service = <Services>OrderFieldsConverter.serviceCodeConverter[DataServiceCode];
         let buffer = this.userDataBuffLS();
         for (let input of <any>resultElements){
             buffer(input);
             if (input.type === "radio" || input.type === "checkbox") {
                 if (input.checked) {
-                    outPut[input.id] = true;
+                    // outPut[input.id] = true;
+                    const inputId = <AirClassId>input.id;
+                    const airClass = <AirClass>OrderFieldsConverter.airClassConverter[inputId];
+                    ORDER.class = airClass;
                 }
             }else {
                 if (!input.value.trim()) {
                     continue;
                 }
-                outPut[input.id] = input.value.trim();
+                // outPut[input.id] = input.value.trim();
+                const field = <keyof IOrderPort>input.id;
+                ORDER[field] = input.value.trim();
             }
         }
 
-        return [Object.assign({ ACTION: "REGISTER", SITE_LANG: this.LANG }, outPut), buffer()];
+        return [Object.assign({ ACTION: "REGISTER", SITE_LANG: this.LANG }, ORDER), buffer()];
     }
     private _delay(fn: () => void) {
         setTimeout(fn, 1000);
@@ -115,7 +125,7 @@ export default class FormModule implements ClientFormValidator, LocalStorageServ
             let target: any = e.target,
                 invalidCollection = target.querySelectorAll(".F__invalid"),
                 submitBtn = target.action;
-            if (!e.isTrusted || invalidCollection.length > 0 || !this.Base.S7.isCanSendForm) return;
+            if (!e.isTrusted || !( target.checkValidity && target.checkValidity() ) || invalidCollection.length > 0 || !this.Base.S7.isCanSendForm) return;
             this.Base.S7.isCanSendForm = false;
             let SB: ((Extractor: any, actionFnOnClick?: ((a?: any) => void)[] | ((a?: any) => void) | undefined, onAfterPaneClose?: ((a?: any) => void)[] | ((a?: any) => void) | undefined) => void) | null = this.snackBar.config();
             this._disableBtn(submitBtn);

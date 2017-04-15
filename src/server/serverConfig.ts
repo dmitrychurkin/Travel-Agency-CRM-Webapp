@@ -4,6 +4,7 @@ export default {
         "login": "dimonMX",
         "password": "dron1988"
     },
+    "TTL" : 360000,
     "SITE_ID": "WFW",
     "ASSUMED_ADMIN_COOKIE_KEY": "_wfwa_",
     "COOKIE_SECRET": "FUCK_you-bitch",
@@ -14,8 +15,10 @@ export default {
     "JWT_OPTIONS_FOR_ISSUE": {
         algorithm: "HS256",
         /**Only test purpose */
-        expiresIn: "30000"
+        // expiresIn: "30000"
         /**end */
+        // production --> 1h
+        expiresIn: "1h"
     },
     JWT_OPTIONS_FOR_VERIFICATION: {
         algorithms: "HS256"
@@ -23,9 +26,9 @@ export default {
 
     SECRET_JWT: "FUckOff",
     COOKIE_JWT_NAME: "_xt",
-    JWT_MAX_AGE: 1000000,
+    JWT_MAX_AGE: 5400000, // 1.5 hour
 
 
-
+    SESSION_COOKIE_NAME: "_wfw",
     SESSION_TOKEN_NAME: "_st"
 };

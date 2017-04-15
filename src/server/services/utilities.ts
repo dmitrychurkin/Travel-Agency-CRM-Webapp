@@ -1,6 +1,7 @@
 import * as crypto from "crypto";
 import * as fs from "fs";
 import * as uuid from "uuid";
+import ServerConfig from "../serverConfig";
 
 const cryptoOptions = {
     saltLen: 32,
@@ -24,11 +25,11 @@ export function tokenStorage(UniqueStorage?: Map<string, number>, { ttl= 5000 }=
     }
     // const Storage = new UniqueStorage(tokens);
     // test
-    let tokenT: any = null;
-    setTimeout(() => console.log(Storage.has(tokenT)), ttl + 1000);
+    // let tokenT: any = null;
+    // setTimeout(() => console.log(Storage.has(tokenT)), ttl + 1000);
     return (token: string= generateUUIDV1()) => {
         // test
-        tokenT = token;
+        // tokenT = token;
 
         const TimerId = ttlScheduller(() => {
             if (Storage.has(token)) {
@@ -38,7 +39,7 @@ export function tokenStorage(UniqueStorage?: Map<string, number>, { ttl= 5000 }=
         Storage.set(token, TimerId);
 
         // test
-        console.log(Storage.has(tokenT));
+        // console.log(Storage.has(tokenT));
         return token;
     };
 }
@@ -99,3 +100,17 @@ export function comparePwdsAsync(resolver?: (value?: {} | PromiseLike<{}> | unde
                         .catch(err => helperFn(rejector, err, true));
     };
 }
+
+export const basicCookieSessOptions = {
+    signed: true,
+    httpOnly: true,
+    sameSite: true
+};
+export const basicCookieJwtOptions = {
+    signed: true,
+    httpOnly: true,
+    sameSite: true,
+    maxAge: ServerConfig.JWT_MAX_AGE
+};
+// export const DefaultCookieOptionsForSession = (req: Request) => Object.assign(cookieOptsBasic, { expires: 0 }, req.secure ? { secure: true } : {});
+// export const DefaultCookieOptionsForJwt = (req: Request) => Object.assign(cookieOptsBasic, { maxAge: ServerConfig.JWT_MAX_AGE }, req.secure ? { secure: true } : {});

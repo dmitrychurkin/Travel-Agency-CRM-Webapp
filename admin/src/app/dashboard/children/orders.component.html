@@ -1,12 +1,28 @@
-<div class="ord">
-    <md-card>
-        <md-card-title>Today - Saturday, April 1, 2017</md-card-title>
-        <md-card-content fxLayout="row">
-            <md-checkbox [checked]="ordersService.cancelAll && ''" (change)="onCheckboxChange($event)"><span class="ord__cbox">Order 1</span></md-checkbox>
-            <div fxLayout="row" fxFlexAlign="center">
-                <div class="ord__cont">Dmitry</div>
-                <div class="ord__cont">Churkin</div>
-            </div>
-        </md-card-content>
-    </md-card>
+<div class="ords__container" fxLayout="row"> 
+    <div class="ord" *ngIf="orders; else Spinner">
+        <md-card>
+            <md-card-title>Today - Saturday, April 1, 2017</md-card-title>
+            <md-card-content>
+                <div class="ord__tab">
+                    <table>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th>Order Number</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Phone Number</th>
+                        </tr>
+                        <tr *ngFor="let order of orders">
+                            <td><md-checkbox [checked]="ordersService.cancelAll" (change)="onCheckboxChange($event)"><span class="ord__cbox">Order {{order.id}}</span></md-checkbox></td>
+                            <td>{{order.id}}</td>
+                            <td>{{order.first_name}}</td>
+                            <td>{{order.last_name}}</td>
+                            <td>{{order.phone_number}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </md-card-content>
+        </md-card>
+    </div>
+    <ng-template #Spinner><md-spinner class="ord__spinner" color="accent"></md-spinner></ng-template>
 </div>

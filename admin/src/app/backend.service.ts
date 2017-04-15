@@ -12,9 +12,13 @@ export class BackendService {
   }
   constructor(private httpService: Http) {}
   sendRequest(url: string, options?: RequestOptionsArgs) {
-    if (options && options.headers instanceof Headers) {
+    if (options) {
+      if (options.headers instanceof Headers) {
+        options.headers.set('X-Requested-With', 'XMLHttpRequest');
+      }else {
+        options.headers = new Headers({'X-Requested-With': 'XMLHttpRequest'});
+      }
       options = Object.assign({}, BackendService.defaultReqOpts, options);
-      options.headers.set('X-Requested-With', 'XMLHttpRequest');
     }else {
       options = BackendService.defaultReqOpts;
       options.headers = new Headers({'X-Requested-With': 'XMLHttpRequest'});

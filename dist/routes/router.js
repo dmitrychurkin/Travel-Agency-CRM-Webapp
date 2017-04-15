@@ -4,11 +4,40 @@ const tslib_1 = require("tslib");
 const express_1 = require("express");
 const fs = require("fs");
 const path = require("path");
+const shortid = require("shortid");
+const serverConfig_1 = require("../serverConfig");
+const services_1 = require("../services");
 const controllers_1 = require("../controllers");
 class AppRouter {
     constructor(app) {
         this.Router = express_1.Router();
         this.App = app;
+    }
+    ensureSameOrigin() {
+        return (req, res, next) => {
+            const isExistSessionGeneralCookie = !!req.signedCookies[serverConfig_1.default.SESSION_COOKIE_NAME];
+            if (req.method === "POST") {
+                const HOST = req.get("host");
+                const REFERER = req.get("referer");
+                if (!isExistSessionGeneralCookie || !(REFERER.includes(HOST)) || !req.xhr) {
+                    return res.status(403).end();
+                }
+            }
+            if (!isExistSessionGeneralCookie) {
+                const sessOpts = req.secure ? {
+                    signed: true,
+                    httpOnly: true,
+                    sameSite: true,
+                    secure: true
+                } : services_1.basicCookieSessOptions;
+                res.cookie(serverConfig_1.default.SESSION_COOKIE_NAME, shortid.generate(), sessOpts);
+            }
+            return next();
+        };
+    }
+    securityMiddleware() {
+        const { Router } = this;
+        Router.use(this.ensureSameOrigin());
     }
     configureAppRoutes() {
         const { Router: router } = this;
@@ -83,25 +112,18 @@ class AppRouter {
             const PATH_TO_FILES = path.resolve(__dirname, "../../admin/dist/", req.path.slice(1));
             fs.createReadStream(PATH_TO_FILES).pipe(res);
         });
-        router.get("/api/register/", (...args) => {
-            const res = args[1];
-            res.json({
-                name: "Dmitry"
-            });
-        });
-        router.post("/api/register/", (...args) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const res = args[1];
-            if (!res.headersSent) {
-                res.status(401).end();
-            }
-        }));
+        router.head("/api/validate/", controllers_1.adminController.tokenValidatorController());
+        router.get("/api/get-admin-info/", [controllers_1.adminController.tokenValidatorController(true), controllers_1.adminController.getAdminInfoController()]);
+        router.post("/api/register/", controllers_1.adminController.signInController());
+        router.post("/api/register-new/", controllers_1.adminController.registerNewAdminController(false));
+        router.head("/api/sign-out/", controllers_1.adminController.adminSignOutSync);
         router.get("/api/sign-admin", (...args) => {
             const res = args[1];
             const req = args[0];
-            controllers_1.adminController.signInController(req, res);
+            controllers_1.adminController.signInController()(req, res);
         });
         router.get("/api/register-new-admin", (req, res) => {
-            controllers_1.adminController.registerAdmin(req, res);
+            controllers_1.adminController.registerNewAdminController()(req, res);
         });
         router.get("/api/add-site-to-db", (...args) => {
             const res = args[1];
@@ -110,7 +132,8 @@ class AppRouter {
         router.get("/api/validate-tokens", (...args) => {
             const res = args[1];
             const req = args[0];
-            controllers_1.adminController.validate(req, res);
+            const next = args[2];
+            controllers_1.adminController.tokenValidatorController()(req, res, next);
         });
         router.get("/api/check-signin", (...args) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const res = args[1];
@@ -125,16 +148,16 @@ class AppRouter {
                 return res.status(500).end(e.message);
             }
         }));
-        router.get("/api/unique-name", (...args) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        router.get("/api/new-order", (...args) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const res = args[1];
             try {
-                yield controllers_1.adminController.verifyUniq("admin123", res);
+                yield controllers_1.ordersController.addNewOrderController()(res);
             }
             catch (e) {
                 res.send(e.message);
             }
         }));
-        return this;
+        return router;
     }
 }
 exports.AppRouter = AppRouter;

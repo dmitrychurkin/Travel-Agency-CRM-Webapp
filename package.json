@@ -10,6 +10,7 @@
     "server": "node ./dist/bin/www",
     "prebuild:ru": "tslint --test src",
     "build:ru": "rollup -c rollup.config.main.js",
+    "build:services": "tslint --test src & rollup -c rollup.config.services.js",
     "watch:main": "tslint --test src & rollup -c rollup.config.main.js -w",
     "watch:services": "tslint --test src & rollup -c rollup.config.services.js -w",
     "pretest": "npm run build",
@@ -28,6 +29,8 @@
     "morgan": "~1.7.0",
     "parallax": "^1.0.0",
     "serve-favicon": "~2.3.0",
+    "shortid": "^2.2.8",
+    "socket.io": "^1.7.3",
     "uuid": "^3.0.1"
   },
   "devDependencies": {
@@ -39,6 +42,8 @@
     "@types/mongoose": "^4.7.9",
     "@types/morgan": "^1.7.32",
     "@types/serve-favicon": "^2.2.28",
+    "@types/shortid": "0.0.28",
+    "@types/socket.io": "^1.4.29",
     "@types/uuid": "^2.0.29",
     "tslib": "^1.5.0",
     "tslint": "^4.4.2",

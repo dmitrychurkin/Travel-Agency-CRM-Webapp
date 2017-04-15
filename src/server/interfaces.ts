@@ -21,7 +21,9 @@ export interface IDocOnAdminSingin {
     password: string;
     passwordSalt: string;
     name: string;
+    role: "E" | "O";
 }
 export interface IDocOnAdminRegister {
     name: string;
+    role: "E" | "O";
 }

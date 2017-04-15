@@ -24,6 +24,11 @@ const routes: Routes = [
         pathMatch: 'prefix'
       },
       {
+        path: 'customize',
+        loadChildren: 'app/dashboard/children/+customize/customize.module#CustomizeModule',
+        canLoad: [AuthGuard]
+      },
+      {
         path: 'orders',
         component: OrdersComponent
       },

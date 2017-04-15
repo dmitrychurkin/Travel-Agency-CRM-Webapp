@@ -1,47 +1,54 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const http = require("http");
 const express = require("express");
 const path = require("path");
 const favicon = require("serve-favicon");
 const logger = require("morgan");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
+const socket_1 = require("./socket");
 const errors_1 = require("./errors");
 const routes_1 = require("./routes");
 const database_1 = require("./database");
 const serverConfig_1 = require("./serverConfig");
 class App {
     constructor() {
-        this.express = express();
-        this._middleware();
-        this._views();
-        this._routes(this.express);
-        this._errorHandlers();
+        const app = express();
+        this.express = app;
+        this.server = http.createServer(app);
+        this.socketIO = socket_1.IO.createSocketIOServer(this.server);
+        this.appRouter = new routes_1.AppRouter(app);
+        this._middleware(app);
+        this._views(app);
+        this._routes(app);
+        this._errorHandlers(app);
         database_1.MongoDB.configureAndCreate();
     }
-    _views() {
-        this.express.set("views", path.join(__dirname, "views"));
-        this.express.set("view engine", "ejs");
+    _views(app) {
+        app.set("views", path.join(__dirname, "views"));
+        app.set("view engine", "ejs");
     }
-    _middleware() {
-        this.express.use(favicon(path.join(__dirname, "public", "favicon.ico")));
-        this.express.use(logger("dev"));
-        this.express.use(bodyParser.json());
-        this.express.use(bodyParser.urlencoded({ extended: false }));
-        this.express.use(cookieParser(serverConfig_1.default.COOKIE_SECRET));
-        this.express.use(express.static(path.join(__dirname, "public")));
+    _middleware(app) {
+        app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
+        app.use(logger("dev"));
+        app.use(bodyParser.json());
+        app.use(bodyParser.urlencoded({ extended: false }));
+        app.use(cookieParser(serverConfig_1.default.COOKIE_SECRET));
+        app.use(express.static(path.join(__dirname, "public")));
+        this.appRouter.securityMiddleware();
     }
     _routes(app) {
-        this.express.use(new routes_1.AppRouter(app).configureAppRoutes().Router);
+        app.use(this.appRouter.configureAppRoutes());
     }
-    _errorHandlers() {
-        this.express.use((...args) => {
+    _errorHandlers(app) {
+        app.use((...args) => {
             const next = args[2];
             const err = new errors_1.ApplicationError("Not Found");
             err.status = 404;
             next(err);
         });
-        this.express.use(function (...args) {
+        app.use(function (...args) {
             const err = args[0];
             const req = args[1];
             const res = args[2];
@@ -52,4 +59,6 @@ class App {
         });
     }
 }
-module.exports = new App().express;
+const Application = new App();
+exports.Application = Application;
+module.exports = Application;

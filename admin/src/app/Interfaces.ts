@@ -1,6 +1,8 @@
 // import {RequestMethod, Headers} from '@angular/http';
 export interface IAdminData {
-  name: string;
+    name: string;
+    id: string | boolean;
+    role?: 'E';
 }
 // export interface RequestCustomArgs {
 //   method: RequestMethod | string;

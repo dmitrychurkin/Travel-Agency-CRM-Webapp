@@ -12,6 +12,7 @@ import { GoToHomeModule } from './go-to-home-routing.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { LoginModule } from './login/login.module';
 import { BackendService } from './backend.service';
+import { AdminCredentialsStorageService } from './admin-credentials-storage.service';
 
 
 @NgModule({
@@ -27,7 +28,7 @@ import { BackendService } from './backend.service';
     LoginModule,
     GoToHomeModule
   ],
-  providers: [BackendService, AuthGuard, AdminCredentialsDataResolver],
+  providers: [BackendService, AuthGuard, AdminCredentialsDataResolver, AdminCredentialsStorageService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
