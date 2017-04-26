@@ -1,6 +1,7 @@
 import * as crypto from "crypto";
 import * as fs from "fs";
 import * as uuid from "uuid";
+import { IPortUserOrder } from "../interfaces";
 import ServerConfig from "../serverConfig";
 
 const cryptoOptions = {
@@ -27,7 +28,7 @@ export function tokenStorage(UniqueStorage?: Map<string, number>, { ttl= 5000 }=
     // test
     // let tokenT: any = null;
     // setTimeout(() => console.log(Storage.has(tokenT)), ttl + 1000);
-    return (token: string= generateUUIDV1()) => {
+    return (token: string= uuid.v1()) => {
         // test
         // tokenT = token;
 
@@ -54,9 +55,9 @@ export function encryptPwdAsync(password: string, salt: string, options= cryptoO
             });
     });
 }
-export function generateUUIDV1() {
-    return uuid.v1();
-}
+// export function generateUUIDV1() {
+//     return uuid.v1();
+// }
 export function generateRandStrAsync(lenght= 48, encoding= "hex"): Promise<string> {
         return new Promise((resolve, reject) => {
             crypto.randomBytes(lenght, (err, buf) => {
@@ -102,7 +103,7 @@ export function comparePwdsAsync(resolver?: (value?: {} | PromiseLike<{}> | unde
 }
 
 export const basicCookieSessOptions = {
-    signed: true,
+    // signed: true,
     httpOnly: true,
     sameSite: true
 };
@@ -114,3 +115,22 @@ export const basicCookieJwtOptions = {
 };
 // export const DefaultCookieOptionsForSession = (req: Request) => Object.assign(cookieOptsBasic, { expires: 0 }, req.secure ? { secure: true } : {});
 // export const DefaultCookieOptionsForJwt = (req: Request) => Object.assign(cookieOptsBasic, { maxAge: ServerConfig.JWT_MAX_AGE }, req.secure ? { secure: true } : {});
+export function orderNormalizator(ORDER: IPortUserOrder) {
+
+    const orderDefaults = {
+        orderId: uuid.v4(),
+        timestamp: +new Date(),
+        adult_num: 0,
+        child_num: 0,
+        infant_num: 0,
+        remarks: "-",
+        dep_date: new Date().toLocaleDateString("en-US"),
+        arrive_date: new Date().toLocaleDateString("en-US"),
+        class: "Econom"
+    };
+    const applyDefaults = (order: IPortUserOrder) => Object.assign(orderDefaults, order);
+    const outputToDB: any = applyDefaults(ORDER);
+    delete outputToDB.ACTION;
+    delete outputToDB.SITE_LANG;
+    return <IPortUserOrder>outputToDB;
+}

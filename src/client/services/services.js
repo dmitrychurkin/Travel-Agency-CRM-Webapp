@@ -64,7 +64,6 @@ var FormModule = (function () {
     FormModule.prototype._formSerializer = function (form) {
         var resultElements = form.querySelectorAll(".F__form-wrap input:not([type=submit]), .F__form-wrap textarea");
         var ORDER = {};
-        ORDER.timestamp = +new Date;
         var DataServiceCode = this.Base.S7.flipTarget.dataset.code;
         ORDER.service = OrderFieldsConverter.serviceCodeConverter[DataServiceCode];
         var buffer = this.userDataBuffLS();

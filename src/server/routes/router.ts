@@ -3,7 +3,9 @@ import * as fs from "fs";
 import * as path from "path";
 import * as shortid from "shortid";
 import ServerConfig from "../serverConfig";
-import { basicCookieSessOptions } from "../services";
+
+// only test purpose
+import { AdminModel } from "../models";
 
 import { adminController, ordersController } from "../controllers";
 export class AppRouter {
@@ -16,7 +18,7 @@ export class AppRouter {
     private ensureSameOrigin() {
         return (req: Request, res: Response, next: NextFunction) => {
             const isExistSessionGeneralCookie = !!req.signedCookies[ServerConfig.SESSION_COOKIE_NAME];
-            if (req.method === "POST") {
+            if (req.method === "POST" || req.method === "DELETE") {
                 const HOST = req.get("host");
                 const REFERER = req.get("referer");
 
@@ -30,7 +32,7 @@ export class AppRouter {
                                     httpOnly: true,
                                     sameSite: true,
                                     secure: true
-                } : basicCookieSessOptions;
+                } : { signed: true, httpOnly: true, sameSite: true };
 
                 res.cookie(ServerConfig.SESSION_COOKIE_NAME, shortid.generate(), sessOpts);
             }
@@ -95,18 +97,8 @@ export class AppRouter {
             res.setHeader("content-type", "application/json");
             fs.createReadStream( path.resolve(__dirname, "servicesModel.json") ).pipe(res);
         });
-        router.post("/order/", (req: Request, res: Response) => {
-            console.log(req.body);
-            if (req && req.body && req.body.ACTION === "REGISTER") {
-                res.json({ info: "Your data has been sent, our agent will contact you.", reqId: "f4ydhsg53igfhfgs==" });
-            }
-        });
-        router.delete("/order/", (req: Request, res: Response) => {
-            console.log(req.body);
-            if (req && req.body && req.body.ACTION === "CANCEL") {
-                res.send("Your request successfully canceled.");
-            }
-        });
+        router.post("/order/", ordersController.addNewOrderController());
+        router.delete("/order/", ordersController.deleteOrderController());
 
 
         /**Debag admin panel */
@@ -127,8 +119,8 @@ export class AppRouter {
         router.head("/api/validate/",  adminController.tokenValidatorController());
         router.get("/api/get-admin-info/", [adminController.tokenValidatorController(true), adminController.getAdminInfoController()]);
         router.post("/api/register/", adminController.signInController());
-        router.post("/api/register-new/", adminController.registerNewAdminController(false));
-        router.head("/api/sign-out/", adminController.adminSignOutSync);
+        router.post("/api/register-new/", adminController.registerNewAdminController());
+        router.head("/api/sign-out/", [adminController.tokenValidatorController(true), adminController.adminSignOutController()]);
 
 /**Test routes */
         router.get("/api/sign-admin", (...args: Array<any>) => {
@@ -187,15 +179,62 @@ export class AppRouter {
             }
 
         });
-
-        router.get("/api/new-order", async (...args: Array<any>) => {
+        router.get("/api/order", async (...args: Array<any>) => {
             const res: Response = args[1];
+            // const req: Request = args[0];
             try {
-              await ordersController.addNewOrderController()(res);
+              let RESULT = await AdminModel.aggregate([
+                  { $match: { name:  "Dmitry"  }  },
+                  {
+                    $project: {
+                        _id: false,
+
+                        orders: {
+                            $filter: {
+                                input: "$orders",
+                                as: "order",
+                                cond: { $lt: [ "$$order.timestamp", Date.now() ] }
+                            }
+                        }
+                    }
+                  },
+                  {
+                     $project: {
+                         orders: {
+                             $slice: [ "$orders", -10 ]
+                         }
+                     }
+                  }
+              ])
+            .exec();
+
+            let [ orderField ] = RESULT;
+
+            const OUT = [];
+            for (let end = orderField.orders.length - 1; end >= 0; end--) {
+                delete orderField.orders[end]._id;
+                OUT.push(orderField.orders[end]);
+            }
+              res.json(OUT);
               // console.log(RESULT);
               // res.end(RESULT.toString());
             }catch (e) {
                 res.send(e.message);
+            }
+        });
+        router.get("/api/order1", async (...args: Array<any>) => {
+            const res: Response = args[1];
+            try {
+                let RESULT = await AdminModel.where("status", "admin")
+                                .sort("ordersCount")
+                                .limit(1)
+                                .then(result => {
+                                    return result[0].update({$inc: { ordersCount: 1 }}, { new: true });
+                                });
+
+                res.json(RESULT);
+            }catch (err) {
+                res.send(err.message);
             }
         });
         return router;

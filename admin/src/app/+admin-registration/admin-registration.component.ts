@@ -2,10 +2,11 @@ import { Component, OnInit, AfterViewChecked } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RequestMethod, Headers, Response } from '@angular/http';
-import { MdSnackBar } from '@angular/material';
+import { ErrorEmmiter } from '../error.service';
 import { BackendService } from '../backend.service';
 import { POST_HEADER } from '../app.config';
 import { AdminCredentialsDataResolver } from '../admin-credentials-data.service';
+import { ProgressBarService } from '../progress-bar.service';
 import { IRegistrationCredentials, IRequestForRegistration, IAdminData } from '../Interfaces';
 
 
@@ -22,8 +23,9 @@ export class AdminRegistrationComponent implements OnInit, AfterViewChecked {
     constructor(
         private backendService: BackendService,
         private router: Router,
-        private snackBar: MdSnackBar,
-        private adminDataResolver: AdminCredentialsDataResolver
+        private errorEmmiter: ErrorEmmiter,
+        private adminDataResolver: AdminCredentialsDataResolver,
+        private progressBarService: ProgressBarService
     ) {}
     ngAfterViewChecked() {
         this.checked = true;
@@ -46,6 +48,7 @@ export class AdminRegistrationComponent implements OnInit, AfterViewChecked {
             return;
         }
         this.isSend = true;
+        this.progressBarService.emmiter.emit(true);
         const newAdmin: IRegistrationCredentials = form.value;
         if (this.isCanEdit) {
             newAdmin.role = newAdmin.role || 'E';
@@ -67,20 +70,24 @@ export class AdminRegistrationComponent implements OnInit, AfterViewChecked {
             }
             throw new Error('(:0_^_0:)');
         })
-        .catch(err => {
-            console.log(err);
-            let errMessage = '';
-            const serverInfo: {exists: boolean} | {expired: boolean} = err && err.json && err.json();
-            if (serverInfo && (<any>serverInfo).exists) {
-                errMessage = 'This name has already taken!';
+        .catch((err: Response) => {
+            let errMessage: string;
+            let serverInfo: {exists: boolean} | {expired: boolean};
+            const navigateFn = () => this.router.navigate(['login'], { skipLocationChange: true, replaceUrl: false });
+            if (err.status === 403) {
+                const textResponse = err.text();
+
+                serverInfo = textResponse && JSON.parse(textResponse);
+                if ( (<any>serverInfo).exists ) {
+                    errMessage = 'This name has already taken!';
+                }else {
+                    return navigateFn();
+                }
+            }else {
+                navigateFn();
             }
-            if (serverInfo && (<any>serverInfo).expired) {
-                return this.router.navigate(['login'], { skipLocationChange: true, replaceUrl: false });
-            }
-            this.snackBar.open(errMessage || 'Error occured, try again later', 'Ok', {
-                duration: 3000
-            });
+            this.errorEmmiter.emmiter.emit(errMessage || 'Error occured, try again later');
         })
-        .then(() => this && this.isSend && (this.isSend = false)); ;
+        .then( () => this.progressBarService.emmiter.emit(this.isSend = false) );
     }
 }

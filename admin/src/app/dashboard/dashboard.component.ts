@@ -10,6 +10,10 @@ import { AdminCredentialsDataResolver } from '../admin-credentials-data.service'
 import { IAdminData } from '../Interfaces';
 import 'rxjs/add/operator/map';
 import {Subscription} from 'rxjs/Subscription';
+import { ErrorEmmiter, errorMessages } from '../error.service';
+import { ProgressBarService } from '../progress-bar.service';
+import { WebSocketService } from './web-socket.service';
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -18,8 +22,9 @@ import {Subscription} from 'rxjs/Subscription';
 })
 export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit, AfterViewChecked {
   @ViewChildren(RouterLinkActive) routLinkActive: any;
-  private adminName: string;
+  private adminInfo: string;
   private sub: Subscription;
+
   // private componentState: 'inactive' | 'active' = 'inactive';
   // private dateStr = '';
   constructor(
@@ -27,16 +32,25 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit, Aft
     private router: Router,
     private ordersService: OrdersService,
     private backendService: BackendService,
-    private mdSnackBar: MdSnackBar,
-    private adminDataResolver: AdminCredentialsDataResolver
+    private errorEmmiter: ErrorEmmiter,
+    private adminDataResolver: AdminCredentialsDataResolver,
+    private progressBarEmmiter: ProgressBarService,
+    private webSocketService: WebSocketService
     ) { }
   private signOut() {
+    this.progressBarEmmiter.emmiter.emit(true);
     this.backendService.sendRequest(SIGN_OUT, {
       method: RequestMethod.Head
     })
     .then(() => this.router.navigate(['/login']))
-    .catch(() => this.mdSnackBar.open('Error occured, try later', 'Ok', { duration: 3000 }))
-    .then(() => this.adminDataResolver.clearAdminData());
+    .catch(() => this.errorEmmiter.emmiter.emit(errorMessages.load))
+    .then(() => {
+      this.progressBarEmmiter.emmiter.emit(false);
+      this.adminDataResolver.clearAdminData();
+    });
+  }
+  onSendDelete() {
+    this.webSocketService.emitDelete();
   }
   ngAfterViewChecked() {
     if (this.ordersService.cancelAll) {
@@ -47,15 +61,28 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit, Aft
     // console.log('ngOnViewChange ', this.routLinkActive);
     // this.componentState = 'active';
   }
+
   ngOnInit() {
     console.log('DashBoard! AdminCredentialsDataResolver.adminData = ', AdminCredentialsDataResolver.adminData);
     // delete AdminCredentialsDataResolver.adminData;
     this.sub = this.activatedRoute.data.map(data => {
       console.log('From ngOnInit DashBoard =>', data);
-      this.adminName = data.admin;
+      this.adminInfo = data.admin;
+      this.webSocketService.connetTo(data.admin.id);
     }).subscribe();
+    console.log('OrdersService.ordersRegistry = ', OrdersService.ordersRegistry);
   }
   ngOnDestroy() {
     this.sub.unsubscribe();
+    this.webSocketService.disconnect();
+    OrdersService.RemovableOrders.length =
+    OrdersService.ordersRegistry.length =
+    OrdersService.DATA.length = 0;
+  }
+  onActivate(e) {
+    console.log('RouterOutlet onActivate', e);
+  }
+  onDeactivate(e) {
+    console.log('RouterOutlet onDeactivate', e);
   }
 }

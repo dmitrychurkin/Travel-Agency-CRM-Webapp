@@ -7,6 +7,7 @@ import { BackendService } from '../backend.service';
 import { REGISTER_API, POST_HEADER } from '../app.config';
 import { IRequestForRegistration, IAdminSignInCredentials, IAdminData } from '../Interfaces';
 import { AdminCredentialsDataResolver } from '../admin-credentials-data.service';
+import { ProgressBarService } from '../progress-bar.service';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +20,8 @@ export class LoginComponent {
   constructor(
     private router: Router,
     private backendService: BackendService,
-    private adminDataResolver: AdminCredentialsDataResolver
+    private adminDataResolver: AdminCredentialsDataResolver,
+    private progressBarService: ProgressBarService
   ) { }
   onSubmit(form: NgForm) {
     if (form.invalid) {
@@ -30,6 +32,7 @@ export class LoginComponent {
       return;
     }
     this.isSend = true;
+    this.progressBarService.emmiter.emit(true);
       const adminSignInCred: IAdminSignInCredentials = form.value;
       const ReqArgs: RequestOptionsArgs = {
         method: RequestMethod.Post,
@@ -51,7 +54,7 @@ export class LoginComponent {
                               console.log(err);
                               form.resetForm();
                             })
-                            .then(() => this && this.isSend && (this.isSend = false));
+                            .then(() => this && (this.progressBarService.emmiter.emit(this.isSend = false)));
 
   }
   onBlur(ngInputRef, refOfInput) {

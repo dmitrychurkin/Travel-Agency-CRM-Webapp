@@ -25,7 +25,7 @@ export type Services = "Air ticketing and reservation" |
                         "Pilgrimage packages";
 export interface IOrderPort {
     // order_number?: number;
-    timestamp: number;
+    timestamp?: number;
     service: "Air ticketing and reservation" |
                 "Travel insurance" |
                 "Visa assist" |

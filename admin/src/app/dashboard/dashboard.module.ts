@@ -9,6 +9,7 @@ import { OrdersComponent } from './children/orders.component';
 import { FeaturesComponent } from './children/features.component';
 import { DetailsComponent } from './children/details.component';
 import { OrdersService } from './orders.service';
+import { WebSocketService } from './web-socket.service';
 
 @NgModule({
   imports: [
@@ -25,6 +26,6 @@ import { OrdersService } from './orders.service';
     DetailsComponent
   ],
   exports: [MaterialModule, FlexLayoutModule],
-  providers: [ OrdersService ]
+  providers: [ OrdersService, WebSocketService ]
 })
 export class DashboardModule { }

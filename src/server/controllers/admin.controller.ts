@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import * as mongoose from "mongoose";
-import * as HashIds from "hashids";
+import * as uuid from "uuid";
 import { AdminModel, SiteModel } from "../models";
 import ServerConfig from "../serverConfig";
 import {
@@ -15,11 +15,16 @@ import {
     decodeTokenJWTSync,
     basicCookieSessOptions,
     basicCookieJwtOptions } from "../services";
-import { AuthenticationError, RegistrationError, ApplicationError } from "../errors";
+import { TokenValidationError,
+        AuthenticationError,
+        RegistrationError,
+        ApplicationError } from "../errors";
 import {
     IRegistrationAdminInfo,
     IDocOnAdminSingin,
-    IDocOnAdminRegister } from "../interfaces";
+    IDocOnAdminRegister,
+    IPortOnAdminSession,
+    IUpdatePayload } from "../interfaces";
 
 
 class AdminController {
@@ -57,12 +62,33 @@ class AdminController {
         }
         return false;
     }
-    adminSignOutSync(...args: Array<any>) {
-        const res: Response = args[1];
+    private _clearCookiesSync(res: Response) {
         let config = { path: "/" };
-        res.clearCookie(ServerConfig.SESSION_TOKEN_NAME, config)
-            .clearCookie(ServerConfig.COOKIE_JWT_NAME, config)
-            .end();
+        return res.clearCookie(ServerConfig.SESSION_TOKEN_NAME, config)
+                    .clearCookie(ServerConfig.COOKIE_JWT_NAME, config)
+                        .end();
+    }
+    adminSignOutController() {
+        return async (req: Request, res: Response) => {
+            // const res: Response = args[1];
+            // const adminHashedId: string = req && req.signedCookies[ServerConfig.SESSION_TOKEN_NAME];
+            const{ _st } = req.cookies;
+            // const adminId: string = _st && new HashIds(ServerConfig.HASHIDS_SALT).decodeHex(_st);
+            // let config = { path: "/" };
+            // let clearCookieSync = () => res.clearCookie(ServerConfig.SESSION_TOKEN_NAME, config)
+            //                                 .clearCookie(ServerConfig.COOKIE_JWT_NAME, config)
+            //                                 .end();
+            if (!_st) {
+                res.status(500);
+                return this._clearCookiesSync(res);
+            }
+            try {
+                await AdminModel.findOneAndUpdate({ sessionToken: _st }, { $set: { isOnline: false, webSoketId: "", sessionToken: "" }}).exec();
+            }catch (err) {
+                res.status(500);
+            }
+            this._clearCookiesSync(res);
+        };
     }
     adminSingInAsync(req: Request, res: Response) {
         // const { userName } = req.body;
@@ -75,13 +101,14 @@ class AdminController {
 
 
         let ADMIN_DOC: mongoose.Document;
-        let SESSION_TOKEN: string;
+        let sessionToken: string;
         let JWT: string;
         let _id: string;
         let hash;
         let role: "E" | "O";
         let passwordSalt;
         let name: string;
+        // let webSoketId: string;
         return this.checkUnMatchWithSiteLoginAsync(userName)
                         .then(() => AdminModel.findOne({ name: userName })
                                                .select("password passwordSalt name role")
@@ -93,20 +120,26 @@ class AdminController {
                         })
                         .then(ComparedResult => {
                             if (ComparedResult) {
-                                SESSION_TOKEN = new HashIds(ServerConfig.HASHIDS_SALT).encodeHex(_id);
-                                return issueTokenJWTAsync({ subject: SESSION_TOKEN });
+                                // SESSION_TOKEN = new HashIds(ServerConfig.HASHIDS_SALT).encodeHex(_id);
+                                sessionToken = uuid.v4();
+                                return issueTokenJWTAsync({ subject: sessionToken });
                             }
                             throw new AuthenticationError("Wrong password");
                         })
                         .then(jwt => {
                             JWT = <string>jwt;
-                            return ADMIN_DOC.update({ jwt });
+                            // webSoketId = uuid.v4();
+                            return ADMIN_DOC.update({ sessionToken, isOnline: true });
                         })
-                        .then(() => {
+                        .then((result: IUpdatePayload) => {
+                            const{ ok, nModified, n } = result;
+                            if ( !ok || !nModified || !n ) {
+                                throw new AuthenticationError("Update operation failed!");
+                            }
                             if (!res.headersSent) {
-                                const adminData = role === "E" ? {name, id: SESSION_TOKEN, role} : {name, id: SESSION_TOKEN};
+                                const adminDataObject = {name: userName, id: sessionToken};
+                                const adminData: IPortOnAdminSession = role === "E" ? Object.assign(adminDataObject, {role}) : adminDataObject;
                                 const sessOpts: any = req.secure ? {
-                                    signed: true,
                                     httpOnly: true,
                                     sameSite: true,
                                     secure: true
@@ -121,7 +154,7 @@ class AdminController {
                                 res.clearCookie(ServerConfig.ASSUMED_ADMIN_COOKIE_KEY, {path: "/"})
                                     .cookie(
                                         ServerConfig.SESSION_TOKEN_NAME,
-                                        SESSION_TOKEN,
+                                        sessionToken,
                                         sessOpts
                                     )
                                     .cookie(
@@ -148,12 +181,12 @@ class AdminController {
                                     httpOnly: true,
                                     sameSite: true,
                                     secure: true,
-                                    maxAge: ServerConfig.TTL + 1000
+                                    maxAge: ServerConfig.TTL
                     } : {
                         signed: true,
                         httpOnly: true,
                         sameSite: true,
-                        maxAge: ServerConfig.TTL + 1000
+                        maxAge: ServerConfig.TTL
                     };
 
                     res.cookie(
@@ -246,7 +279,7 @@ class AdminController {
                     throw err;
                 });
     }
-    registerNewAdminController(isSendForbiden= true) {
+    registerNewAdminController(/*isSendForbiden= true*/) {
         // debag
         // const ReqBody: IRegistrationAdminInfo = {
         //     userName: "Dmitry",
@@ -258,47 +291,58 @@ class AdminController {
             const ReqBody = req.body;
             const{ userName, pass, role } = ReqBody;
             const uuidToken = req && req.signedCookies[ServerConfig.ASSUMED_ADMIN_COOKIE_KEY];
+            let PAYLOAD: { expired: boolean } | { exists: boolean };
             if (!uuidToken || !(userName && pass && role)) {
                 return res
                         .clearCookie(ServerConfig.ASSUMED_ADMIN_COOKIE_KEY)
                         .status(403)
                         .json({expired: true});
             }
-            let _id: mongoose.Types.ObjectId;
-            let HASHED_ID: string;
+            // let _id: mongoose.Types.ObjectId;
+            let sessionToken: string;
             let jwt: string;
             let passwordSalt: string;
             let passwordHash: string;
-            let adminData: any;
+            let adminData: IPortOnAdminSession;
+            // let webSoketId: string;
             return this.verifyUniqAsync(userName)
                 .then(() => {
-                    this.cancelTimer(uuidToken);
-                    _id = new mongoose.Types.ObjectId;
-                    HASHED_ID = new HashIds(ServerConfig.HASHIDS_SALT).encodeHex(_id.toString());
-                    adminData = role === "E" ? {name: userName, id: HASHED_ID, role} : {name: userName, id: HASHED_ID};
+                    if (!this.cancelTimer(uuidToken)) {
+                        PAYLOAD = {expired: true};
+                        res.clearCookie(ServerConfig.ASSUMED_ADMIN_COOKIE_KEY);
+                        throw new RegistrationError("Token has expired");
+                    }
+                    // _id = new mongoose.Types.ObjectId;
+                    // HASHED_ID = new HashIds(ServerConfig.HASHIDS_SALT).encodeHex(_id.toString());
+
+                    sessionToken = uuid.v4();
+                    const adminDataObject = {name: userName, id: sessionToken};
+                    adminData = role === "E" ? Object.assign(adminDataObject, {role}) : adminDataObject;
                     return Promise.all([
                         this.SaveRootAdminBackupCredentialsAsync(ReqBody),
                         generateRandStrAsync().then(salt => {
                             passwordSalt = salt.toString();
                             return encryptPwdAsync(pass, passwordSalt);
                         }),
-                        issueTokenJWTAsync({ subject: HASHED_ID })
+                        issueTokenJWTAsync({ subject: sessionToken })
                     ]);
                 })
                 .then((resultArray: [number, string, string]) => {
                     [, passwordHash, jwt ] = resultArray;
                     return new AdminModel({
-                        _id,
+                        // _id,
                         name: userName,
                         password: passwordHash,
                         passwordSalt,
                         role,
-                        siteRef: ServerConfig.SITE_ID
+                        sessionToken,
+                        siteRef: ServerConfig.SITE_ID,
+                        isOnline: true
                     }).save();
                 })
                 .then((/*adminDoc: mongoose.Document & IDocOnAdminRegister*/) => {
                     const sessOpts: any = req.secure ? {
-                                    signed: true,
+                                    // signed: true,
                                     httpOnly: true,
                                     sameSite: true,
                                     secure: true
@@ -313,7 +357,7 @@ class AdminController {
                             res.clearCookie(ServerConfig.ASSUMED_ADMIN_COOKIE_KEY)
                                 .cookie(
                                     ServerConfig.SESSION_TOKEN_NAME,
-                                    HASHED_ID,
+                                    sessionToken,
                                     sessOpts
                                 )
                                 .cookie(
@@ -326,7 +370,7 @@ class AdminController {
                 })
                 .catch(err => {
                     if (err instanceof RegistrationError) {
-                        return isSendForbiden ? res.status(403).end(this.isMessage ? err.message : null) : res.status(403).json({exists: true});
+                        return /*isSendForbiden ? res.status(403).end(this.isMessage ? err.message : null) :*/ res.status(403).json(PAYLOAD || {exists: true});
                     }
                     return res.status(500).end(this.isMessage ? err.message : null);
                 });
@@ -335,7 +379,8 @@ class AdminController {
     }
     tokenValidatorController(isMiddleware= false) {
         return (req: Request, res: Response, next: NextFunction) => {
-            const{ _xt, _st } = req.signedCookies;
+            const{ _xt } = req.signedCookies;
+            const{ _st } = req.cookies;
             let expireTimeHelper = (err: any, sessToken: string) => {
                 if (err.name === "TokenExpiredError") {
                     return updateJwt(sessToken);
@@ -346,7 +391,7 @@ class AdminController {
                 return issueTokenJWTAsync({ subject: sessToken })
                             .then(jwt => {
                                 const sessOpts: any = req.secure ? {
-                                    signed: true,
+                                    // signed: true,
                                     httpOnly: true,
                                     sameSite: true,
                                     secure: true
@@ -374,7 +419,14 @@ class AdminController {
                         break;
                     }
                     case ( _xt === undefined && _st !== undefined ): {
-                        PromiseResult = updateJwt(_st);
+                        PromiseResult = AdminModel.findOne({ sessionToken: _st, isOnline: true })
+                                                    .then(result => {
+                                                        if (result) {
+                                                            return 0;
+                                                        }
+                                                        throw new TokenValidationError("No such user!");
+                                                    })
+                                                    .then(() => updateJwt(_st));
                         break;
                     }
                     case ( _xt !== undefined && _st === undefined ): {
@@ -382,7 +434,7 @@ class AdminController {
                         PromiseResult = verifyTokenJWTAsync(_xt, { subject: sessToken })
                                                 .then(/*rawResult*/() => {
                                                     const sessOpts: any = req.secure ? {
-                                                        signed: true,
+                                                        // signed: true,
                                                         httpOnly: true,
                                                         sameSite: true,
                                                         secure: true
@@ -399,26 +451,33 @@ class AdminController {
                         return res.status(401).end();
                     }
             }
-            PromiseResult && PromiseResult.catch(err => res.status(401).end(this.isMessage ? err.message : null));
+            PromiseResult && PromiseResult.catch(() => (res.status(401), this._clearCookiesSync(res))/*.end(this.isMessage ? err.message : null)*/);
         };
     }
     getAdminInfoController() {
         return (req: Request, res: Response) => {
-            const{ _st } = req.signedCookies;
+            // const{ _st } = req.signedCookies;
+            const{ _st } = req.cookies;
             if (!_st) {
                 return res.status(403).end();
             }
-            const decodedSt = new HashIds(ServerConfig.HASHIDS_SALT).decodeHex(_st);
-            return AdminModel.findById(decodedSt)
+            // const decodedSt = new HashIds(ServerConfig.HASHIDS_SALT).decodeHex(_st);
+            return AdminModel.findOne({ sessionToken: _st })
                             .select("name role")
                             .then((admin: IDocOnAdminRegister & mongoose.Document) => {
-                                if (admin && admin.name) {
-                                    return res.json({ name: admin.name, id: _st, role: admin.role });
+                                if (admin) {
+                                    const{ name, role } = admin;
+                                    const adminDataObject = { name, id: _st  };
+                                    const adminData: IPortOnAdminSession = role === "E" ? Object.assign(adminDataObject, {role}) : adminDataObject;
+                                    return res.json(adminData);
                                 }
                                 throw new ApplicationError("Admin with this id doesn't exists!");
                             })
                             .catch(() => res.status(403).end());
         };
+    }
+    updateSocketIdOnConn(adminId: string, socketId: string) {
+        return AdminModel.findOneAndUpdate({ sessionToken: adminId, isOnline: true }, { $set: { webSoketId: socketId } }).exec();
     }
 }
 const adminController = new AdminController();

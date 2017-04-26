@@ -3,10 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose = require("mongoose");
 const uuid = require("uuid");
 const AdminsSchema = new mongoose.Schema({
-    _id: {
-        type: mongoose.Schema.Types.ObjectId,
-        unique: true
-    },
     siteRef: {
         type: mongoose.SchemaTypes.String,
         ref: "SiteWingsForWorldSettings"
@@ -23,7 +19,24 @@ const AdminsSchema = new mongoose.Schema({
         type: String,
         default: "admin"
     },
-    jwt: String,
+    sessionToken: {
+        type: String,
+        required: true
+    },
+    isOnline: Boolean,
+    counterOfOrders: {
+        type: Number,
+        default: 0
+    },
+    ordersCount: {
+        type: Number,
+        default: 0
+    },
+    role: {
+        type: String,
+        enum: ["E", "O"]
+    },
+    webSoketId: String,
     orders: [{
             orderId: {
                 type: String,
@@ -31,9 +44,9 @@ const AdminsSchema = new mongoose.Schema({
                 default: uuid.v4
             },
             timestamp: {
-                type: Date,
+                type: Number,
                 required: true,
-                default: Date.now
+                default: +new Date()
             },
             service: {
                 type: String,
@@ -114,22 +127,9 @@ const AdminsSchema = new mongoose.Schema({
                 default: "First",
                 enum: ["First", "Econom", "Business"]
             }
-        }],
-    counterOfOrders: {
-        type: Number,
-        default: 0
-    },
-    ordersCount: {
-        type: Number,
-        default: 0
-    },
-    role: {
-        type: String,
-        enum: ["E", "O"]
-    },
-    webSoketId: String
+        }]
 }, {
     timestamps: true,
-    bufferCommands: false
+    bufferCommands: true
 });
 exports.AdminModel = mongoose.model("Admin", AdminsSchema);

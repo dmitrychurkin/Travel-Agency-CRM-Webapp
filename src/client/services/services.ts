@@ -84,7 +84,7 @@ export default class FormModule implements ClientFormValidator, LocalStorageServ
         let resultElements = form.querySelectorAll(".F__form-wrap input:not([type=submit]), .F__form-wrap textarea");
         // let outPut: IS = {};
         let ORDER = <IOrderPort>{};
-        ORDER.timestamp = +new Date;
+        // ORDER.timestamp = +new Date;
         const DataServiceCode = <ServiceCode>this.Base.S7.flipTarget.dataset.code;
         ORDER.service = <Services>OrderFieldsConverter.serviceCodeConverter[DataServiceCode];
         let buffer = this.userDataBuffLS();

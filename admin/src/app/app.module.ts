@@ -1,7 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, ErrorHandler } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
+import { MaterialModule } from '@angular/material';
 
 import { AuthGuard } from './auth-guard.guard';
 import { AdminCredentialsDataResolver } from './admin-credentials-data.service';
@@ -13,7 +14,8 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { LoginModule } from './login/login.module';
 import { BackendService } from './backend.service';
 import { AdminCredentialsStorageService } from './admin-credentials-storage.service';
-
+import { AppErrorHandler, ErrorEmmiter } from './error.service';
+import { ProgressBarService } from './progress-bar.service';
 
 @NgModule({
   declarations: [
@@ -23,12 +25,22 @@ import { AdminCredentialsStorageService } from './admin-credentials-storage.serv
   imports: [
     BrowserModule,
     HttpModule,
+    MaterialModule,
     AppRoutingModule,
     DashboardModule,
     LoginModule,
     GoToHomeModule
   ],
-  providers: [BackendService, AuthGuard, AdminCredentialsDataResolver, AdminCredentialsStorageService],
+  providers: [
+      BackendService,
+      AuthGuard,
+      AdminCredentialsDataResolver,
+      AdminCredentialsStorageService,
+      ErrorEmmiter,
+      AppErrorHandler,
+      ProgressBarService,
+      [{provide: ErrorHandler, useClass: AppErrorHandler}]
+    ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,7 +1,9 @@
-declare const io: any;
 import { Component, OnInit } from '@angular/core';
+import { MdCheckboxChange } from '@angular/material';
 // import { slideInAnimation } from '../animation';
 import { OrdersService } from '../orders.service';
+import { WebSocketService } from '../web-socket.service';
+import { IOrdersData, IPortUserOrder } from '../../Interfaces';
 
 @Component({
     selector: 'app-user-orders',
@@ -11,28 +13,27 @@ import { OrdersService } from '../orders.service';
 })
 export class OrdersComponent implements OnInit {
     // @HostBinding('@routeAnimation') routeAnimation = true;
-    private orders: any[];
-    constructor(private ordersService: OrdersService) {}
-    ngOnInit() {
-        const socket = io();
-        socket.on('test', data => console.log('SOCKET_IO channel test', data));
-        setTimeout(() => {
-            this.orders = [
-                {id: 1, first_name: 'Dmitry', last_name: 'Churkin', phone_number: '12345'},
-                {id: 2, first_name: 'Person1', last_name: 'Churkin', phone_number: '12345'},
-                {id: 3, first_name: 'Person2', last_name: 'Churkin', phone_number: '12345'},
-                {id: 4, first_name: 'Person3', last_name: 'Churkin', phone_number: '12345'},
-                {id: 5, first_name: 'Person4', last_name: 'Churkin', phone_number: '12345'},
-                {id: 6, first_name: 'Person5', last_name: 'Churkin', phone_number: '12345'},
-            ];
-        }, 3000);
+
+    private MainOrders: Array<IOrdersData>;
+    constructor(
+        private ordersService: OrdersService,
+        private webSocketService: WebSocketService
+        ) {}
+    calcIndex(item: IPortUserOrder) {
+        return OrdersService.ordersRegistry.indexOf(item.orderId) + 1;
     }
-    private onCheckboxChange(e) {
-        console.log('onCheckboxChange = ', e);
+    ngOnInit() {
+        console.log('OrdersComponent Init!');
+        this.MainOrders = OrdersService.DATA;
+    }
+
+    private onCheckboxChange(e: MdCheckboxChange) {
+        const{ RemovableOrders } = OrdersService;
+        const id = e.source.id;
         if (e.checked) {
-            ++this.ordersService.counterOfChecks;
+            this.ordersService.checkOnToDeleteAdmin(id);
         }else {
-            --this.ordersService.counterOfChecks;
+            this.ordersService.unCheckOnToDeleteAdmin(id);
         }
     }
 }

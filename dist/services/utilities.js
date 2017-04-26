@@ -24,7 +24,7 @@ function tokenStorage(UniqueStorage, { ttl = 5000 } = {}) {
     else {
         Storage = new Map();
     }
-    return (token = generateUUIDV1()) => {
+    return (token = uuid.v1()) => {
         const TimerId = ttlScheduller(() => {
             if (Storage.has(token)) {
                 Storage.delete(token);
@@ -47,10 +47,6 @@ function encryptPwdAsync(password, salt, options = cryptoOptions) {
     });
 }
 exports.encryptPwdAsync = encryptPwdAsync;
-function generateUUIDV1() {
-    return uuid.v1();
-}
-exports.generateUUIDV1 = generateUUIDV1;
 function generateRandStrAsync(lenght = 48, encoding = "hex") {
     return new Promise((resolve, reject) => {
         crypto.randomBytes(lenght, (err, buf) => {
@@ -101,7 +97,6 @@ function comparePwdsAsync(resolver, rejector) {
 }
 exports.comparePwdsAsync = comparePwdsAsync;
 exports.basicCookieSessOptions = {
-    signed: true,
     httpOnly: true,
     sameSite: true
 };
@@ -111,3 +106,22 @@ exports.basicCookieJwtOptions = {
     sameSite: true,
     maxAge: serverConfig_1.default.JWT_MAX_AGE
 };
+function orderNormalizator(ORDER) {
+    const orderDefaults = {
+        orderId: uuid.v4(),
+        timestamp: +new Date(),
+        adult_num: 0,
+        child_num: 0,
+        infant_num: 0,
+        remarks: "-",
+        dep_date: new Date().toLocaleDateString("en-US"),
+        arrive_date: new Date().toLocaleDateString("en-US"),
+        class: "Econom"
+    };
+    const applyDefaults = (order) => Object.assign(orderDefaults, order);
+    const outputToDB = applyDefaults(ORDER);
+    delete outputToDB.ACTION;
+    delete outputToDB.SITE_LANG;
+    return outputToDB;
+}
+exports.orderNormalizator = orderNormalizator;

@@ -5,6 +5,9 @@
     overflow-y: auto;
     height: calc(100vh - 72px);
 }
+.ord__card {
+    margin-bottom: 30px;
+}
 .ords__container {
     width: 100%;
     height: calc(100vh - 72px);

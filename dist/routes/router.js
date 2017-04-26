@@ -6,7 +6,7 @@ const fs = require("fs");
 const path = require("path");
 const shortid = require("shortid");
 const serverConfig_1 = require("../serverConfig");
-const services_1 = require("../services");
+const models_1 = require("../models");
 const controllers_1 = require("../controllers");
 class AppRouter {
     constructor(app) {
@@ -16,7 +16,7 @@ class AppRouter {
     ensureSameOrigin() {
         return (req, res, next) => {
             const isExistSessionGeneralCookie = !!req.signedCookies[serverConfig_1.default.SESSION_COOKIE_NAME];
-            if (req.method === "POST") {
+            if (req.method === "POST" || req.method === "DELETE") {
                 const HOST = req.get("host");
                 const REFERER = req.get("referer");
                 if (!isExistSessionGeneralCookie || !(REFERER.includes(HOST)) || !req.xhr) {
@@ -29,7 +29,7 @@ class AppRouter {
                     httpOnly: true,
                     sameSite: true,
                     secure: true
-                } : services_1.basicCookieSessOptions;
+                } : { signed: true, httpOnly: true, sameSite: true };
                 res.cookie(serverConfig_1.default.SESSION_COOKIE_NAME, shortid.generate(), sessOpts);
             }
             return next();
@@ -90,18 +90,8 @@ class AppRouter {
             res.setHeader("content-type", "application/json");
             fs.createReadStream(path.resolve(__dirname, "servicesModel.json")).pipe(res);
         });
-        router.post("/order/", (req, res) => {
-            console.log(req.body);
-            if (req && req.body && req.body.ACTION === "REGISTER") {
-                res.json({ info: "Your data has been sent, our agent will contact you.", reqId: "f4ydhsg53igfhfgs==" });
-            }
-        });
-        router.delete("/order/", (req, res) => {
-            console.log(req.body);
-            if (req && req.body && req.body.ACTION === "CANCEL") {
-                res.send("Your request successfully canceled.");
-            }
-        });
+        router.post("/order/", controllers_1.ordersController.addNewOrderController());
+        router.delete("/order/", controllers_1.ordersController.deleteOrderController());
         router.get(["/login", "/dashboard", "/dashboard/*", "/registration"], (...args) => {
             const pathToExperimentalFile = path.resolve(__dirname, "../../admin/dist/index.html");
             const res = args[1];
@@ -115,8 +105,8 @@ class AppRouter {
         router.head("/api/validate/", controllers_1.adminController.tokenValidatorController());
         router.get("/api/get-admin-info/", [controllers_1.adminController.tokenValidatorController(true), controllers_1.adminController.getAdminInfoController()]);
         router.post("/api/register/", controllers_1.adminController.signInController());
-        router.post("/api/register-new/", controllers_1.adminController.registerNewAdminController(false));
-        router.head("/api/sign-out/", controllers_1.adminController.adminSignOutSync);
+        router.post("/api/register-new/", controllers_1.adminController.registerNewAdminController());
+        router.head("/api/sign-out/", [controllers_1.adminController.tokenValidatorController(true), controllers_1.adminController.adminSignOutController()]);
         router.get("/api/sign-admin", (...args) => {
             const res = args[1];
             const req = args[0];
@@ -148,13 +138,57 @@ class AppRouter {
                 return res.status(500).end(e.message);
             }
         }));
-        router.get("/api/new-order", (...args) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        router.get("/api/order", (...args) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const res = args[1];
             try {
-                yield controllers_1.ordersController.addNewOrderController()(res);
+                let RESULT = yield models_1.AdminModel.aggregate([
+                    { $match: { name: "Dmitry" } },
+                    {
+                        $project: {
+                            _id: false,
+                            orders: {
+                                $filter: {
+                                    input: "$orders",
+                                    as: "order",
+                                    cond: { $lt: ["$$order.timestamp", Date.now()] }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            orders: {
+                                $slice: ["$orders", -10]
+                            }
+                        }
+                    }
+                ])
+                    .exec();
+                let [orderField] = RESULT;
+                const OUT = [];
+                for (let end = orderField.orders.length - 1; end >= 0; end--) {
+                    delete orderField.orders[end]._id;
+                    OUT.push(orderField.orders[end]);
+                }
+                res.json(OUT);
             }
             catch (e) {
                 res.send(e.message);
+            }
+        }));
+        router.get("/api/order1", (...args) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const res = args[1];
+            try {
+                let RESULT = yield models_1.AdminModel.where("status", "admin")
+                    .sort("ordersCount")
+                    .limit(1)
+                    .then(result => {
+                    return result[0].update({ $inc: { ordersCount: 1 } }, { new: true });
+                });
+                res.json(RESULT);
+            }
+            catch (err) {
+                res.send(err.message);
             }
         }));
         return router;

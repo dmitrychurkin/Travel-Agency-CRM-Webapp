@@ -36,17 +36,23 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
   }
   canLoad(route: Route): Observable<boolean>|Promise<boolean>|boolean {
     const adminRegisterData: any = this.adminDataResolver.getAdminData();
-    if ( route.path === 'registration' ) {
-      if (adminRegisterData && adminRegisterData.r) {
-        return true;
+    switch (route.path) {
+      case 'registration': {
+        if (adminRegisterData && adminRegisterData.r) {
+          return true;
+        }
+        this.router.navigate(['login']);
+        return false;
       }
-      this.router.navigate(['login']);
-      return false;
-    }else if ( route.path === 'customize' ) {
-      if (adminRegisterData && adminRegisterData.role === 'E') {
-        return true;
+      // tslint:disable-next-line:no-switch-case-fall-through
+      case 'customize': {
+        if (adminRegisterData && adminRegisterData.role === 'E') {
+          console.log('From can load target CUSTOMIZE');
+          return true;
+        }
+        this.router.navigate(['dashboard']);
+        return false;
       }
-      return false;
     }
   }
   private _sendRequest() {
