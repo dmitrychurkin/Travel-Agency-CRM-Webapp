@@ -65,3 +65,36 @@ export interface IPortSocketInfo {
   lastTimestamp: number;
   adminId: string | boolean;
 }
+
+// FileStorage response
+export interface IFileAttr {
+  type: 'files';
+  id: string;
+  attributes: {
+    fileSize: number;
+    isInPublic: boolean;
+    fileName: string;
+  };
+  links: {
+    self: string;
+  };
+};
+export interface IFileStoragePortResponse {
+  links: {
+    self: string;
+  };
+  data: Array<IFileAttr>;
+}
+
+export interface IFileEntity {
+    attributes: {
+      fileSize: number;
+      fileName: string;
+      isInPublic: boolean;
+    };
+    id: string;
+    type: 'files';
+    links: {
+      self: string;
+    };
+}

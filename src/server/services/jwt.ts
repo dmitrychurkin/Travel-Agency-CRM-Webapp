@@ -10,7 +10,7 @@ export function issueTokenJWTAsync(jwtOptions: { subject: string }, payload= {})
 }
 export function verifyTokenJWTAsync(token: string, subject= {}): Promise<IVerifyPayloadJWT> {
 
-        const Options = Object.assign(ServerConfig.JWT_OPTIONS_FOR_VERIFICATION, subject);
+        const Options: jwt.VerifyOptions = Object.assign(ServerConfig.JWT_OPTIONS_FOR_VERIFICATION, subject);
 
         return new Promise( (resolve, reject) => jwt.verify(token, ServerConfig.SECRET_JWT, Options, (err, decoded) => err ? reject(err) : resolve(decoded)) );
 }

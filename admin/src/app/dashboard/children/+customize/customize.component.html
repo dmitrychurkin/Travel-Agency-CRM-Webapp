@@ -14,24 +14,45 @@
             </md-list>
         </md-sidenav>
         <div>
-            <md-toolbar color="primary">
-                <span>General Site Settings</span>
-            </md-toolbar>
-            <div>
-                <md-card class="card__content">
+            <ng-container *ngIf="selectedTabService.currentlySelectedTab.service.name !== 'intro'">
+                <md-toolbar color="primary">
+                    <span>{{selectedTabService.currentlySelectedTab.service.header}}</span>
+                </md-toolbar>
+            </ng-container>
+            <div [ngSwitch]="selectedTabService.currentlySelectedTab.service.name">
+                <md-card *ngSwitchCase="'some content'" class="card__content">
                         <md-card-content>
                                 <md-tab-group>
-                                    <md-tab label="One">
+                                    <md-tab textLabel="File Storage">
                                         <h1>Some tab content</h1>
                                         <p>...</p>
                                     </md-tab>
-                                    <md-tab label="Two">
+                                    <md-tab label="Files in Public">
                                         <h1>Some more tab content</h1>
                                         <p>...</p>
                                     </md-tab>
                                 </md-tab-group>
                         </md-card-content>
                 </md-card>
+                
+                <ng-container *ngSwitchCase="'file uploads'">
+                    <app-file-storage></app-file-storage>
+                </ng-container>
+                <ng-container *ngSwitchDefault>
+                    <h1 class="headings">This is that place, where You can make our business better...</h1>
+                    <!--<md-icon style="font-size:7em;">&#xE875;</md-icon> admins-->
+                    <div fxLayout="row" fxLayoutAlign="space-around" fxLayoutWrap="wrap">  
+                        <md-card *ngFor="let item of selectedTabService.constructor.listOfTabs; index as i" (click)="onIntroCardClick(item)" class="intro-cards">
+                            <md-card-title class="headings">{{item.service.header}}</md-card-title>
+                            <div fxLayout="row" fxLayoutAlign="center">   
+                                <md-card-content>
+                                    <md-icon class="intro-imgs">{{!i ? '&#xE8B9;' : i == 1 ? '&#xE87C;' : '&#xE89C;'}}</md-icon>
+                                </md-card-content>
+                            </div>
+                        </md-card> 
+                    </div>
+                </ng-container>
             </div>
         </div>
 </md-sidenav-container>
+

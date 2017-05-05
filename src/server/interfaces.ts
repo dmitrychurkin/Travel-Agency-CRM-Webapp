@@ -70,3 +70,59 @@ export interface IUpdatePayload {
     nModified: number;
     n: number;
 }
+
+// fileuploaderController
+
+export interface IResponseData {
+    success: boolean;
+    preventRetry?: boolean;
+    error?: any;
+    data?: {
+        attributes: {
+            fileSize: number;
+            fileName: string;
+            isInPublic: boolean;
+        };
+        id: string;
+        type: "files";
+        links: {
+            self: string;
+        }
+    };
+}
+
+export interface IMultipartyParsedFields {
+    qquuid: Array<string>;
+    qqfilename: Array<string>;
+    qqtotalfilesize: Array<string>;
+    qqpartindex?: any;
+}
+
+export interface IMultipartyParsedFiles {
+    qqfile: Array<{
+        fieldName: string,
+        originalFilename: string;
+        path: string;
+        headers: { [key: string]: string };
+        size: number;
+    }>;
+    [key: string]: any;
+}
+
+export interface IFileEntity {
+    path: string;
+    storageFilename: string;
+    originalFilename: string;
+    size: number;
+    uuid: string;
+}
+
+export interface IFileDbProps {
+
+    _id: string;
+    fileSize: number;
+    storageFilename: string;
+    isInPublic: boolean;
+    originalFilename?: string;
+
+}

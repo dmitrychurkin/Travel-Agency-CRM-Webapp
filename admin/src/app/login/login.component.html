@@ -6,17 +6,19 @@
       </h1>
     </div>
     <div>
-      <form #f="ngForm" (ngSubmit)="onSubmit(f)" fxLayout="column" fxLayoutGap="7%">
-        <md-input-container [dividerColor]="ngUserName.touched && ngUserName.invalid ? 'warn' : 'primary'">
-          <input mdInput #userName (blur)="onBlur(ngUserName, userName)" placeholder="Name" name="userName" ngModel #ngUserName="ngModel" required>
-          <md-hint *ngIf="ngUserName.touched && ngUserName.invalid" [style.color]="'#f44336'">{{userName.validationMessage || fbMess}}</md-hint>
-        </md-input-container>
-        <md-input-container [dividerColor]="ngPass.touched && ngPass.invalid ? 'warn' : 'primary'">
-          <input mdInput #pass (blur)="onBlur(ngPass, pass)" type="password" placeholder="Password" name="pass" ngModel #ngPass="ngModel" required>
-          <md-hint *ngIf="ngPass.touched && ngPass.invalid" [style.color]="'#f44336'">{{pass.validationMessage || fbMess}}</md-hint>
-        </md-input-container>
-        <button md-raised-button [disabled]="!f.form.valid || isSend" color="primary" fxFlexAlign="center" class="btn">SignIn</button>
-      </form>
+      <ng-container *ngIf="formReset">
+        <form #f="ngForm" (ngSubmit)="onSubmit(f)" fxLayout="column" fxLayoutGap="7%">
+          <md-input-container [dividerColor]="ngUserName.touched && ngUserName.invalid ? 'warn' : 'primary'">
+            <input mdInput #userName (blur)="onBlur(ngUserName, userName)" placeholder="Name" name="userName" ngModel #ngUserName="ngModel" required>
+            <md-hint *ngIf="ngUserName.touched && ngUserName.invalid" [style.color]="'#f44336'">{{userName.validationMessage || fbMess}}</md-hint>
+          </md-input-container>
+          <md-input-container [dividerColor]="ngPass.touched && ngPass.invalid ? 'warn' : 'primary'">
+            <input mdInput #pass (blur)="onBlur(ngPass, pass)" type="password" placeholder="Password" name="pass" ngModel #ngPass="ngModel" required>
+            <md-hint *ngIf="ngPass.touched && ngPass.invalid" [style.color]="'#f44336'">{{pass.validationMessage || fbMess}}</md-hint>
+          </md-input-container>
+          <button md-raised-button [disabled]="!f.form.valid || isSend" color="primary" fxFlexAlign="center" class="btn">SignIn</button>
+        </form>
+      </ng-container>
     </div>
   </div>
 </div>

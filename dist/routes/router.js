@@ -107,6 +107,13 @@ class AppRouter {
         router.post("/api/register/", controllers_1.adminController.signInController());
         router.post("/api/register-new/", controllers_1.adminController.registerNewAdminController());
         router.head("/api/sign-out/", [controllers_1.adminController.tokenValidatorController(true), controllers_1.adminController.adminSignOutController()]);
+        router.post("/api/uploads/", controllers_1.fileUploaderController.onUploadController());
+        router.delete("/api/uploads/:uuid", controllers_1.fileUploaderController.onDeleteController());
+        router.get("/api/files", [controllers_1.adminController.tokenValidatorController(true), controllers_1.fileUploaderController.fetchStoreController_JsonAPI()]);
+        router.get("/storage/:file", [controllers_1.adminController.tokenValidatorController(true), controllers_1.fileUploaderController.serveRequestToStorage()]);
+        router.patch("/api/files/:fileId", [controllers_1.adminController.tokenValidatorController(true), controllers_1.fileUploaderController.actionFile_JsonAPI()]);
+        router.delete("/api/files/:fileId", [controllers_1.adminController.tokenValidatorController(true), controllers_1.fileUploaderController.actionFile_JsonAPI()]);
+        router.get("/api/download", [controllers_1.adminController.tokenValidatorController(true), controllers_1.fileUploaderController.downloadFileAsync]);
         router.get("/api/sign-admin", (...args) => {
             const res = args[1];
             const req = args[0];

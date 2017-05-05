@@ -7,7 +7,7 @@ import ServerConfig from "../serverConfig";
 // only test purpose
 import { AdminModel } from "../models";
 
-import { adminController, ordersController } from "../controllers";
+import { adminController, ordersController, fileUploaderController } from "../controllers";
 export class AppRouter {
     Router = Router();
     private App: Application;
@@ -121,6 +121,19 @@ export class AppRouter {
         router.post("/api/register/", adminController.signInController());
         router.post("/api/register-new/", adminController.registerNewAdminController());
         router.head("/api/sign-out/", [adminController.tokenValidatorController(true), adminController.adminSignOutController()]);
+
+// qq service routes
+        router.post("/api/uploads/", fileUploaderController.onUploadController());
+        router.delete("/api/uploads/:uuid", fileUploaderController.onDeleteController());
+
+// file uploader init and serve routes
+        router.get("/api/files", [adminController.tokenValidatorController(true), fileUploaderController.fetchStoreController_JsonAPI()]);
+        router.get("/storage/:file", [adminController.tokenValidatorController(true), fileUploaderController.serveRequestToStorage()]);
+
+// file uploader action routes
+        router.patch("/api/files/:fileId", [adminController.tokenValidatorController(true), fileUploaderController.actionFile_JsonAPI()]);
+        router.delete("/api/files/:fileId", [adminController.tokenValidatorController(true), fileUploaderController.actionFile_JsonAPI()]);
+        router.get("/api/download", [adminController.tokenValidatorController(true), fileUploaderController.downloadFileAsync]);
 
 /**Test routes */
         router.get("/api/sign-admin", (...args: Array<any>) => {

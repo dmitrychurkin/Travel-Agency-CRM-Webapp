@@ -125,3 +125,23 @@ function orderNormalizator(ORDER) {
     return outputToDB;
 }
 exports.orderNormalizator = orderNormalizator;
+function moveFileAsync(fromPath, toPath) {
+    return new Promise((resolve, reject) => {
+        fs.rename(fromPath, toPath, err => {
+            if (err) {
+                return reject(err);
+            }
+            resolve();
+        });
+    });
+}
+exports.moveFileAsync = moveFileAsync;
+function isThisObjectSync(...args) {
+    for (const arg of args) {
+        if (typeof arg !== "object") {
+            return false;
+        }
+    }
+    return true;
+}
+exports.isThisObjectSync = isThisObjectSync;

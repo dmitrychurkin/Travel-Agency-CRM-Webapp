@@ -17,30 +17,20 @@ export function ttlScheduller(onTimeExpire: () => void, timeout= 5000) {
     return id;
 }
 
-export function tokenStorage(UniqueStorage?: Map<string, number>, { ttl= 5000 }= {} /*...tokens: any[]*/) {
+export function tokenStorage(UniqueStorage?: Map<string, number>, { ttl= 5000 }= {}) {
     let Storage: Map<string, number>;
     if (UniqueStorage) {
         Storage = UniqueStorage;
     }else {
         Storage = new Map();
     }
-    // const Storage = new UniqueStorage(tokens);
-    // test
-    // let tokenT: any = null;
-    // setTimeout(() => console.log(Storage.has(tokenT)), ttl + 1000);
     return (token: string= uuid.v1()) => {
-        // test
-        // tokenT = token;
-
         const TimerId = ttlScheduller(() => {
             if (Storage.has(token)) {
                 Storage.delete(token);
             }
         }, ttl);
         Storage.set(token, TimerId);
-
-        // test
-        // console.log(Storage.has(tokenT));
         return token;
     };
 }
@@ -55,9 +45,7 @@ export function encryptPwdAsync(password: string, salt: string, options= cryptoO
             });
     });
 }
-// export function generateUUIDV1() {
-//     return uuid.v1();
-// }
+
 export function generateRandStrAsync(lenght= 48, encoding= "hex"): Promise<string> {
         return new Promise((resolve, reject) => {
             crypto.randomBytes(lenght, (err, buf) => {
@@ -103,7 +91,6 @@ export function comparePwdsAsync(resolver?: (value?: {} | PromiseLike<{}> | unde
 }
 
 export const basicCookieSessOptions = {
-    // signed: true,
     httpOnly: true,
     sameSite: true
 };
@@ -113,8 +100,7 @@ export const basicCookieJwtOptions = {
     sameSite: true,
     maxAge: ServerConfig.JWT_MAX_AGE
 };
-// export const DefaultCookieOptionsForSession = (req: Request) => Object.assign(cookieOptsBasic, { expires: 0 }, req.secure ? { secure: true } : {});
-// export const DefaultCookieOptionsForJwt = (req: Request) => Object.assign(cookieOptsBasic, { maxAge: ServerConfig.JWT_MAX_AGE }, req.secure ? { secure: true } : {});
+
 export function orderNormalizator(ORDER: IPortUserOrder) {
 
     const orderDefaults = {
@@ -133,4 +119,25 @@ export function orderNormalizator(ORDER: IPortUserOrder) {
     delete outputToDB.ACTION;
     delete outputToDB.SITE_LANG;
     return <IPortUserOrder>outputToDB;
+}
+
+export function moveFileAsync(fromPath: string, toPath: string) {
+
+    return new Promise((resolve, reject) => {
+        fs.rename(fromPath, toPath, err => {
+            if (err) {
+                return reject(err);
+            }
+            resolve();
+        });
+    });
+
+}
+export function isThisObjectSync(...args: Array<any>) {
+    for (const arg of args) {
+        if (typeof arg !== "object") {
+            return false;
+        }
+    }
+    return true;
 }

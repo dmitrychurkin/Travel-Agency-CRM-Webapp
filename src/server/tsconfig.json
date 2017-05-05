@@ -38,7 +38,8 @@
             "es2015.symbol.wellknown",
             "es2016.array.include",
             "es2017.object",
-            "scripthost"
+            "scripthost",
+            "esnext"
         ],
         "outDir": "../../dist"
     },

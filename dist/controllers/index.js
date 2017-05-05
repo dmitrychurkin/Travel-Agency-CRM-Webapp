@@ -5,3 +5,4 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./orders.controller"));
 __export(require("./admin.controller"));
+__export(require("./file-upload.controller"));

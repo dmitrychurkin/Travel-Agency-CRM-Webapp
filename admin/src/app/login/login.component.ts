@@ -8,6 +8,7 @@ import { REGISTER_API, POST_HEADER } from '../app.config';
 import { IRequestForRegistration, IAdminSignInCredentials, IAdminData } from '../Interfaces';
 import { AdminCredentialsDataResolver } from '../admin-credentials-data.service';
 import { ProgressBarService } from '../progress-bar.service';
+import { ErrorEmmiter } from '../error.service';
 
 @Component({
   selector: 'app-login',
@@ -15,24 +16,25 @@ import { ProgressBarService } from '../progress-bar.service';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
+  formReset = true;
   fbMess = 'Incorrect input';
-  private isSend = false;
+  private _isSend = false;
   constructor(
     private router: Router,
     private backendService: BackendService,
     private adminDataResolver: AdminCredentialsDataResolver,
-    private progressBarService: ProgressBarService
+    private progressBarService: ProgressBarService,
+    private errorEmmiterService: ErrorEmmiter
   ) { }
   onSubmit(form: NgForm) {
     if (form.invalid) {
       form.resetForm();
       return;
     }
-    if (this.isSend) {
+    if (this._isSend) {
       return;
     }
-    this.isSend = true;
-    this.progressBarService.emmiter.emit(true);
+    this.progressBarService.emmiter.emit(this._isSend = true);
       const adminSignInCred: IAdminSignInCredentials = form.value;
       const ReqArgs: RequestOptionsArgs = {
         method: RequestMethod.Post,
@@ -48,13 +50,17 @@ export class LoginComponent {
                                 return this.router.navigate(['registration'], { skipLocationChange: true, replaceUrl: false });
                               }
                               return this.router.navigate(['dashboard']);
-                                // form.resetForm();
                             })
-                            .catch((err: any) => {
-                              console.log(err);
-                              form.resetForm();
+                            .catch((err: Response) => {
+                              if (err.status === 403) {
+                                return this.errorEmmiterService.emmiter.emit(err.text());
+                              }
                             })
-                            .then(() => this && (this.progressBarService.emmiter.emit(this.isSend = false)));
+                            .then(() => {
+                                this.progressBarService.emmiter.emit(this._isSend = this.formReset = false);
+                                setTimeout(() => this.formReset = true);
+                            });
+
 
   }
   onBlur(ngInputRef, refOfInput) {

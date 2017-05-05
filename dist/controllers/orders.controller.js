@@ -34,10 +34,7 @@ class OrdersController {
                     const orderPort = { info: "Your data has been sent, our agent will contact you.", reqId: NORMALIZED_ORDER.orderId };
                     res.json(orderPort);
                 })
-                    .catch(err => {
-                    console.log(err.message);
-                    res.status(500).end();
-                });
+                    .catch(() => res.status(500).end());
             }
             return res.status(403).end();
         };
@@ -66,7 +63,6 @@ class OrdersController {
         return (req, res) => {
             if (req && req.body && req.body.ACTION === "CANCEL") {
                 const { reqId } = req.body;
-                console.log("deleteOrderController ", reqId);
                 let sessionToken;
                 let isOnline;
                 let webSoketId;
@@ -95,7 +91,6 @@ class OrdersController {
         };
     }
     deleteOrdersByAdminAsync(arrayToRemove) {
-        console.log("deleteOrdersByAdminAsync arrayToRemove = ", arrayToRemove);
         const decrement = arrayToRemove.length;
         return models_1.AdminModel.update({ "orders.orderId": { $in: arrayToRemove } }, {
             $inc: { ordersCount: -decrement, counterOfOrders: -decrement },
@@ -104,7 +99,6 @@ class OrdersController {
             .then((result) => {
             const { ok, nModified, n } = result;
             if (ok && nModified && n) {
-                console.log("deleteOrdersByAdminAsync ", result);
                 return result;
             }
             throw "Orders couldn't deleted!";

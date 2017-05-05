@@ -20,10 +20,12 @@ export class IO {
 
         this.socketIO_OrdersNSP.on("connection", async (socket: SocketIO.Socket) => {
             try {
-
+                socket.on("disconnect", () => {
+                    return adminController.updateOnDisconnect(socket.id);
+                });
                 const sessionTokenCookie = `${ServerConfig.SESSION_TOKEN_NAME}=`;
-                const sessionToken = socket.request.headers.cookie.split("; ").filter((cookie: any) => cookie.includes(sessionTokenCookie))[0].split(sessionTokenCookie)[1];
-
+                const expectedSessionToken = socket.request.headers.cookie.split("; ").filter((cookie: any) => cookie.includes(sessionTokenCookie))[0];
+                const sessionToken = expectedSessionToken && expectedSessionToken.split(sessionTokenCookie)[1];
                 socket.once("READY", async(socketPortInfo: IPortSocketInfo, fn: (a?: any) => void) => {
                     try {
                          await adminController.updateSocketIdOnConn(sessionToken, socket.id);

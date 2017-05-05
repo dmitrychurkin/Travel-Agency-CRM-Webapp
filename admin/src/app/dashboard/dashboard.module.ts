@@ -6,8 +6,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DashboardRoutingModule } from './dashboard-routing.module';
 import { DashboardComponent } from './dashboard.component';
 import { OrdersComponent } from './children/orders.component';
-import { FeaturesComponent } from './children/features.component';
-import { DetailsComponent } from './children/details.component';
+// import { FeaturesComponent } from './children/features.component';
+// import { DetailsComponent } from './children/details.component';
 import { OrdersService } from './orders.service';
 import { WebSocketService } from './web-socket.service';
 
@@ -22,8 +22,8 @@ import { WebSocketService } from './web-socket.service';
   declarations: [
     DashboardComponent,
     OrdersComponent,
-    FeaturesComponent,
-    DetailsComponent
+    // FeaturesComponent,
+    // DetailsComponent
   ],
   exports: [MaterialModule, FlexLayoutModule],
   providers: [ OrdersService, WebSocketService ]

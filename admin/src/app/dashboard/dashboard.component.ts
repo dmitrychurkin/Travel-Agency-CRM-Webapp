@@ -22,7 +22,7 @@ import { WebSocketService } from './web-socket.service';
 })
 export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit, AfterViewChecked {
   @ViewChildren(RouterLinkActive) routLinkActive: any;
-  private adminInfo: string;
+  private adminInfo: IAdminData;
   private sub: Subscription;
 
   // private componentState: 'inactive' | 'active' = 'inactive';
@@ -63,11 +63,9 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit, Aft
   }
 
   ngOnInit() {
-    console.log('DashBoard! AdminCredentialsDataResolver.adminData = ', AdminCredentialsDataResolver.adminData);
-    // delete AdminCredentialsDataResolver.adminData;
     this.sub = this.activatedRoute.data.map(data => {
       console.log('From ngOnInit DashBoard =>', data);
-      this.adminInfo = data.admin;
+      this.adminInfo = <IAdminData>data.admin;
       this.webSocketService.connetTo(data.admin.id);
     }).subscribe();
     console.log('OrdersService.ordersRegistry = ', OrdersService.ordersRegistry);

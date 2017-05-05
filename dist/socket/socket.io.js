@@ -16,8 +16,12 @@ class IO {
     setListeners() {
         this.socketIO_OrdersNSP.on("connection", (socket) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             try {
+                socket.on("disconnect", () => {
+                    return controllers_1.adminController.updateOnDisconnect(socket.id);
+                });
                 const sessionTokenCookie = `${serverConfig_1.default.SESSION_TOKEN_NAME}=`;
-                const sessionToken = socket.request.headers.cookie.split("; ").filter((cookie) => cookie.includes(sessionTokenCookie))[0].split(sessionTokenCookie)[1];
+                const expectedSessionToken = socket.request.headers.cookie.split("; ").filter((cookie) => cookie.includes(sessionTokenCookie))[0];
+                const sessionToken = expectedSessionToken && expectedSessionToken.split(sessionTokenCookie)[1];
                 socket.once("READY", (socketPortInfo, fn) => tslib_1.__awaiter(this, void 0, void 0, function* () {
                     try {
                         yield controllers_1.adminController.updateSocketIdOnConn(sessionToken, socket.id);

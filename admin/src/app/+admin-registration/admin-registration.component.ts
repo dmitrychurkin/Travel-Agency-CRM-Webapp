@@ -19,7 +19,7 @@ export class AdminRegistrationComponent implements OnInit, AfterViewChecked {
     checked: boolean;
     isCanEdit = false;
     endPoint = '/api/register-new/';
-    isSend = false;
+    _isSend = false;
     constructor(
         private backendService: BackendService,
         private router: Router,
@@ -44,10 +44,10 @@ export class AdminRegistrationComponent implements OnInit, AfterViewChecked {
             form.resetForm();
             return;
         }
-        if (this.isSend) {
+        if (this._isSend) {
             return;
         }
-        this.isSend = true;
+        this._isSend = true;
         this.progressBarService.emmiter.emit(true);
         const newAdmin: IRegistrationCredentials = form.value;
         if (this.isCanEdit) {
@@ -88,6 +88,6 @@ export class AdminRegistrationComponent implements OnInit, AfterViewChecked {
             }
             this.errorEmmiter.emmiter.emit(errMessage || 'Error occured, try again later');
         })
-        .then( () => this.progressBarService.emmiter.emit(this.isSend = false) );
+        .then( () => this.progressBarService.emmiter.emit(this._isSend = false) );
     }
 }

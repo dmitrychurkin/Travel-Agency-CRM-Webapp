@@ -32,7 +32,6 @@ class AdminController {
     }
     cancelTimer(uuidToken) {
         if (uuidToken && this.inMemoryStorage.has(uuidToken)) {
-            console.log("checkForNewComerAsync : uuidToken && this.inMemoryStorage.has(uuidToken)");
             let timerId = this.inMemoryStorage.get(uuidToken);
             timerId && clearTimeout(timerId);
             this.inMemoryStorage.delete(uuidToken);
@@ -46,15 +45,33 @@ class AdminController {
             .clearCookie(serverConfig_1.default.COOKIE_JWT_NAME, config)
             .end();
     }
+    _extractSessionToken(req) {
+        const { _st } = req.cookies;
+        const { _xt } = req.signedCookies;
+        return _st || (_xt && services_1.decodeTokenJWTSync(_xt).payload.sub);
+    }
+    _checkIfAdminWasSignedAsync(req) {
+        let sessionToken = this._extractSessionToken(req);
+        if (sessionToken) {
+            return models_1.AdminModel.findOne({ sessionToken })
+                .then(result => {
+                if (!result) {
+                    return 0;
+                }
+                throw new errors_1.RegistrationError("On this computer enother admin is already signed, first need to sign out!");
+            });
+        }
+        return Promise.resolve(0);
+    }
     adminSignOutController() {
         return (req, res) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const { _st } = req.cookies;
-            if (!_st) {
-                res.status(500);
+            let sessionToken = this._extractSessionToken(req);
+            if (!sessionToken) {
+                res.status(202);
                 return this._clearCookiesSync(res);
             }
             try {
-                yield models_1.AdminModel.findOneAndUpdate({ sessionToken: _st }, { $set: { isOnline: false, webSoketId: "", sessionToken: "" } }).exec();
+                yield models_1.AdminModel.findOneAndUpdate({ sessionToken }, { $set: { isOnline: false, webSoketId: "", sessionToken: "" } }).exec();
             }
             catch (err) {
                 res.status(500);
@@ -155,7 +172,7 @@ class AdminController {
             .then((resultSet) => {
             const { password: hash, passwordSalt, isEditorHave, login } = resultSet;
             if (login !== userName)
-                return false;
+                return 0;
             return services_1.comparePwdsAsync()(hash, passwordSalt, pass)
                 .then(result => thenHandler(result, isEditorHave));
         });
@@ -163,6 +180,7 @@ class AdminController {
     signInController() {
         return (req, res) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             try {
+                yield this._checkIfAdminWasSignedAsync(req);
                 for (let promise of [this.adminSingInAsync(req, res), this.checkForNewComerAsync(req, res)]) {
                     yield promise.catch(err => console.log(err.message));
                 }
@@ -172,6 +190,9 @@ class AdminController {
             }
             catch (e) {
                 if (!res.headersSent) {
+                    if (e instanceof errors_1.RegistrationError) {
+                        return res.status(403).end(e.message);
+                    }
                     res.status(500).end(this.isMessage ? e.message : null);
                 }
                 else {
@@ -395,7 +416,13 @@ class AdminController {
         };
     }
     updateSocketIdOnConn(adminId, socketId) {
-        return models_1.AdminModel.findOneAndUpdate({ sessionToken: adminId, isOnline: true }, { $set: { webSoketId: socketId } }).exec();
+        if (adminId) {
+            return models_1.AdminModel.findOneAndUpdate({ sessionToken: adminId, isOnline: true }, { $set: { webSoketId: socketId } }).exec();
+        }
+        return Promise.resolve(0);
+    }
+    updateOnDisconnect(webSoketId) {
+        return models_1.AdminModel.findOneAndUpdate({ webSoketId }, { $set: { webSoketId: "" } }).exec();
     }
 }
 const adminController = new AdminController();

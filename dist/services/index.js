@@ -5,3 +5,4 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./utilities"));
 __export(require("./jwt"));
+__export(require("./jsonapi-serializer"));
