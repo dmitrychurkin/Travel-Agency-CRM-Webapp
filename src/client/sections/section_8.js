@@ -125,19 +125,38 @@ var Section8 = (function (_super) {
         var btn = this.S8.querySelectorAll(".S8__t-h-link button");
         var OnRes = function () {
             if (window.innerWidth >= 946 && btn[0].classList.contains("ripple")) {
-                for (var _i = 0, btn_1 = btn; _i < btn_1.length; _i++) {
-                    var b = btn_1[_i];
-                    b.classList.remove("ripple");
-                    b.style.overflow = "";
+                try {
+                    for (var btn_1 = tslib_1.__values(btn), btn_1_1 = btn_1.next(); !btn_1_1.done; btn_1_1 = btn_1.next()) {
+                        var b = btn_1_1.value;
+                        b.classList.remove("ripple");
+                        b.style.overflow = "";
+                    }
+                }
+                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                finally {
+                    try {
+                        if (btn_1_1 && !btn_1_1.done && (_a = btn_1.return)) _a.call(btn_1);
+                    }
+                    finally { if (e_1) throw e_1.error; }
                 }
             }
             else if (window.innerWidth < 946 && !btn[0].classList.contains("ripple")) {
-                for (var _a = 0, btn_2 = btn; _a < btn_2.length; _a++) {
-                    var b = btn_2[_a];
-                    b.classList.add("ripple");
-                    b.style.overflow = "hidden";
+                try {
+                    for (var btn_2 = tslib_1.__values(btn), btn_2_1 = btn_2.next(); !btn_2_1.done; btn_2_1 = btn_2.next()) {
+                        var b = btn_2_1.value;
+                        b.classList.add("ripple");
+                        b.style.overflow = "hidden";
+                    }
+                }
+                catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                finally {
+                    try {
+                        if (btn_2_1 && !btn_2_1.done && (_b = btn_2.return)) _b.call(btn_2);
+                    }
+                    finally { if (e_2) throw e_2.error; }
                 }
             }
+            var e_1, _a, e_2, _b;
         };
         OnRes();
         return OnRes;

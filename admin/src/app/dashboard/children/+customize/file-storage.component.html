@@ -23,7 +23,7 @@
                     </div>
                     <div class="fs__menu-cont" fxLayout="row">
                       
-                      <button class="f-s__text" md-icon-button [mdMenuTriggerFor]="appMenu">
+                      <button class="f-s__text" md-icon-button [mdMenuTriggerFor]="appMenu" (onMenuOpen)="appMenu.focusFirstItem()">
                         <md-icon>more_vert</md-icon>
                       </button>
                       
@@ -61,7 +61,7 @@
                   <div fxLayout="row">
                     <div class="fs__menu-cont" [ngStyle]="{'padding-right':'55px'}" fxLayout="row">
                       
-                      <button class="f-s__text" md-icon-button [mdMenuTriggerFor]="appMenu">
+                      <button class="f-s__text" md-icon-button [mdMenuTriggerFor]="appMenu" (onMenuOpen)="appMenu.focusFirstItem()">
                         <md-icon>more_vert</md-icon>
                       </button>
                       

@@ -91,13 +91,13 @@ var AnimModule = (function () {
         ];
     };
     AnimModule.AnL = function () {
-        return U._U_timelineFactory({ tweens: this.rotateAnimation().concat(this.hoverAnimation()), align: "start", paused: true });
+        return U._U_timelineFactory({ tweens: tslib_1.__spread(this.rotateAnimation(), this.hoverAnimation()), align: "start", paused: true });
     };
     AnimModule.AnWGr1 = function () {
-        return U._U_timelineFactory(U._U_objVarsForTimeline({ paused: false, delay: 1, tweens: this.cWAn("#S5__m-s .cloud1 text", "#S5__m-s .cloud2 text").slice(), align: "start", autoRemoveChildren: true }));
+        return U._U_timelineFactory(U._U_objVarsForTimeline({ paused: false, delay: 1, tweens: tslib_1.__spread(this.cWAn("#S5__m-s .cloud1 text", "#S5__m-s .cloud2 text")), align: "start", autoRemoveChildren: true }));
     };
     AnimModule.AnWGr2 = function () {
-        return U._U_timelineFactory(U._U_objVarsForTimeline({ paused: false, tweens: this.cWAn("#S5__m-s .cloud3 text", "#S5__m-s .cloud4 text").slice(), align: "start", autoRemoveChildren: true }));
+        return U._U_timelineFactory(U._U_objVarsForTimeline({ paused: false, tweens: tslib_1.__spread(this.cWAn("#S5__m-s .cloud3 text", "#S5__m-s .cloud4 text")), align: "start", autoRemoveChildren: true }));
     };
     return AnimModule;
 }());

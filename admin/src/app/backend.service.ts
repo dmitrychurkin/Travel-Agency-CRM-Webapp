@@ -30,4 +30,10 @@ export class BackendService {
       );
     });
   }
+  serializeResource(type: string, id: string, attributes: { [key: string]: any }, meta= {}) {
+      return JSON.stringify({
+          data: { type, id, attributes},
+          meta
+      });
+  }
 }

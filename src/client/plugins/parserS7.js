@@ -1,3 +1,4 @@
+import * as tslib_1 from "tslib";
 var ParserS7 = (function () {
     function ParserS7() {
         this.GLOB_LAYOUT = "globLayout";
@@ -84,7 +85,7 @@ var ParserS7 = (function () {
         var outputArray = [globalLayoutDecodedArr[0]];
         outputArray.push(this._decoder(CONTENT, META));
         if (Array.isArray(referLinkArr)) {
-            outputArray.push.apply(outputArray, referLinkArr.map(function (el) { return _this._decoder(CONTENT, _this.Model[REFER][el]); }));
+            outputArray.push.apply(outputArray, tslib_1.__spread(referLinkArr.map(function (el) { return _this._decoder(CONTENT, _this.Model[REFER][el]); })));
         }
         outputArray.push(globalLayoutDecodedArr[1]);
         return outputArray;
@@ -95,10 +96,10 @@ var ParserS7 = (function () {
     ParserS7.prototype._readMeta = function (extractedItem) {
         var FORM = this.FORM;
         var outputArray = [];
-        outputArray.push.apply(outputArray, this._contentHandler(extractedItem));
+        outputArray.push.apply(outputArray, tslib_1.__spread(this._contentHandler(extractedItem)));
         var formLink = extractedItem.meta[FORM];
         if (typeof formLink === "string") {
-            outputArray.push.apply(outputArray, this._formHandler(formLink, this.Model[FORM]));
+            outputArray.push.apply(outputArray, tslib_1.__spread(this._formHandler(formLink, this.Model[FORM])));
         }
         return outputArray;
     };

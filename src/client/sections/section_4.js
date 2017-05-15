@@ -15,11 +15,21 @@ var Section4 = (function (_super) {
             var _loop_1 = function (d) {
                 arr.push(function () { return d.classList.remove("S4__init"); });
             };
-            for (var _i = 0, _a = document.querySelectorAll(".S4__init"); _i < _a.length; _i++) {
-                var d = _a[_i];
-                _loop_1(d);
+            try {
+                for (var _a = tslib_1.__values(document.querySelectorAll(".S4__init")), _b = _a.next(); !_b.done; _b = _a.next()) {
+                    var d = _b.value;
+                    _loop_1(d);
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_b && !_b.done && (_c = _a.return)) _c.call(_a);
+                }
+                finally { if (e_1) throw e_1.error; }
             }
             return arr;
+            var e_1, _c;
         })(), "+=0", "start", 0.3)
             .add(function () { return (document.querySelector(".S4__text").classList.add("S4__text_v"), document.querySelector(".S4__s").classList.add("S4__text_v"), document.querySelector(".S4__tit").classList.add("S4__tit_v")); })
             .add(function () { return (Array.from(document.querySelectorAll(".S4__ia")).forEach(function (el) { return el.classList.add("S4__ia_v"); }), Array.from(document.querySelectorAll(".S4__ia-c")).forEach(function (el) { return el.classList.add("S4__ia-c_v"); })); });

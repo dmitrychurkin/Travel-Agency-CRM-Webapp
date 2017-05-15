@@ -6,6 +6,9 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { CustomizeRoutingModule } from './customize-routing.module';
 import { CustomizeComponent } from './customize.component';
 import { FileStorageComponent } from './file-storage.component';
+import { LandingPageSettingsComponent } from './landing-page-settings.component';
+import { OffersSectionComponent } from './offers-section.component';
+import { OffersModalComponent } from './offers-modal.component';
 import { SelectedTabService } from './selected-tab.service';
 
 @NgModule({
@@ -18,8 +21,12 @@ import { SelectedTabService } from './selected-tab.service';
     ],
     declarations: [
         CustomizeComponent,
-        FileStorageComponent
+        FileStorageComponent,
+        LandingPageSettingsComponent,
+        OffersSectionComponent,
+        OffersModalComponent
     ],
+    entryComponents: [ OffersModalComponent ],
     providers: [SelectedTabService]
 })
 export class CustomizeModule {}

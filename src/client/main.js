@@ -32,7 +32,7 @@ var WFW = (function (_super) {
         var _this = _super.call(this) || this;
         var fnImages = function () {
             document.querySelector(".Intersector").classList.add("IReady"),
-                _this.S14.imLoader();
+                _this.S14.getOffers();
             var videoEl = document.querySelector(".S10__vid");
             videoEl.poster = "/images/Lonely-Blue.jpg";
         };
@@ -52,7 +52,7 @@ var WFW = (function (_super) {
         _this.S10 = new Section10();
         _this.S11_12 = new Section1112();
         _this.S13 = new Section13();
-        _this.S14 = new Section14("/images/newromefare.jpg");
+        _this.S14 = new Section14(_this.httpService, encodeURI("/offers?fields[offers]=meta"));
         var BgImg = _this.S1.BgImg;
         _this.httpService.configureAndSendRequest([
             "https://fonts.googleapis.com/css?family=Indie+Flower",

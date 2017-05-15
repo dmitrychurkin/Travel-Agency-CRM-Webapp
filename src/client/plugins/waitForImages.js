@@ -15,7 +15,7 @@ var WaitForImages = (function () {
                             return function () { return resolver(++COUNTER); };
                         }, img = new Image();
                         img.src = URLLink;
-                        return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        return [4, new Promise(function (resolve, reject) {
                                 img.onerror = fnCheckComplete(reject);
                                 img.onload = fnCheckComplete(resolve);
                             })];
@@ -24,7 +24,7 @@ var WaitForImages = (function () {
                         if (totalCount === totalImages) {
                             cB.forEach(function (fn) { return fn(); });
                         }
-                        return [2 /*return*/];
+                        return [2];
                 }
             });
         }); });

@@ -7,7 +7,7 @@ import ServerConfig from "../serverConfig";
 // only test purpose
 import { AdminModel } from "../models";
 
-import { adminController, ordersController, fileUploaderController } from "../controllers";
+import { adminController, ordersController, fileUploaderController, offersImgsController } from "../controllers";
 export class AppRouter {
     Router = Router();
     private App: Application;
@@ -18,7 +18,7 @@ export class AppRouter {
     private ensureSameOrigin() {
         return (req: Request, res: Response, next: NextFunction) => {
             const isExistSessionGeneralCookie = !!req.signedCookies[ServerConfig.SESSION_COOKIE_NAME];
-            if (req.method === "POST" || req.method === "DELETE") {
+            if (req.method === "POST" || req.method === "DELETE" || req.method === "PATCH") {
                 const HOST = req.get("host");
                 const REFERER = req.get("referer");
 
@@ -135,6 +135,10 @@ export class AppRouter {
         router.delete("/api/files/:fileId", [adminController.tokenValidatorController(true), fileUploaderController.actionFile_JsonAPI()]);
         router.get("/api/download", [adminController.tokenValidatorController(true), fileUploaderController.downloadFileAsync]);
 
+// files in public usage
+        router.get("/offers", offersImgsController.getOffers_JsonAPI);
+        router.patch("/offers", offersImgsController.editSliderMeta_JsonAPI);
+        router.patch("/offers/:fileid", [adminController.tokenValidatorController(true), offersImgsController.editOffersMeta_JsonAPI]);
 /**Test routes */
         router.get("/api/sign-admin", (...args: Array<any>) => {
             const res: Response = args[1];

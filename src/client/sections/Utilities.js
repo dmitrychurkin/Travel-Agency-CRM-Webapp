@@ -13,12 +13,22 @@ var Utilities = (function () {
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
             }
-            for (var _a = 0, args_1 = args; _a < args_1.length; _a++) {
-                var a = args_1[_a];
-                if (typeof a !== "function")
-                    return false;
+            try {
+                for (var args_1 = tslib_1.__values(args), args_1_1 = args_1.next(); !args_1_1.done; args_1_1 = args_1.next()) {
+                    var a = args_1_1.value;
+                    if (typeof a !== "function")
+                        return false;
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (args_1_1 && !args_1_1.done && (_a = args_1.return)) _a.call(args_1);
+                }
+                finally { if (e_1) throw e_1.error; }
             }
             return true;
+            var e_1, _a;
         };
     };
     Utilities.prototype._U_SetScrollOnLoad = function () {
@@ -26,9 +36,18 @@ var Utilities = (function () {
     };
     Utilities.prototype._U_WebFontsLoaderWrapper = function (arrOfFonts) {
         var families = [];
-        for (var _i = 0, arrOfFonts_1 = arrOfFonts; _i < arrOfFonts_1.length; _i++) {
-            var family = arrOfFonts_1[_i].family;
-            families.push(family);
+        try {
+            for (var arrOfFonts_1 = tslib_1.__values(arrOfFonts), arrOfFonts_1_1 = arrOfFonts_1.next(); !arrOfFonts_1_1.done; arrOfFonts_1_1 = arrOfFonts_1.next()) {
+                var family = arrOfFonts_1_1.value.family;
+                families.push(family);
+            }
+        }
+        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+        finally {
+            try {
+                if (arrOfFonts_1_1 && !arrOfFonts_1_1.done && (_a = arrOfFonts_1.return)) _a.call(arrOfFonts_1);
+            }
+            finally { if (e_2) throw e_2.error; }
         }
         var fontHandler = function (flag) {
             var Fn = function (fn) {
@@ -64,6 +83,7 @@ var Utilities = (function () {
             fontactive: fontHandler(1),
             fontinactive: fontHandler(2)
         });
+        var e_2, _a;
     };
     Utilities.prototype._U_WaitForImagesPlugin = function (className, callbacks) {
         var _this = this;
@@ -75,7 +95,7 @@ var Utilities = (function () {
                     case 0:
                         BackGrounImage = window.getComputedStyle(el).backgroundImage, URLLink = /http.+\.png|jpg$/i.exec(BackGrounImage)[0], fnCheckComplete = function (resolver) { return function () { return resolver(++COUNTER); }; }, img = new Image();
                         img.src = URLLink;
-                        return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        return [4, new Promise(function (resolve, reject) {
                                 img.onerror = fnCheckComplete(reject);
                                 img.onload = fnCheckComplete(resolve);
                             })];
@@ -84,7 +104,7 @@ var Utilities = (function () {
                         if (totalCount === totalImages) {
                             callbacks.forEach(function (fn) { return fn(); });
                         }
-                        return [2 /*return*/];
+                        return [2];
                 }
             });
         }); });
@@ -104,29 +124,49 @@ var Utilities = (function () {
         if (propsObjAvoidToDel === void 0) { propsObjAvoidToDel = {}; }
         if (target === void 0) { target = {}; }
         if (killProto === void 0) { killProto = true; }
-        for (var _i = 0, _a = Object.getOwnPropertyNames(target); _i < _a.length; _i++) {
-            var prop = _a[_i];
-            if (prop in propsObjAvoidToDel)
-                continue;
-            delete target[prop];
+        try {
+            for (var _a = tslib_1.__values(Object.getOwnPropertyNames(target)), _b = _a.next(); !_b.done; _b = _a.next()) {
+                var prop = _b.value;
+                if (prop in propsObjAvoidToDel)
+                    continue;
+                delete target[prop];
+            }
+        }
+        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+        finally {
+            try {
+                if (_b && !_b.done && (_c = _a.return)) _c.call(_a);
+            }
+            finally { if (e_3) throw e_3.error; }
         }
         if (killProto) {
             Object.setPrototypeOf(target, Object.prototype);
         }
+        var e_3, _c;
     };
     Utilities.prototype._U_GC_TO_DEL = function (propsObjToDel, target, killProto) {
         if (propsObjToDel === void 0) { propsObjToDel = {}; }
         if (target === void 0) { target = {}; }
         if (killProto === void 0) { killProto = true; }
-        for (var _i = 0, _a = Object.getOwnPropertyNames(target); _i < _a.length; _i++) {
-            var prop = _a[_i];
-            if (prop in propsObjToDel) {
-                delete target[prop];
+        try {
+            for (var _a = tslib_1.__values(Object.getOwnPropertyNames(target)), _b = _a.next(); !_b.done; _b = _a.next()) {
+                var prop = _b.value;
+                if (prop in propsObjToDel) {
+                    delete target[prop];
+                }
             }
+        }
+        catch (e_4_1) { e_4 = { error: e_4_1 }; }
+        finally {
+            try {
+                if (_b && !_b.done && (_c = _a.return)) _c.call(_a);
+            }
+            finally { if (e_4) throw e_4.error; }
         }
         if (killProto) {
             Object.setPrototypeOf(target, Object.prototype);
         }
+        var e_4, _c;
     };
     Utilities.prototype._U_objVarsForTimeline = function (objProps, callbacks) {
         if (objProps === void 0) { objProps = {}; }
@@ -139,13 +179,23 @@ var Utilities = (function () {
                     callbacks[_i - 1] = arguments[_i];
                 }
                 t.kill();
-                for (var _a = 0, callbacks_1 = callbacks; _a < callbacks_1.length; _a++) {
-                    var Fn = callbacks_1[_a];
-                    if (Function.isFn(Fn))
-                        Fn();
+                try {
+                    for (var callbacks_1 = tslib_1.__values(callbacks), callbacks_1_1 = callbacks_1.next(); !callbacks_1_1.done; callbacks_1_1 = callbacks_1.next()) {
+                        var Fn = callbacks_1_1.value;
+                        if (Function.isFn(Fn))
+                            Fn();
+                    }
                 }
+                catch (e_5_1) { e_5 = { error: e_5_1 }; }
+                finally {
+                    try {
+                        if (callbacks_1_1 && !callbacks_1_1.done && (_a = callbacks_1.return)) _a.call(callbacks_1);
+                    }
+                    finally { if (e_5) throw e_5.error; }
+                }
+                var e_5, _a;
             },
-            onCompleteParams: ["{self}"].concat(callbacks)
+            onCompleteParams: tslib_1.__spread(["{self}"], callbacks)
         }, objProps);
     };
     Utilities.prototype._U_timelineFactory = function (arg) {
@@ -169,24 +219,19 @@ var Utilities = (function () {
     };
     Utilities.prototype._U_DefaultHelperForIO = function (target, classModifier) {
         var _this = this;
-        var _U_ = function () {
-            var r = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                r[_i] = arguments[_i];
-            }
+        var _U_ = function (entries, intersectionObserver) {
+            if (entries[0].intersectionRatio <= 0)
+                return;
             _this._h_(target).classList.add(classModifier);
-            r && r[1] && r[1].disconnect();
+            intersectionObserver.disconnect();
         };
         _U_[this._S_reserved] = true;
         return _U_;
     };
     Utilities.prototype._U_StateTrigger = function (fnIfFalse, fnIfTrue) {
-        var _this = this;
-        return function () {
-            var $this = _this, state = $this.state;
-            !state ? fnIfFalse() : fnIfTrue();
-            $this.state = !state;
-        };
+        var _U_ = function (entries) { return entries[0].intersectionRatio <= 0 ? fnIfTrue() : fnIfFalse(); };
+        _U_[this._S_reserved] = true;
+        return _U_;
     };
     Utilities.prototype._h_ = function (targetElem) {
         return typeof targetElem === "string" ? document.querySelector(targetElem) : targetElem;
@@ -197,24 +242,18 @@ var Utilities = (function () {
         if (toDisconnect === void 0) { toDisconnect = true; }
         if (treshold === void 0) { treshold = 1; }
         Array.from(document.querySelectorAll(selector)).forEach(function (el, i) {
-            _this._U_IntersectionObserver(el, function () {
-                if (Function.isFn(actions[i])) {
-                    actions[i]();
-                }
-            }, toDisconnect, treshold);
+            _this._U_IntersectionObserver(el, actions[i], toDisconnect, treshold);
         });
     };
     Utilities.prototype._U_IntersectionObserver = function (targetElem, handler, toDisconnect, threshold) {
         if (toDisconnect === void 0) { toDisconnect = true; }
         if (threshold === void 0) { threshold = 1; }
-        var fn = function () {
-            var r = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                r[_i] = arguments[_i];
-            }
-            handler(r);
+        var fn = function (entries, intersectionObserver) {
+            if (entries[0].intersectionRatio <= 0)
+                return;
+            handler();
             if (toDisconnect) {
-                r[1].disconnect();
+                intersectionObserver.disconnect();
             }
         };
         fn = Object.getOwnPropertySymbols(handler)[0] === this._S_reserved ? handler : fn;

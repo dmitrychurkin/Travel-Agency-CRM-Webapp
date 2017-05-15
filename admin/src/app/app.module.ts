@@ -16,6 +16,7 @@ import { BackendService } from './backend.service';
 import { AdminCredentialsStorageService } from './admin-credentials-storage.service';
 import { AppErrorHandler, ErrorEmmiter } from './error.service';
 import { ProgressBarService } from './progress-bar.service';
+import 'hammerjs';
 
 @NgModule({
   declarations: [

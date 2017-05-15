@@ -1,0 +1,42 @@
+<div fxLayout="column">
+    <md-card fxFlexAlign="center" style="width:92%; margin: 30px 0">
+        <md-card-content>
+            <md-tab-group [dynamicHeight]="true">
+                <md-tab label="Offer {{i + 1}}" *ngFor="let offer of offers?.data; index as i">
+                    <md-card>
+                        <md-card-header>
+                            <md-card-title>{{offer.attributes.fileName}}</md-card-title>
+                            <md-card-subtitle>{{(offer.attributes.fileSize / 1024).toFixed(2)}}kb</md-card-subtitle>
+                        </md-card-header>
+                        <img 
+                        style="max-width:600px" 
+                        md-card-image 
+                        [src]="offer.links.self" 
+                        [alt]="offer.attributes.meta.alt" 
+                        [title]="offer.attributes.meta.title">
+                        <md-card-content>
+                            <div fxLayout="column" style="font-size:2em">
+                                <div fxFlex="50px">
+                                    <span>Alt = "</span><span *ngIf="!isNeedEdit; else Alt">{{alt || offer.attributes.meta.alt}}</span><span>"</span>
+                                    <ng-template #Alt><input #inputField [(ngModel)]="alt" spellcheck="false" autocomplete="off"></ng-template>
+                                </div>
+                                <div>
+                                    <span>Title = "</span><span *ngIf="!isNeedEdit; else Title">{{title || offer.attributes.meta.title}}</span><span>"</span>
+                                    <ng-template #Title><input [(ngModel)]="title" spellcheck="false" autocomplete="off"></ng-template>
+                                </div>
+                            </div>
+                        </md-card-content>
+        
+                        <md-card-actions>
+                            <button md-button (click)="onEdit(offer)" *ngIf="!isNeedEdit; else Ok">EDIT</button>
+                            <ng-template #Ok><button md-button (click)="onOk(offer)">OK</button></ng-template>
+                        </md-card-actions>
+                    </md-card>
+                </md-tab>
+            </md-tab-group>
+        </md-card-content>
+    </md-card>
+    <div style="margin:50px 0" fxLayout="row" fxLayoutAlign="center">
+        <button (click)="openModal()" style="width:200px" md-raised-button color="accent">VIEW SECTION</button>
+    </div>
+</div>

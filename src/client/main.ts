@@ -54,7 +54,8 @@ class WFW extends Utilities {
         let fnImages = () => {
             // this._U_IReady(".Intersector", "IReady")(),
             document.querySelector(".Intersector")!.classList.add("IReady"),
-            this.S14.imLoader();
+            // this.S14.imLoader();
+            this.S14.getOffers();
             let videoEl = <HTMLVideoElement>document.querySelector(".S10__vid");
             videoEl.poster = "/images/Lonely-Blue.jpg";
         };
@@ -77,7 +78,7 @@ class WFW extends Utilities {
         this.S10 = new Section10();
         this.S11_12 = new Section1112();
         this.S13 = new Section13();
-        this.S14 = new Section14("/images/newromefare.jpg");
+        this.S14 = new Section14(/*"/images/newromefare.jpg"*/this.httpService, encodeURI("/offers?fields[offers]=meta"));
         const { BgImg } = this.S1;
         this.httpService.configureAndSendRequest([
             "https://fonts.googleapis.com/css?family=Indie+Flower",

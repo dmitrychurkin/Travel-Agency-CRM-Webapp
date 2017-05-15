@@ -66,7 +66,7 @@ var HttpController = (function () {
                                 return true;
                             };
                             body = this._stringify(body);
-                            return [4 /*yield*/, fetch(typeof request === "string" ? request : url, optionsToPassIfCommonExists || {
+                            return [4, fetch(typeof request === "string" ? request : url, optionsToPassIfCommonExists || {
                                     method: method,
                                     headers: Object.assign(mode === "cors" ? {} : {
                                         "X-Requested-With": "XMLHttpRequest"
@@ -81,7 +81,7 @@ var HttpController = (function () {
                                 }).catch(function () { return false; })];
                         case 1:
                             response = _v.sent();
-                            if (!(typeof response !== "boolean")) return [3 /*break*/, 3];
+                            if (!(typeof response !== "boolean")) return [3, 3];
                             ResPromise = null;
                             switch (responseAs) {
                                 case "arrayBuffer": {
@@ -105,14 +105,14 @@ var HttpController = (function () {
                                     break;
                                 }
                                 case "none": {
-                                    return [2 /*return*/, FnSuccessAlwaysHandler(response)];
+                                    return [2, FnSuccessAlwaysHandler(response)];
                                 }
                             }
-                            return [4 /*yield*/, ResPromise];
+                            return [4, ResPromise];
                         case 2:
                             payload = _v.sent();
-                            return [2 /*return*/, FnSuccessAlwaysHandler(payload)];
-                        case 3: return [2 /*return*/, FnFailHandler(response)];
+                            return [2, FnSuccessAlwaysHandler(payload)];
+                        case 3: return [2, FnFailHandler(response)];
                     }
                 });
             }); });

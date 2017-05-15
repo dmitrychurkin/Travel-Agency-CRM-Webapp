@@ -1,3 +1,4 @@
+import * as tslib_1 from "tslib";
 var SnackBarService = (function () {
     function SnackBarService() {
         this._isCicleFinish = true;
@@ -33,12 +34,22 @@ var SnackBarService = (function () {
         var _this = this;
         this.OnTransitEnd = function () {
             transTarg.removeEventListener("transitionend", _this.OnTransitEnd);
-            for (var _i = 0, _a = _this._normCbs(callbacksArr); _i < _a.length; _i++) {
-                var cb = _a[_i];
-                if (Function.isFn(cb)) {
-                    cb(transTarg);
+            try {
+                for (var _a = tslib_1.__values(_this._normCbs(callbacksArr)), _b = _a.next(); !_b.done; _b = _a.next()) {
+                    var cb = _b.value;
+                    if (Function.isFn(cb)) {
+                        cb(transTarg);
+                    }
                 }
             }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_b && !_b.done && (_c = _a.return)) _c.call(_a);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            var e_1, _c;
         };
         return this.OnTransitEnd;
     };
@@ -74,11 +85,21 @@ var SnackBarService = (function () {
         if (!withBar)
             return;
         var SB = SnackBarService.SB;
-        for (var _i = 0, _a = SB.children; _i < _a.length; _i++) {
-            var b = _a[_i];
-            b.classList.remove("SB_stop");
+        try {
+            for (var _a = tslib_1.__values(SB.children), _b = _a.next(); !_b.done; _b = _a.next()) {
+                var b = _b.value;
+                b.classList.remove("SB_stop");
+            }
+        }
+        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+        finally {
+            try {
+                if (_b && !_b.done && (_c = _a.return)) _c.call(_a);
+            }
+            finally { if (e_2) throw e_2.error; }
         }
         SB.classList.add("SB__show");
+        var e_2, _c;
     };
     SnackBarService.prototype.setNotificator = function (_a, actionFnOnClick, onAfterPaneClose) {
         var mes = _a.mes, btn = _a.btn, _b = _a.disabled, disabled = _b === void 0 ? false : _b, _c = _a.autoClose, autoClose = _c === void 0 ? false : _c;
@@ -119,7 +140,7 @@ var SnackBarService = (function () {
         var SBP_btn = SnackBarService.SBP_btn;
         SBP_btn.disabled = true;
         this._normCbs(onBeforePaneClose).forEach(function (fn) { return Function.isFn(fn) ? fn(paneTarg) : fn; });
-        paneTarg.addEventListener("transitionend", this._onTransitEnd(paneTarg, [function () { return SBP_btn.removeEventListener("click", _this.OnClickBtn); }, function (paneTarg) { return _this._resetPane(paneTarg); }, function () { _this._isCicleFinish = true; }].concat(this._normCbs(onAfterPaneClose))));
+        paneTarg.addEventListener("transitionend", this._onTransitEnd(paneTarg, tslib_1.__spread([function () { return SBP_btn.removeEventListener("click", _this.OnClickBtn); }, function (paneTarg) { return _this._resetPane(paneTarg); }, function () { _this._isCicleFinish = true; }], this._normCbs(onAfterPaneClose))));
         paneTarg.classList.remove("SBP__open");
     };
     SnackBarService.prototype.openPane = function (onBeforePaneOpen, onAfterPaneOpen, onBeforePaneClose, onAfterPaneClose, withAutoClose) {
@@ -129,7 +150,7 @@ var SnackBarService = (function () {
         this._normCbs(onBeforePaneOpen).forEach(function (fn) { return Function.isFn(fn) ? fn(SBP) : fn; });
         this._alignPane(SBP);
         window.addEventListener("resize", this._onRes(SBP));
-        SBP.addEventListener("transitionend", this._onTransitEnd(SBP, this._normCbs(onAfterPaneOpen).concat([function (pane) { return _this._delayedClose(withAutoClose, onBeforePaneClose, onAfterPaneClose, pane); }])));
+        SBP.addEventListener("transitionend", this._onTransitEnd(SBP, tslib_1.__spread(this._normCbs(onAfterPaneOpen), [function (pane) { return _this._delayedClose(withAutoClose, onBeforePaneClose, onAfterPaneClose, pane); }])));
         SBP.classList.add("SBP__open");
     };
     SnackBarService.prototype.config = function (withBar) {

@@ -1,0 +1,21 @@
+<div style="width: 100%" fxLayout="column">
+  <ng-container *ngIf="!sectionTab; else Sections">
+    <md-card class="section-card" (click)="onSectionSelect(section)" fxFlexAlign="center" *ngFor="let section of sectionList; index as i">
+      <div fxLayout="row" fxLayoutAlign="space-between">
+        <md-card-title [style.margin]="0">{{i + 1}}. {{section.tabName}}</md-card-title>
+        <md-icon>{{section.ico}}</md-icon>
+      </div>
+    </md-card>
+  </ng-container>
+</div>
+
+<ng-template #Sections>
+  <div [ngSwitch]="sectionTab._name">
+    <ng-container *ngSwitchCase="'slider'">
+      <h1>Slider in Studio!</h1>
+    </ng-container>
+    <ng-container *ngSwitchCase="'offers'">
+      <app-offers-section></app-offers-section>
+    </ng-container>
+  </div>
+</ng-template>

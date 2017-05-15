@@ -1,17 +1,10 @@
-// import {RequestMethod, Headers} from '@angular/http';
+
 export interface IAdminData {
     name: string;
     id: string | boolean;
     role?: 'E';
 }
-// export interface RequestCustomArgs {
-//   method: RequestMethod | string;
-//   body: any;
-//   headers: Headers;
-//   withCredentials: boolean;
-// }
-// export type RequestCustomConfig =
-// (method?: RequestMethod | string, body?: any, contentType?: { [i: string]: string }) => RequestCustomArgs;
+
 export interface IRequestForRegistration {
   r: boolean;
   canEdit?: boolean;
@@ -28,7 +21,7 @@ export interface IAdminSignInCredentials {
 }
 
 export interface IPortUserOrder {
-  // _id: string;
+
   arrive_date: string;
   dep_date: string;
   destination: string;
@@ -56,7 +49,6 @@ export interface IPortUserOrder {
   isCanDelete?: boolean;
 }
 export interface IOrdersData {
-  // header: string;
   orders: Array<IPortUserOrder>;
   timemark: string;
 }
@@ -97,4 +89,19 @@ export interface IFileEntity {
     links: {
       self: string;
     };
+}
+
+// Customize component SelectedTabService
+
+export interface IMenuSubTab {
+    tabName: string;
+    _name: string;
+    ico: string;
+    isActive: boolean;
+}
+export interface IMenuTab {
+    header: string;
+    _name: string;
+    ico: string;
+    children: Array<IMenuSubTab>;
 }

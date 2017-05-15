@@ -145,3 +145,7 @@ function isThisObjectSync(...args) {
     return true;
 }
 exports.isThisObjectSync = isThisObjectSync;
+function getResourceUrl(req) {
+    return req.protocol + "://" + req.get("host");
+}
+exports.getResourceUrl = getResourceUrl;

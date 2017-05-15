@@ -3,6 +3,8 @@ html, body {
   font-family: 'Roboto', 'Helvetica', sans-serif;
   margin: 0;
   padding: 0;
+  overflow-y: hidden;
+  min-width: 1000px;
 }
 /* You can add global styles to this file, and also import other style files */
 .mat-elevation-z0 {
@@ -882,7 +884,10 @@ html, body {
 .mat-slider-min-value:not(.mat-slider-thumb-label-showing).mat-slider-active.mat-slider-disabled .mat-slider-thumb,.mat-slider-min-value:not(.mat-slider-thumb-label-showing):hover.mat-slider-disabled .mat-slider-thumb {
   border-color: rgba(0,0,0,.26)
 }
-
+.mat-slider:not(.mat-slider-disabled) .mat-slider-thumb, .mat-slider:not(.mat-slider-disabled) .mat-slider-thumb-label {
+    cursor: -webkit-grab;
+    cursor: grab;
+}
 .mat-tab-header,.mat-tab-nav-bar {
   border-bottom: 1px solid #e0e0e0
 }

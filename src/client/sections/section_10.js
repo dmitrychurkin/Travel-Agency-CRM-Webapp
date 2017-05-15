@@ -9,7 +9,7 @@ var Section10 = (function (_super) {
         OnRes();
         _this._U_EventListSetter("resize", OnRes);
         var mainCapt = document.querySelector(".S10__cont"), slaveCapt = document.querySelector(".S10__wrap2");
-        _this._U_IOSetter(".S10__lim", [_this._U_DefaultHelperForIO(mainCapt, "S10__a"), _this._U_DefaultHelperForIO(slaveCapt, "S10__a")].concat(_this._setCount()));
+        _this._U_IOSetter(".S10__lim", tslib_1.__spread([_this._U_DefaultHelperForIO(mainCapt, "S10__a"), _this._U_DefaultHelperForIO(slaveCapt, "S10__a")], _this._setCount()));
         _this._U_GC({}, Object.getPrototypeOf(_this), false);
         return _this;
     }

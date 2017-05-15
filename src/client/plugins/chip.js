@@ -34,10 +34,20 @@ var Chip = (function (_super) {
     };
     Chip.prototype._starFact = function () {
         var StarContainers = this.StarContainers;
-        for (var _i = 0, _a = StarContainers; _i < _a.length; _i++) {
-            var starCont = _a[_i];
-            this._insertStar(starCont);
+        try {
+            for (var _a = tslib_1.__values(StarContainers), _b = _a.next(); !_b.done; _b = _a.next()) {
+                var starCont = _b.value;
+                this._insertStar(starCont);
+            }
         }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (_b && !_b.done && (_c = _a.return)) _c.call(_a);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+        var e_1, _c;
     };
     Chip.prototype._timer = function (fn, delay) {
         setTimeout(fn, delay);

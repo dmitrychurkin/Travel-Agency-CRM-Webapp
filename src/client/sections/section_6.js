@@ -7,13 +7,13 @@ var Section6 = (function (_super) {
         _this._OnInit(window.innerWidth);
         var f = _this._OnInit;
         _this._U_EventListSetter("resize", function () { return f.call(_this, window.innerWidth); });
-        _this._U_IOSetter(".S6__lim", [
+        _this._U_IOSetter(".S6__lim", tslib_1.__spread([
             function () {
                 var tit = document.querySelector(".S6__a_tit");
                 tit.classList.add("S6__v");
                 tit.nextElementSibling.classList.add("S6__v");
             }
-        ].concat(_this._combineToAn()));
+        ], _this._combineToAn()));
         return _this;
     }
     Section6.prototype._OnInit = function (curWidth) {

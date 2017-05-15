@@ -1,6 +1,7 @@
 import * as crypto from "crypto";
 import * as fs from "fs";
 import * as uuid from "uuid";
+import { Request } from "express";
 import { IPortUserOrder } from "../interfaces";
 import ServerConfig from "../serverConfig";
 
@@ -140,4 +141,8 @@ export function isThisObjectSync(...args: Array<any>) {
         }
     }
     return true;
+}
+
+export function getResourceUrl(req: Request) {
+    return req.protocol + "://" + req.get("host");
 }

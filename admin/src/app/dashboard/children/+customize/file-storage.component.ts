@@ -4,7 +4,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { BackendService } from '../../../backend.service';
 import { ErrorEmmiter, errorMessages } from '../../../error.service';
 import { ProgressBarService } from '../../../progress-bar.service';
-import { GET_FILES, DOWNLOAD_FILE, JSON_API_HEADER_GET, JSON_API_HEADER_PUTCH_POST } from '../../../app.config';
+import { GET_FILES, DOWNLOAD_FILE, JSON_API_HEADER_BASIC, JSON_API_HEADER_EXTENDED } from '../../../app.config';
 import { IFileStoragePortResponse, IFileAttr, IFileEntity } from '../../../Interfaces';
 declare const System: any;
 
@@ -94,7 +94,7 @@ export class FileStorageComponent implements OnInit, AfterViewChecked {
     if (FileStorageComponent.files) {
         return this.filesResponse = FileStorageComponent.files;
     }
-    this.backendService.sendRequest(GET_FILES, { headers: JSON_API_HEADER_GET })
+    this.backendService.sendRequest(GET_FILES, { headers: JSON_API_HEADER_BASIC })
                         .then((response: Response) => {
                           this.filesResponse = FileStorageComponent.files = response.json();
                         })
@@ -173,8 +173,8 @@ export class FileStorageComponent implements OnInit, AfterViewChecked {
                 `${GET_FILES}/${file.id}`,
                 {
                     method,
-                    headers: JSON_API_HEADER_PUTCH_POST,
-                    body: this._serializeResource(file.id, baseObject, meta)
+                    headers: JSON_API_HEADER_EXTENDED,
+                    body: this.backendService.serializeResource('files', file.id, baseObject, meta)
                 }
             )
             .then((response: Response) => {
@@ -189,16 +189,6 @@ export class FileStorageComponent implements OnInit, AfterViewChecked {
                 }
             });
 
-  }
-  private _serializeResource(id: string, updateAttr: { [key: string]: any }, meta= {}) {
-    return JSON.stringify({
-        data: {
-            type: 'files',
-            id,
-            attributes: updateAttr
-        },
-        meta
-    });
   }
 
   private _notifyQQ(renamedFileProps: IFileAttr, action: 'RENAME' | 'DELETE') {

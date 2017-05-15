@@ -16,7 +16,7 @@ class AppRouter {
     ensureSameOrigin() {
         return (req, res, next) => {
             const isExistSessionGeneralCookie = !!req.signedCookies[serverConfig_1.default.SESSION_COOKIE_NAME];
-            if (req.method === "POST" || req.method === "DELETE") {
+            if (req.method === "POST" || req.method === "DELETE" || req.method === "PATCH") {
                 const HOST = req.get("host");
                 const REFERER = req.get("referer");
                 if (!isExistSessionGeneralCookie || !(REFERER.includes(HOST)) || !req.xhr) {
@@ -114,6 +114,9 @@ class AppRouter {
         router.patch("/api/files/:fileId", [controllers_1.adminController.tokenValidatorController(true), controllers_1.fileUploaderController.actionFile_JsonAPI()]);
         router.delete("/api/files/:fileId", [controllers_1.adminController.tokenValidatorController(true), controllers_1.fileUploaderController.actionFile_JsonAPI()]);
         router.get("/api/download", [controllers_1.adminController.tokenValidatorController(true), controllers_1.fileUploaderController.downloadFileAsync]);
+        router.get("/offers", controllers_1.offersImgsController.getOffers_JsonAPI);
+        router.patch("/offers", controllers_1.offersImgsController.editSliderMeta_JsonAPI);
+        router.patch("/offers/:fileid", [controllers_1.adminController.tokenValidatorController(true), controllers_1.offersImgsController.editOffersMeta_JsonAPI]);
         router.get("/api/sign-admin", (...args) => {
             const res = args[1];
             const req = args[0];

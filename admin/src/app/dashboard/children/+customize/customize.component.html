@@ -1,25 +1,27 @@
 <md-sidenav-container class="nav__container">
         <md-sidenav class="nav__side-nav" #sideNav mode="side" [opened]="true">
-            <md-list class="list">
-                <h3 class="list__label">General Site Settings</h3>
-                <md-list-item> Salt </md-list-item>
-                <md-list-item> Paprika </md-list-item>
-                <md-list-item> Paprika </md-list-item>
-                <md-list-item> Paprika </md-list-item>
-                <md-list-item> Paprika </md-list-item>
-                <md-list-item> Paprika </md-list-item>
-                <md-list-item> Paprika </md-list-item>
-                <md-list-item> Paprika </md-list-item>
-                <md-list-item> Paprika </md-list-item>
+            <md-list class="list" dense>
+                <ng-container *ngFor="let listItem of selectedTabService.listOfTabs">
+                    <h3 class="list__label">{{listItem.header}}</h3>
+                    <md-list-item 
+                        class="list__item" 
+                        (click)="onListItemSelected(childItem, listItem)" 
+                        [ngStyle]="isActiveStyle(childItem) ? {background: 'rgba(0,0,0,.14)', color: '#00bcd4'} : {background: '', color: ''}" 
+                        *ngFor="let childItem of listItem.children">
+                        <md-icon md-list-icon>{{childItem.ico}}</md-icon>
+                        <p md-line>{{childItem.tabName}}</p>
+                    </md-list-item>
+                    <md-divider></md-divider>
+                </ng-container>
             </md-list>
         </md-sidenav>
         <div>
-            <ng-container *ngIf="selectedTabService.currentlySelectedTab.service.name !== 'intro'">
+            <ng-container *ngIf="selectedTabService.currentlySelectedTab">
                 <md-toolbar color="primary">
-                    <span>{{selectedTabService.currentlySelectedTab.service.header}}</span>
+                    <span>{{selectedTabService.currentlySelectedTab.header}}</span>
                 </md-toolbar>
             </ng-container>
-            <div [ngSwitch]="selectedTabService.currentlySelectedTab.service.name">
+            <div [ngSwitch]="selectedTabService.currentlySelectedTab?._name">
                 <md-card *ngSwitchCase="'some content'" class="card__content">
                         <md-card-content>
                                 <md-tab-group>
@@ -34,19 +36,20 @@
                                 </md-tab-group>
                         </md-card-content>
                 </md-card>
-                
+                <ng-container *ngSwitchCase="'landing'">
+                    <app-landing-page-settings (onSelected)="onListItemSelected($event)" [sectionTab]="selectedTabService.currentlySelectedChild" [sectionList]="selectedTabService.currentlySelectedTab.children"></app-landing-page-settings>
+                </ng-container>
                 <ng-container *ngSwitchCase="'file uploads'">
                     <app-file-storage></app-file-storage>
                 </ng-container>
                 <ng-container *ngSwitchDefault>
                     <h1 class="headings">This is that place, where You can make our business better...</h1>
-                    <!--<md-icon style="font-size:7em;">&#xE875;</md-icon> admins-->
                     <div fxLayout="row" fxLayoutAlign="space-around" fxLayoutWrap="wrap">  
-                        <md-card *ngFor="let item of selectedTabService.constructor.listOfTabs; index as i" (click)="onIntroCardClick(item)" class="intro-cards">
-                            <md-card-title class="headings">{{item.service.header}}</md-card-title>
+                        <md-card *ngFor="let item of selectedTabService.listOfTabs" (click)="onIntroCardClick(item)" class="intro-cards">
+                            <md-card-title class="headings">{{item.header}}</md-card-title>
                             <div fxLayout="row" fxLayoutAlign="center">   
                                 <md-card-content>
-                                    <md-icon class="intro-imgs">{{!i ? '&#xE8B9;' : i == 1 ? '&#xE87C;' : '&#xE89C;'}}</md-icon>
+                                    <md-icon class="intro-imgs">{{item.ico}}</md-icon>
                                 </md-card-content>
                             </div>
                         </md-card> 

@@ -124,5 +124,8 @@ export interface IFileDbProps {
     storageFilename: string;
     isInPublic: boolean;
     originalFilename?: string;
-
+    meta?: {
+        alt: string;
+        title: string;
+    };
 }

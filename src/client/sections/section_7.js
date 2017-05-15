@@ -19,12 +19,12 @@ var Section7 = (function (_super) {
         _this.isCanSendForm = true;
         _this._U_EventListSetter("click", _this._onCl());
         var cards = document.querySelectorAll(".S7__flipper"), cardsIt = cards[Symbol.iterator]();
-        _this._U_IOSetter(".S7__lim", [
+        _this._U_IOSetter(".S7__lim", tslib_1.__spread([
             function () {
                 var titleCl = document.querySelector(".S7__title").classList;
                 setTimeout(function () { return titleCl.remove("S7__trans"); }, 1000), titleCl.remove("S7__a");
             }
-        ].concat(Array(cards.length).fill(function () {
+        ], Array(cards.length).fill(function () {
             var currentCard = cardsIt.next().value;
             setTimeout(function () { return (currentCard.classList.remove("S7__animate"),
                 currentCard.classList.add("S7__anim-end")); }, 1000);

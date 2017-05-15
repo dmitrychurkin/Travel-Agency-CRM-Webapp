@@ -73,7 +73,7 @@ class FileUploadController {
                         id: file.uuid,
                         type: "files",
                         links: {
-                            self: `${this._endPointStartUrl(req)}${this._serveDestHelper(false)}${file.storageFilename}`
+                            self: `${services_1.getResourceUrl(req)}${this._serveDestHelper(false)}${file.storageFilename}`
                         }
                     },
                     success: true
@@ -159,9 +159,6 @@ class FileUploadController {
                 .catch(() => res.status(500).end());
         });
     }
-    _endPointStartUrl(req) {
-        return req.protocol + "://" + req.get("host");
-    }
     _serveDestHelper(isInPublic) {
         return isInPublic ? serverConfig_1.default.FILE_STORAGE.SERVED_PUBLIC_PATH : serverConfig_1.default.FILE_STORAGE.SERVED_STORAGE_PATH;
     }
@@ -175,7 +172,7 @@ class FileUploadController {
                 .then(({ files }) => {
                 const responseData = {
                     links: {
-                        self: this._endPointStartUrl(req) + req.originalUrl
+                        self: services_1.getResourceUrl(req) + req.originalUrl
                     },
                     data: []
                 };
@@ -189,7 +186,7 @@ class FileUploadController {
                             fileName: storageFilename
                         },
                         links: {
-                            self: `${this._endPointStartUrl(req)}${this._serveDestHelper(isInPublic)}${storageFilename}`
+                            self: `${services_1.getResourceUrl(req)}${this._serveDestHelper(isInPublic)}${storageFilename}`
                         }
                     });
                 });
@@ -233,7 +230,7 @@ class FileUploadController {
                     PathTo = path.resolve(pathToStorage, fileName);
                 }
                 DB_updateSet = { $set: { "files.$.isInPublic": isInPublic } };
-                responseData = Object.assign(responseData, { links: { self: `${this._endPointStartUrl(req)}${this._serveDestHelper(isInPublic)}${fileName}` } });
+                responseData = Object.assign(responseData, { links: { self: `${services_1.getResourceUrl(req)}${this._serveDestHelper(isInPublic)}${fileName}` } });
             }
             else if (ACTION === "RENAME") {
                 if (isInPublic) {

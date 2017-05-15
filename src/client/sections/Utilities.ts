@@ -155,38 +155,34 @@ export default class Utilities {
         return (maxValue * curPerc) / 100;
     }
     _U_DefaultHelperForIO(target: string | Element | HTMLElement, classModifier: string) {
-        let _U_: any = (...r: Array<any>) => {
+        let _U_: any = (entries: Array<any>, intersectionObserver: IntersectionObserver) => {
+            if (entries[0].intersectionRatio <= 0) return;
             this._h_(target)!.classList.add(classModifier);
-            r && r[1] && r[1].disconnect();
+            intersectionObserver.disconnect();
         };
         _U_[this._S_reserved] = true;
         return _U_;
     }
     _U_StateTrigger(fnIfFalse: () => any, fnIfTrue: () => any) {
-        return () => {
-            let $this: any = this, { state } = $this;
-            !state ? fnIfFalse() : fnIfTrue();
-            $this.state = !state;
-        };
+        let _U_: any = (entries: Array<any>) => entries[0].intersectionRatio <= 0 ? fnIfTrue() : fnIfFalse();
+        _U_[this._S_reserved] = true;
+        return _U_;
     }
     private _h_(targetElem: string | Element | HTMLElement) {
         return typeof targetElem === "string" ? document.querySelector(targetElem) : targetElem;
     }
 
-    _U_IOSetter(selector: string, actions: Array<() => void> = [], toDisconnect: boolean = true, treshold: number = 1) {
+    _U_IOSetter(selector: string, actions: Array<(...a: any[]) => void> = [], toDisconnect: boolean = true, treshold: number = 1) {
         Array.from(document.querySelectorAll(selector)).forEach((el, i) => {
-            this._U_IntersectionObserver(el, () => {
-                if (Function.isFn(actions[i])) {
-                    actions[i]();
-                }
-            }, toDisconnect, treshold);
+            this._U_IntersectionObserver(el, actions[i], toDisconnect, treshold);
         });
     }
     _U_IntersectionObserver(targetElem: string | Element | HTMLElement, handler: (a?: any) => void, toDisconnect: boolean = true, threshold: number = 1) {
-        let fn = (...r: Array<any>) => {
-            handler(r);
+        let fn = (entries: Array<any>, intersectionObserver: IntersectionObserver) => {
+            if (entries[0].intersectionRatio <= 0) return;
+            handler();
             if (toDisconnect) {
-                r[1].disconnect();
+                intersectionObserver.disconnect();
             }
         };
         fn = Object.getOwnPropertySymbols(handler)[0] === this._S_reserved ? handler : fn;

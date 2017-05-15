@@ -22,6 +22,16 @@
     margin: 0;
     padding: 0 16px;
 }
+.list__item {
+    color: rgba(0,0,0,.54);
+    background-color: #fafafa;
+    cursor: pointer;
+    transition: .5s ease-out;
+}
+.list__item:hover {
+    background-color: rgba(0,0,0,.14);
+    color: #00bcd4;
+}
 .card__wrap {
     width: 100%;
 }
@@ -30,11 +40,11 @@
     margin: auto;
     margin-top: 30px;
 }
-#fine-uploader {
+/*#fine-uploader {
     width: 96%;
     margin: auto;
     padding: 50px 0;
-}
+}*/
 .headings {
     padding: 0 20px;
     color: rgba(0,0,0,.54);
@@ -44,6 +54,7 @@
 .intro-cards {
     width: 250px;
     cursor: pointer;
+    margin-bottom: 50px;
 }
 .intro-imgs {
     font-size: 7em;

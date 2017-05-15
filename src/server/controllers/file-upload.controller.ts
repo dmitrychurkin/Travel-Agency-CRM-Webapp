@@ -6,7 +6,7 @@ import { Request, Response } from "express";
 import { Document } from "mongoose";
 import { FileStorageModel } from "../models";
 import ServerConfig from "../serverConfig";
-import { JsonAPI, IJsonAPISpec, IResource, moveFileAsync, isThisObjectSync } from "../services";
+import { JsonAPI, IJsonAPISpec, IResource, moveFileAsync, isThisObjectSync, getResourceUrl } from "../services";
 import {
     IResponseData,
     IMultipartyParsedFields,
@@ -89,7 +89,7 @@ class FileUploadController {
                                 id: file.uuid,
                                 type: "files",
                                 links: {
-                                    self: `${this._endPointStartUrl(req)}${this._serveDestHelper(false)}${file.storageFilename}`
+                                    self: `${getResourceUrl(req)}${this._serveDestHelper(false)}${file.storageFilename}`
                                 }
                             },
                             success: true
@@ -183,9 +183,9 @@ class FileUploadController {
                 .catch(() => res.status(500).end());
         });
     }
-    private _endPointStartUrl(req: Request) {
-        return req.protocol + "://" + req.get("host");
-    }
+    // private _endPointStartUrl(req: Request) {
+    //     return req.protocol + "://" + req.get("host");
+    // }
     private _serveDestHelper(isInPublic: boolean) {
         return isInPublic ? ServerConfig.FILE_STORAGE.SERVED_PUBLIC_PATH : ServerConfig.FILE_STORAGE.SERVED_STORAGE_PATH;
     }
@@ -199,7 +199,7 @@ class FileUploadController {
                                     .then(({ files }: any) => {
                                         const responseData: IJsonAPISpec = {
                                             links: {
-                                                self:  this._endPointStartUrl(req) + req.originalUrl
+                                                self:  getResourceUrl(req) + req.originalUrl
                                             },
                                             data: []
                                         };
@@ -214,7 +214,7 @@ class FileUploadController {
                                                         fileName: storageFilename
                                                     },
                                                     links: {
-                                                        self: `${this._endPointStartUrl(req)}${this._serveDestHelper(isInPublic)}${storageFilename}`
+                                                        self: `${getResourceUrl(req)}${this._serveDestHelper(isInPublic)}${storageFilename}`
                                                     }
                                                 }
                                             );
@@ -261,7 +261,7 @@ class FileUploadController {
                         PathTo = path.resolve(pathToStorage, fileName);
                     }
                 DB_updateSet = { $set: { "files.$.isInPublic": isInPublic } };
-                responseData = Object.assign(responseData, { links: { self: `${this._endPointStartUrl(req)}${this._serveDestHelper(isInPublic)}${fileName}` } });
+                responseData = Object.assign(responseData, { links: { self: `${getResourceUrl(req)}${this._serveDestHelper(isInPublic)}${fileName}` } });
 
             }else if (ACTION === "RENAME") {
                 if (isInPublic) {

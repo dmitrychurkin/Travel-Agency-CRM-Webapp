@@ -1,3 +1,4 @@
+import * as tslib_1 from "tslib";
 import OrderFieldsConverter from "./orderPortService";
 import SnackBarService from "./snackBarService";
 import Scheduller from "./schedullerService";
@@ -67,25 +68,35 @@ var FormModule = (function () {
         var DataServiceCode = this.Base.S7.flipTarget.dataset.code;
         ORDER.service = OrderFieldsConverter.serviceCodeConverter[DataServiceCode];
         var buffer = this.userDataBuffLS();
-        for (var _i = 0, _a = resultElements; _i < _a.length; _i++) {
-            var input = _a[_i];
-            buffer(input);
-            if (input.type === "radio" || input.type === "checkbox") {
-                if (input.checked) {
-                    var inputId = input.id;
-                    var airClass = OrderFieldsConverter.airClassConverter[inputId];
-                    ORDER.class = airClass;
+        try {
+            for (var _a = tslib_1.__values(resultElements), _b = _a.next(); !_b.done; _b = _a.next()) {
+                var input = _b.value;
+                buffer(input);
+                if (input.type === "radio" || input.type === "checkbox") {
+                    if (input.checked) {
+                        var inputId = input.id;
+                        var airClass = OrderFieldsConverter.airClassConverter[inputId];
+                        ORDER.class = airClass;
+                    }
                 }
-            }
-            else {
-                if (!input.value.trim()) {
-                    continue;
+                else {
+                    if (!input.value.trim()) {
+                        continue;
+                    }
+                    var field = input.id;
+                    ORDER[field] = input.value.trim();
                 }
-                var field = input.id;
-                ORDER[field] = input.value.trim();
             }
         }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (_b && !_b.done && (_c = _a.return)) _c.call(_a);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
         return [Object.assign({ ACTION: "REGISTER", SITE_LANG: this.LANG }, ORDER), buffer()];
+        var e_1, _c;
     };
     FormModule.prototype._delay = function (fn) {
         setTimeout(fn, 1000);
@@ -175,19 +186,29 @@ var FormModule = (function () {
                 _this.validateField(target);
             };
         var userDataFromLS = this.userDataUnBuffLS();
-        for (var _i = 0, inputsArr_1 = inputsArr; _i < inputsArr_1.length; _i++) {
-            var input = inputsArr_1[_i];
-            if (userDataFromLS) {
-                userDataFromLS(input);
+        try {
+            for (var inputsArr_1 = tslib_1.__values(inputsArr), inputsArr_1_1 = inputsArr_1.next(); !inputsArr_1_1.done; inputsArr_1_1 = inputsArr_1.next()) {
+                var input = inputsArr_1_1.value;
+                if (userDataFromLS) {
+                    userDataFromLS(input);
+                }
+                if (input.type === "checkbox" || input.type === "radio")
+                    continue;
+                this._createMesPh(input);
+                this._setDefDate(input);
+                this._checkDefaults(input);
+                this.Base._U_EventListSetter("focus", this.OnFocus, input);
+                this.Base._U_EventListSetter("blur", this.OnBlur, input);
             }
-            if (input.type === "checkbox" || input.type === "radio")
-                continue;
-            this._createMesPh(input);
-            this._setDefDate(input);
-            this._checkDefaults(input);
-            this.Base._U_EventListSetter("focus", this.OnFocus, input);
-            this.Base._U_EventListSetter("blur", this.OnBlur, input);
         }
+        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+        finally {
+            try {
+                if (inputsArr_1_1 && !inputsArr_1_1.done && (_a = inputsArr_1.return)) _a.call(inputsArr_1);
+            }
+            finally { if (e_2) throw e_2.error; }
+        }
+        var e_2, _a;
     };
     FormModule.prototype._onLayoutChange = function (elementsToAppend, appendTo) {
         var DEADLINE = 923;
@@ -234,22 +255,51 @@ var FormModule = (function () {
     };
     FormModule.prototype.onCloseForm = function () {
         window.removeEventListener("resize", this.OnRes);
-        for (var _i = 0, _a = document.forms; _i < _a.length; _i++) {
-            var form = _a[_i];
-            form.removeEventListener("submit", this.OnSub);
+        try {
+            for (var _a = tslib_1.__values(document.forms), _b = _a.next(); !_b.done; _b = _a.next()) {
+                var form = _b.value;
+                form.removeEventListener("submit", this.OnSub);
+            }
         }
-        for (var _b = 0, _c = document.querySelectorAll(".F__form-wrap input:not([type=submit]), .F__form-wrap textarea"); _b < _c.length; _b++) {
-            var input = _c[_b];
-            input.removeEventListener("focus", this.OnFocus);
-            input.removeEventListener("blur", this.OnBlur);
+        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+        finally {
+            try {
+                if (_b && !_b.done && (_c = _a.return)) _c.call(_a);
+            }
+            finally { if (e_3) throw e_3.error; }
         }
+        try {
+            for (var _d = tslib_1.__values(document.querySelectorAll(".F__form-wrap input:not([type=submit]), .F__form-wrap textarea")), _e = _d.next(); !_e.done; _e = _d.next()) {
+                var input = _e.value;
+                input.removeEventListener("focus", this.OnFocus);
+                input.removeEventListener("blur", this.OnBlur);
+            }
+        }
+        catch (e_4_1) { e_4 = { error: e_4_1 }; }
+        finally {
+            try {
+                if (_e && !_e.done && (_f = _d.return)) _f.call(_d);
+            }
+            finally { if (e_4) throw e_4.error; }
+        }
+        var e_3, _c, e_4, _f;
     };
     FormModule.prototype.setModule = function (args, onSuccess, onFail) {
         this.OnSub = this._onSubmit(args, onSuccess, onFail);
-        for (var _i = 0, _a = document.forms; _i < _a.length; _i++) {
-            var form = _a[_i];
-            this.Base._U_EventListSetter("submit", this.OnSub, form);
+        try {
+            for (var _a = tslib_1.__values(document.forms), _b = _a.next(); !_b.done; _b = _a.next()) {
+                var form = _b.value;
+                this.Base._U_EventListSetter("submit", this.OnSub, form);
+            }
         }
+        catch (e_5_1) { e_5 = { error: e_5_1 }; }
+        finally {
+            try {
+                if (_b && !_b.done && (_c = _a.return)) _c.call(_a);
+            }
+            finally { if (e_5) throw e_5.error; }
+        }
+        var e_5, _c;
     };
     FormModule.prototype.unsetModule = function () {
         if (this.modalPopIns) {
