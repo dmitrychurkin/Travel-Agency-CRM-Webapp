@@ -17,6 +17,10 @@ import ServerConfig from "./serverConfig";
 import usersRoutes from "./routes/users";
 import servicesRoutes from "./routes/services";*/
 
+// caching variables:
+// 1. offers
+// 2. siteContacts
+
 class App {
   server: Server;
   express: Express;

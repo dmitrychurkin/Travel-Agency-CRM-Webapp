@@ -13,14 +13,13 @@ import { DOCUMENT } from '@angular/platform-browser';
 import { MdSliderChange, MdSelect, MdOption, MdSelectChange } from '@angular/material';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { ErrorEmmiter, errorMessages } from '../../../error.service';
-import { OFFERS, JSON_API_HEADER_EXTENDED } from '../../../app.config';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { async } from 'rxjs/scheduler/async';
 import { asap } from 'rxjs/scheduler/asap';
 import 'rxjs/add/observable/timer';
-import { BackendService } from '../../../backend.service';
-import { IPortOffersResponse, IOfferData } from './offers-section.component';
+import { BackendService, JSON_API_HEADER_EXTENDED } from '../../../backend.service';
+import { IPortOffersResponse, IOfferData, offersURL } from './offers-section.component';
 
 const enum MenuActions {
     Resize = 1,
@@ -194,7 +193,7 @@ export class OffersModalComponent implements AfterViewInit, OnDestroy, AfterView
 
             if (Object.keys(attributesObject).length > 0) {
                 return this.backendService.sendRequest(
-                        OFFERS,
+                        offersURL,
                         {
                             method: RequestMethod.Patch,
                             headers: JSON_API_HEADER_EXTENDED,

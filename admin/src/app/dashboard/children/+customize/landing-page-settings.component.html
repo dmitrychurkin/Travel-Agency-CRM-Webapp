@@ -12,7 +12,7 @@
 <ng-template #Sections>
   <div [ngSwitch]="sectionTab._name">
     <ng-container *ngSwitchCase="'slider'">
-      <h1>Slider in Studio!</h1>
+      <app-slider-promo-section></app-slider-promo-section>
     </ng-container>
     <ng-container *ngSwitchCase="'offers'">
       <app-offers-section></app-offers-section>

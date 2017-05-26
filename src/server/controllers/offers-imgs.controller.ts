@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
+import { Application } from "../app";
 import { FileStorageModel } from "../models";
-import { JsonAPI, getResourceUrl, isThisObjectSync } from "../services";
+import { JsonAPI, getResourceUrl } from "../services";
 import ServerConfig from "../serverConfig";
 import { IFileDbProps, IUpdatePayload } from "../interfaces";
 
@@ -34,9 +35,11 @@ interface IPortOffersResponse {
     };
 }
 class OffersImgsController {
-    getOffers_JsonAPI(req: Request, res: Response) {
-        if (!JsonAPI.validateRequest(req, res)) return;
-
+    private _offersFetcher(): Promise<IOffersAggrResult> {
+        const CACHE: IOffersAggrResult = Application.express.get("offers");
+        if (CACHE) {
+            return Promise.resolve(CACHE);
+        }
         return FileStorageModel.aggregate({
             $project: {
                 _id: 0,
@@ -44,7 +47,7 @@ class OffersImgsController {
                     $filter: {
                         input: "$files",
                         as: "file",
-                        cond: { $eq: [ "$$file.isInPublic", true ] }
+                        cond: { $eq: [ "$$file.locationFlag", "O" ] }
                     }
                 },
                 maxWidth: 1,
@@ -53,98 +56,126 @@ class OffersImgsController {
             }
         })
         .then((result: Array<IOffersAggrResult>) => {
-           const{ files, maxWidth, slideShow, sliderMode } = result[0];
-           const responseResult: IPortOffersResponse = {
-               data: [],
-               meta: { maxWidth, slideShow, sliderMode }
-           };
-           let attributesFields: Array<keyof IAttrs> = [];
-           const fieldName = req.path.slice(1, -1);
-           let isWithQuery = false;
-           if (req.query && req.query.fields && req.query.fields[fieldName]) {
-                attributesFields = req.query.fields[fieldName].split(",");
-                isWithQuery = true;
-           }
-           for (const file of files) {
-                const { _id: id, storageFilename: fileName, fileSize, meta } = file;
-                const attributes = <IAttrs>{};
-                if (isWithQuery) {
-                    for (const attrName of attributesFields) {
-                        let pseudonim: keyof IFileDbProps;
-                        switch (attrName) {
-                            case "fileName":
-                                pseudonim = "storageFilename";
-                            break;
-                            default:
-                                pseudonim = attrName;
-                        }
-                        attributes[attrName] = file[pseudonim];
-                    }
-                }else {
-                    attributes.fileName = fileName;
-                    attributes.fileSize = fileSize;
-                    attributes.meta = meta;
-                }
-                responseResult.data.push({
-                    type: "offers",
-                    id,
-                    attributes,
-                    links: {
-                        self: `${getResourceUrl(req)}${ServerConfig.FILE_STORAGE.SERVED_PUBLIC_PATH}${fileName}`
-                    }
-                });
-           }
-           return JsonAPI.sendData(responseResult, res);
-        })
-        .catch(() => res.status(500).end());
-    }
-    editSliderMeta_JsonAPI(req: Request, res: Response) {
-        if ( !isThisObjectSync(req, req.body) ||
-            !isThisObjectSync(req.body.data) ||
-            !isThisObjectSync(req.body.data.attributes) ||
-            !JsonAPI.validateRequest(req, res) ) {
-
-            return !res.headersSent ? res.status(403).end() : null;
-        }
-
-        const{ attributes } = req.body.data;
-
-        const dbSetOptions: any = { $set: {} };
-        for (const metaField in attributes) {
-            if (attributes[metaField]) {
-                dbSetOptions.$set[metaField] = attributes[metaField];
+            const resultObject = result[0];
+            if (!CACHE) {
+                Application.express.set("offers", resultObject);
             }
-        }
-        return FileStorageModel.update({ _id: ServerConfig.FILE_STORAGE.DB_ID }, dbSetOptions)
-                    .then(({ ok, nModified, n }: IUpdatePayload) => {
-                        if (ok && nModified && n) {
-                            return res.status(204).end();
-                        }
-                        throw new Error("Fail to update");
-                    })
-                    .catch(() => res.status(500).end());
+            return resultObject;
+        });
     }
-    editOffersMeta_JsonAPI(req: Request, res: Response) {
-        if (!req || !req.params || !req.body || !JsonAPI.validateRequest(req, res)) {
-            return !res.headersSent ? res.status(403).end() : null;
-        }
-        const{ data } = req.body;
-        if (!data || !data.attributes || !isThisObjectSync(data, data.attributes)) {
-            return res.status(403).end();
-        }
+    getOffers_JsonAPI() {
+        return (req: Request, res: Response) => {
+            if (!JsonAPI.validateRequest(req, res)) return;
 
-        const { attributes: { meta } } = data;
-        return FileStorageModel.update(
-                { _id: ServerConfig.FILE_STORAGE.DB_ID, "files._id": req.params.fileid },
-                { $set: { "files.$.meta": meta } }
-            )
-            .then(({ ok, nModified, n }: IUpdatePayload) => {
-                if (ok && nModified && n) {
-                    return res.status(204).end();
+            this._offersFetcher()
+            .then((result: IOffersAggrResult) => {
+
+                const{ files, maxWidth, slideShow, sliderMode } = result;
+                const responseResult: IPortOffersResponse = {
+                    data: [],
+                    meta: { maxWidth, slideShow, sliderMode }
+                };
+                let attributesFields: Array<keyof IAttrs> = [];
+                const fieldName = req.path.slice(1, -1);
+                let isWithQuery = false;
+                if (req.query && req.query.fields && req.query.fields[fieldName]) {
+                        attributesFields = req.query.fields[fieldName].split(",");
+                        isWithQuery = true;
                 }
-                throw new Error("Fail to update");
+                for (const file of files) {
+                        const { _id: id, storageFilename: fileName, fileSize, meta } = file;
+                        const attributes = <IAttrs>{};
+                        if (isWithQuery) {
+                            for (const attrName of attributesFields) {
+                                let pseudonim: keyof IFileDbProps;
+                                switch (attrName) {
+                                    case "fileName":
+                                        pseudonim = "storageFilename";
+                                    break;
+                                    default:
+                                        pseudonim = attrName;
+                                }
+                                attributes[attrName] = file[pseudonim];
+                            }
+                        }else {
+                            attributes.fileName = fileName;
+                            attributes.fileSize = fileSize;
+                            attributes.meta = meta;
+                        }
+                        responseResult.data.push({
+                            type: "offers",
+                            id,
+                            attributes,
+                            links: {
+                                self: `${getResourceUrl(req)}${ServerConfig.FILE_STORAGE.SERVED_OFFERS_PATH}${fileName}`
+                            }
+                        });
+                }
+                return JsonAPI.sendData(responseResult, res);
             })
             .catch(() => res.status(500).end());
+        };
+    }
+    editSliderMeta_JsonAPI(req: Request, res: Response) {
+        if ( req && req.body && req.body.data && req.body.data.attributes && JsonAPI.validateRequest(req, res) ) {
+
+            const{ attributes } = req.body.data;
+
+            const dbSetOptions: any = { $set: {} };
+
+            const CACHE = Application.express.get("offers");
+
+            for (const metaField in attributes) {
+                if (attributes[metaField]) {
+                    dbSetOptions.$set[metaField] = attributes[metaField];
+                    if (CACHE) {
+                        CACHE[metaField] = attributes[metaField];
+                    }
+                }
+            }
+            if (CACHE) {
+                Application.express.set("offers", CACHE);
+            }
+
+            return FileStorageModel.update({ _id: ServerConfig.FILE_STORAGE.DB_ID }, dbSetOptions)
+                        .then(({ ok, nModified, n }: IUpdatePayload) => {
+                            if (ok && nModified && n) {
+                                return res.status(204).end();
+                            }
+                            throw new Error("Fail to update");
+                        })
+                        .catch(() => res.status(500).end());
+        }
+        return !res.headersSent ? res.status(403).end() : null;
+    }
+    editOffersMeta_JsonAPI(req: Request, res: Response) {
+        if (req && req.params && req.params.fileid && req.body && req.body.data && req.body.data.attributes && JsonAPI.validateRequest(req, res)) {
+
+            const{ data: { attributes: { meta } } } = req.body;
+            const{ fileid } = req.params;
+            const CACHE = Application.express.get("offers");
+            if (CACHE) {
+                for (const file of CACHE.files) {
+                    if (file._id === fileid) {
+                        file.meta = meta;
+                    }
+                }
+                Application.express.set("offers", CACHE);
+            }
+
+            return FileStorageModel.update(
+                    { _id: ServerConfig.FILE_STORAGE.DB_ID, "files._id": fileid },
+                    { $set: { "files.$.meta": meta } }
+                )
+                .then(({ ok, nModified, n }: IUpdatePayload) => {
+                    if (ok && nModified && n) {
+                        return res.status(204).end();
+                    }
+                    throw new Error("Fail to update");
+                })
+                .catch(() => res.status(500).end());
+        }
+        return !res.headersSent ? res.status(403).end() : null;
     }
 }
 

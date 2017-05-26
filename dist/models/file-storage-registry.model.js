@@ -7,6 +7,10 @@ const FileStorageSchema = new Schema({
         type: String,
         default: "FileStorage"
     },
+    siteRef: {
+        type: mongoose.SchemaTypes.String,
+        ref: "SiteWingsForWorldSettings"
+    },
     currentStorageSize: {
         type: Number,
         default: 0
@@ -36,9 +40,10 @@ const FileStorageSchema = new Schema({
                 type: String,
                 unique: true
             },
-            isInPublic: {
-                type: Boolean,
-                default: false
+            locationFlag: {
+                type: String,
+                enum: ["S", "P", "O"],
+                default: "S"
             },
             meta: {
                 alt: {

@@ -1,8 +1,8 @@
 <div fxLayout="column">
     <md-card fxFlexAlign="center" style="width:92%; margin: 30px 0">
         <md-card-content>
-            <md-tab-group [dynamicHeight]="true">
-                <md-tab label="Offer {{i + 1}}" *ngFor="let offer of offers?.data; index as i">
+            <md-tab-group *ngIf="offers?.data.length; else NoContent" [dynamicHeight]="true" [(selectedIndex)]="index">
+                <md-tab label="Offer {{i + 1}}" [disabled]="isNeedEdit && index != i" *ngFor="let offer of offers?.data; index as i">
                     <md-card>
                         <md-card-header>
                             <md-card-title>{{offer.attributes.fileName}}</md-card-title>
@@ -40,3 +40,9 @@
         <button (click)="openModal()" style="width:200px" md-raised-button color="accent">VIEW SECTION</button>
     </div>
 </div>
+
+<ng-template #NoContent>
+    <div fxLayout="row" fxLayoutAlign="center center" style="height:300px;width:100%">
+        <h1 style="color:rgba(0,0,0,.4)">No Offers here yet...</h1>
+    </div>
+</ng-template>

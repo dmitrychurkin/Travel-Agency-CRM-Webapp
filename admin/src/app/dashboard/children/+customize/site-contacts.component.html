@@ -1,0 +1,68 @@
+<div *ngIf="contactsModel; else Spinner" fxLayout="column">
+    <md-card fxFlexAlign="center" style="width:92%; margin: 30px 0">
+        <md-tab-group *ngIf="contactsModel?.length > 0; else NoContactsYet" [dynamicHeight]="true" [(selectedIndex)]="selectedIndex" (selectChange)="onTabChange(selectedIndex)">
+            <md-tab [disabled]="selectedIndex != indexTab && isEditing" [label]="contact.group | uppercase" *ngFor="let contact of contactsModel; index as indexTab">
+                <ng-container *ngIf="contact.values.length > 0; else NoContactsYet">
+                    <div *ngFor="let contactType of contact.values; index as ind; count as num">
+                        <h3>{{ind + 1}}. {{(modelEdit[ind]?.type || contactType.type || notSpecifiedMessage) | titlecase}} <span *ngIf="(contact.group | lowercase) === 'skype' && selectedTab?.values[0]?.type && ind == 0">*</span>:</h3>
+                        <div><span>{{getValues(contact.group, contactType, ind)}}</span></div>
+                        <div style="margin-top:10px">
+                            <ng-container *ngIf="!modelEdit[ind]">
+                                <button (click)="onEdit(contactType, ind)" md-raised-button color="accent">EDIT</button>
+                                <button class="btn-gap" (click)="openDialog(deleteAction(contact.values, ind), 'contact')" md-raised-button color="warn">DELETE</button>
+                            </ng-container>
+
+                            <ng-container *ngIf="modelEdit[ind]">
+                                <md-input-container dividerColor="accent">
+                                    <input style="width:300px" #inputRef 
+                                    mdInput 
+                                    placeholder="Contact title"
+                                    [(ngModel)]="modelEdit[ind].type" 
+                                    required="true">
+                                    <md-hint [style.color]="'#f44336'">{{inputRef.validationMessage}}</md-hint>
+                                </md-input-container>
+                                <md-input-container dividerColor="accent">
+                                    <textarea style="width:300px" #textareaRef
+                                    mdInput 
+                                    mdTextareaAutosize 
+                                    [mdAutosizeMinRows]="3"
+                                    [mdAutosizeMaxRows]="7"
+                                    placeholder="{{contact.group | titlecase}} contact details" 
+                                    [(ngModel)]="modelEdit[ind].$modelValue"
+                                    required="true"></textarea>
+                                    <md-hint [style.color]="'#f44336'">{{textareaRef.validationMessage}}</md-hint>
+                                </md-input-container>
+                                <div style="margin-top:10px">
+                                    <button (click)="onOk(contactType, ind)" md-raised-button color="warn">OK</button>
+                                </div>
+                            </ng-container>
+                        </div>
+                        <hr>
+                    </div>
+                </ng-container>
+                
+            </md-tab>
+        </md-tab-group>
+        <ng-template #NoContactsYet>
+            <h1 style="color:rgba(0,0,0,.4)">Nothing here Yet!</h1>
+        </ng-template>
+        <ng-container *ngIf="contactsModel?.length > 0">
+            <button (click)="selectedTab.values.push({type: '', values: []})" md-raised-button color="primary">ADD {{selectedTab?.group | uppercase}}</button>
+            <p *ngIf="(selectedTab?.group | lowercase) === 'skype' && (selectedTab?.values[0]?.type || isSkypeHas)"><i style="color:rgba(0,0,0,.4)">* 
+                            <!--remember that you may specify as much as you want skype addresses but for the clients will be available only first in this list-->
+                to prevent confusion I desided to keep open for public only first in this list skype address. You may specify as much as you want, but for the clients will be accessible only first.</i>
+            </p>
+        </ng-container>
+    </md-card>
+    <div style="margin:10px 0" fxLayout="row" fxLayoutAlign="space-around">
+        <button (click)="openDialog(deleteAction(), modalData)" md-raised-button color="primary">ADD GROUP</button>
+        <button *ngIf="contactsModel?.length > 0" (click)="openDialog(deleteAction(contactsModel, selectedIndex), 'group')" md-raised-button color="warn">DELETE GROUP</button>
+        <button *ngIf="isNeedSaveChanges(objectRecord, contactsModel)" (click)="onSaveChanges()" md-raised-button color="warn">SAVE CHANGES</button>
+    </div>
+</div>
+
+<ng-template #Spinner>
+    <div fxLayout="row" style="height: calc(100vh - 137px)">
+        <div fxLayout="row" style="height:inherit;width:100%"><md-spinner style="margin:auto" color="accent"></md-spinner></div>
+    </div>
+</ng-template>

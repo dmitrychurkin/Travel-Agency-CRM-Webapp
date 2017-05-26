@@ -1,0 +1,43 @@
+
+<section>
+    <md-tab-group>
+    <md-tab label="Slide {{indexOfSlide + 1}}" *ngFor="let slide of modelData.data; index as indexOfSlide">
+        <div class="S8__slider">
+            <div class="S8__slides">
+                <div class="S8__slide">
+                    <div class="S8__s-b" [style.backgroundImage]="'url('+ slide.attributes.backgroundImage +')'"></div>
+                    <div class="S8__s-c">
+                        <div class="S8__t">
+                            <a class="S8__t-h-link">
+                                <button>{{slide.attributes.title}}</button>
+                            </a>
+                            <p class="S8__t-desc">{{slide.attributes.description}}</p>
+                            <a class="S8__t-link"><button>Read more</button></a>
+                        </div>
+                        <div class="S8__plugin">
+                            <div class="chips-material">
+                                <div class="chip" *ngFor="let chip of slide.attributes.chips">
+                                    <div class="chip__cont">
+                                        <div class="chip__bg" [style.backgroundImage]="'url('+ chip.avatar +')'"></div>
+                                        <p class="chip__capt">{{chip.destination}}</p>
+                                        <div class="chip__stars">
+                                            <svg style="width:22px;height:22px" xmlns="http://www.w3.org/2000/svg" *ngFor="let star of 'huilo'.split(''); index as starIndex">
+                                                <path class="chip__st" transform="scale(.09)" [attr.fill]="starIndex + 1 > chip.starCount ? 'rgb(148, 148, 146)' : '#F8D64E'" d="m48,234 73-226 73,226-192-140h238z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </md-tab>
+    </md-tab-group>
+    <md-toolbar [class.active]="isActive" color="primary" class="bottom-tb">
+        <div fxLayout="row" fxLayoutAlign="center" style="width:100%">
+            <button md-raised-button (click)="onCloseModal()" color="accent">CLOSE</button>
+        </div>
+    </md-toolbar>
+</section>

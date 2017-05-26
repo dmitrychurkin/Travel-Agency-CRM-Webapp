@@ -39,9 +39,11 @@ export default {
         DB_ID: "FileStorage",
         PATH_TO_STORAGE: path.resolve(__dirname, "./fileUploads"),
         MAX_STORAGE_SIZE: 30000 * 1024, // 30 Mb
-        PATH_TO_PUBLIC: path.resolve(__dirname, "./public/offers"),
+        PATH_TO_OFFERS: path.resolve(__dirname, "./public/offers"),
+        PATH_TO_PUBLIC: path.resolve(__dirname, "./public/images"),
         MAX_FILE_SIZE: 0, // unlimited,
         SERVED_STORAGE_PATH: "/storage/",
-        SERVED_PUBLIC_PATH: "/offers/"
+        SERVED_OFFERS_PATH: "/offers/",
+        SERVED_PUBLIC_PATH: "/images/"
     }
 };

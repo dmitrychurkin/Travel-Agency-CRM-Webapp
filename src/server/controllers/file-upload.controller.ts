@@ -2,11 +2,12 @@ import * as fs from "fs";
 import * as path from "path";
 import * as multiparty from "multiparty";
 import * as rimraf from "rimraf";
+import { Application } from "../app";
 import { Request, Response } from "express";
 import { Document } from "mongoose";
 import { FileStorageModel } from "../models";
 import ServerConfig from "../serverConfig";
-import { JsonAPI, IJsonAPISpec, IResource, moveFileAsync, isThisObjectSync, getResourceUrl } from "../services";
+import { JsonAPI, IJsonAPISpec, IResource, moveFileAsync, getResourceUrl } from "../services";
 import {
     IResponseData,
     IMultipartyParsedFields,
@@ -19,7 +20,8 @@ class FileUploadController {
     static pathToStorage = ServerConfig.FILE_STORAGE.PATH_TO_STORAGE; // path.resolve(__dirname, "../fileUploads");
     static maxStorageSize = ServerConfig.FILE_STORAGE.MAX_STORAGE_SIZE; // 30000 * 1024;
 
-    static publicPath = ServerConfig.FILE_STORAGE.PATH_TO_PUBLIC; // path.resolve(__dirname, "../public/offers");
+    static offersPath = ServerConfig.FILE_STORAGE.PATH_TO_OFFERS; // path.resolve(__dirname, "../public/offers");
+    static publicPath = ServerConfig.FILE_STORAGE.PATH_TO_PUBLIC;
     static maxFileSize = ServerConfig.FILE_STORAGE.MAX_FILE_SIZE;
 
     private _failWithTooBigFile(responseData: IResponseData, res: Response) {
@@ -84,12 +86,13 @@ class FileUploadController {
                                 attributes: {
                                     fileName: file.storageFilename,
                                     fileSize: file.size,
-                                    isInPublic: false
+                                    locationFlag: "S"
+                                    // isInPublic: false
                                 },
                                 id: file.uuid,
                                 type: "files",
                                 links: {
-                                    self: `${getResourceUrl(req)}${this._serveDestHelper(false)}${file.storageFilename}`
+                                    self: `${getResourceUrl(req)}${this._serveDestHelper(/*false*/ "S")}${file.storageFilename}`
                                 }
                             },
                             success: true
@@ -160,17 +163,33 @@ class FileUploadController {
                 }]).exec();
 
                 const SelectedFileEntity = SelectedFileArray[0].files[0];
-                const { fileSize, storageFilename, isInPublic, _id } = SelectedFileEntity;
-                return this._deleteFileHelper({fileSize, storageFilename, isInPublic, _id}, res);
+                const { fileSize, storageFilename, /*isInPublic*/ locationFlag, _id } = SelectedFileEntity;
+                return this._deleteFileHelper({fileSize, storageFilename, /*isInPublic*/ locationFlag, _id}, res);
 
             }catch (err) {
                 res.status(500).end();
             }
         };
     }
-    private _deleteFileHelper({ isInPublic, storageFilename, fileSize, _id }: { isInPublic: boolean, storageFilename: string, fileSize: number, _id: string }, res: Response) {
-        const { pathToStorage, publicPath } = FileUploadController;
-        const PathToDelete = isInPublic ? path.resolve(publicPath, storageFilename) : path.resolve(pathToStorage, storageFilename);
+    private _cacheSync(resultAfterUpdate: any) {
+        const CACHE = Application.express.get("offers");
+        const{ files, maxWidth, sliderMode, slideShow } = <any>resultAfterUpdate;
+
+        const publicExtractor = () => files.filter((file: any) => file.locationFlag === "O"/*isInPublic || false*/);
+        CACHE.files = publicExtractor();
+        Application.express.set("offers", Object.assign(CACHE, { maxWidth, sliderMode, slideShow }));
+    }
+    private _pathResolver(locationFlag: "S" | "P" | "O", storageFilename: string) {
+        const { pathToStorage, publicPath, offersPath } = FileUploadController;
+        return locationFlag === "S" ?
+                    path.resolve(pathToStorage, storageFilename) :
+                locationFlag === "P" ?
+                    path.resolve(publicPath, storageFilename) :
+                    path.resolve(offersPath, storageFilename);
+    }
+    private _deleteFileHelper({ /*isInPublic*/locationFlag , storageFilename, fileSize, _id }: { /*isInPublic: boolean*/ locationFlag: "S" | "P" | "O", storageFilename: string, fileSize: number, _id: string }, res: Response) {
+        // const { pathToStorage, publicPath, offersPath } = FileUploadController;
+        const PathToDelete = /*isInPublic*/ this._pathResolver(locationFlag, storageFilename);
         return rimraf(PathToDelete, err => {
                 if (err) {
                     return res.status(500).end();
@@ -178,16 +197,24 @@ class FileUploadController {
             return FileStorageModel.findByIdAndUpdate(ServerConfig.FILE_STORAGE.DB_ID, {
                     $inc: { currentStorageSize: -fileSize },
                     $pull: { files: { _id } }
+                }, { new: true, select: "files sliderMode slideShow maxWidth -_id" })
+                .then((resultAfterUpdate: any) => {
+                    this._cacheSync(resultAfterUpdate);
+                    res.status(204).end();
                 })
-                .then(() => res.status(204).end())
                 .catch(() => res.status(500).end());
         });
     }
     // private _endPointStartUrl(req: Request) {
     //     return req.protocol + "://" + req.get("host");
     // }
-    private _serveDestHelper(isInPublic: boolean) {
-        return isInPublic ? ServerConfig.FILE_STORAGE.SERVED_PUBLIC_PATH : ServerConfig.FILE_STORAGE.SERVED_STORAGE_PATH;
+    private _serveDestHelper(/*isInPublic: boolean*/locationFlag: "S" | "O" | "P") {
+        const{ SERVED_OFFERS_PATH, SERVED_PUBLIC_PATH, SERVED_STORAGE_PATH } = ServerConfig.FILE_STORAGE;
+        return /*isInPublic*/ locationFlag === "O" ?
+                SERVED_OFFERS_PATH :
+                locationFlag === "S" ?
+                SERVED_STORAGE_PATH :
+                SERVED_PUBLIC_PATH;
     }
     fetchStoreController_JsonAPI() {
         return (...args: Array<any>) => {
@@ -195,98 +222,172 @@ class FileUploadController {
             if (!JsonAPI.validateRequest(req, res)) return;
 
             return FileStorageModel.findById(ServerConfig.FILE_STORAGE.DB_ID)
-                                    .select("-_id files")
-                                    .then(({ files }: any) => {
+                                    .select("-_id files sliderMode slideShow maxWidth")
+                                    .then(({ files, sliderMode, slideShow, maxWidth}: any) => {
+                                        let CACHE = Application.express.get("offers");
                                         const responseData: IJsonAPISpec = {
                                             links: {
                                                 self:  getResourceUrl(req) + req.originalUrl
                                             },
                                             data: []
                                         };
-                                        files.forEach(({ _id, fileSize, storageFilename, isInPublic }: any) => {
+                                        if (!CACHE) {
+                                            CACHE = {
+                                                files: [],
+                                                new: true
+                                            };
+                                        }
+                                        files.forEach((file: any) => {
+                                            const{ _id, fileSize, storageFilename, locationFlag /*isInPublic*/ } = file;
+                                            if (CACHE.new && /*isInPublic*/ locationFlag === "O") {
+                                                CACHE.files.push(file);
+                                            }
+
                                             (<IResource[]>responseData.data).push(
                                                 {
                                                     type: "files",
                                                     id: _id,
                                                     attributes: {
                                                         fileSize,
-                                                        isInPublic,
+                                                        /*isInPublic,*/
+                                                        locationFlag,
                                                         fileName: storageFilename
                                                     },
                                                     links: {
-                                                        self: `${getResourceUrl(req)}${this._serveDestHelper(isInPublic)}${storageFilename}`
+                                                        self: `${getResourceUrl(req)}${this._serveDestHelper(/*isInPublic*/ locationFlag)}${storageFilename}`
                                                     }
                                                 }
                                             );
                                         });
+                                        if (CACHE.new) {
+                                            delete CACHE.new;
+                                            Application.express.set("offers", Object.assign(CACHE, { sliderMode, slideShow, maxWidth }));
+                                        }
 
                                         JsonAPI.sendData(responseData, res);
                                     })
                                     .catch(() => res.status(500).end());
         };
     }
-    downloadFileAsync(req: Request, res: Response) {
-        const { pathToStorage, publicPath } = FileUploadController;
-        if (req.method === "GET") {
-                const { query= {} } = req;
-                const { file } = query;
+    downloadFileAsync() {
 
-                return res.download(query.public === "true" ? path.resolve(publicPath, file) : path.resolve(pathToStorage, file), file, err => {
-                    if (err && !res.headersSent) {
-                        res.status(500).end();
-                    }
-                });
+        return (req: Request, res: Response) => {
+            if (req && req.method === "GET" && req.query && req.query.file && req.query.location) {
+                    // const { query= {} } = req;
+                    // const { pathToStorage, publicPath, offersPath } = FileUploadController;
+                    const { file, location } = req.query;
+
+                    return res.download(this._pathResolver(location, file), file, err => {
+                        if (err && !res.headersSent) {
+                            res.status(500).end();
+                        }
+                    });
             }
+            return res.status(403).end();
+        };
     }
     actionFile_JsonAPI() {
         return (req: Request, res: Response) => {
             if (!JsonAPI.validateRequest(req, res)) return;
 
-            if (!isThisObjectSync(req, req.body, req.body.data, req.body.data.attributes, req.body.meta)) {
-                return res.status(403).end();
-            }
-            const { data: { id, type, attributes: { fileName, isInPublic, fileSize } }, meta: { ACTION, newName } } = req.body;
+            if (req && req.body && req.body.data && req.body.data.attributes && req.body.meta) {
 
-            const { pathToStorage, publicPath } = FileUploadController;
-            let PathFrom: string;
-            let PathTo: string;
-            let DB_updateSet: { $set: { [key: string]: any } };
-            let responseData: IJsonAPISpec = { data: { id, type } };
-            if (ACTION === "MOVE_TO_PUBLIC" || ACTION === "MOVE_TO_STORE") {
-                    if (isInPublic) {
-                        PathFrom = path.resolve(pathToStorage, fileName);
-                        PathTo = path.resolve(publicPath, fileName);
-                    }else {
-                        PathFrom = path.resolve(publicPath, fileName);
-                        PathTo = path.resolve(pathToStorage, fileName);
+                    const { data: { id, type, attributes: { fileName, /*isInPublic,*/ locationFlag, fileSize } }, meta: { ACTION, newName, newLocation } } = req.body;
+
+                    const { pathToStorage, publicPath, offersPath } = FileUploadController;
+
+                    const getPathHelper = (currentLocationFlag: "S" | "O" | "P") => {
+                        let path: string;
+                        switch (currentLocationFlag) {
+                            case "S":
+                                path = pathToStorage;
+                            break;
+                            case "O":
+                                path = offersPath;
+                            break;
+                            default:
+                                path = publicPath;
+                        }
+                        return path;
+                    };
+                    let PathFrom: string;
+                    let PathTo: string;
+                    let DB_updateSet: { $set: { [key: string]: any } };
+                    // let responseData: IJsonAPISpec = { data: { id, type } };
+                    let responseData: IJsonAPISpec;
+                    if (ACTION === "MOVE") {
+                            /*if (isInPublic) {
+                                PathFrom = path.resolve(pathToStorage, fileName);
+                                PathTo = path.resolve(publicPath, fileName);
+                            }else {
+                                PathFrom = path.resolve(publicPath, fileName);
+                                PathTo = path.resolve(pathToStorage, fileName);
+                            }*/
+                            PathFrom = path.resolve(getPathHelper(locationFlag), fileName);
+                            switch (newLocation) {
+                                case "O":
+                                    PathTo = path.resolve(offersPath, fileName);
+                                break;
+                                case "P":
+                                    PathTo = path.resolve(publicPath, fileName);
+                                break;
+                                default:
+                                    PathTo = path.resolve(pathToStorage, fileName);
+                            }
+                        // DB_updateSet = { $set: { "files.$.isInPublic": isInPublic } };
+                        DB_updateSet = { $set: { "files.$.locationFlag": newLocation } };
+                        // responseData = Object.assign(responseData, { links: { self: `${getResourceUrl(req)}${this._serveDestHelper(isInPublic)}${fileName}` } });
+                        responseData = {
+                            data: { id, type },
+                            links: { self: `${getResourceUrl(req)}${this._serveDestHelper(newLocation)}${fileName}` }
+                        };
+
+                    }else if (ACTION === "RENAME") {
+                        /*if (isInPublic) {
+                            PathFrom = path.resolve(publicPath, fileName);
+                            PathTo = path.resolve(publicPath, newName);
+                        }else {
+                            PathFrom = path.resolve(pathToStorage, fileName);
+                            PathTo = path.resolve(pathToStorage, newName);
+                        }*/
+                        switch (locationFlag) {
+                            case "O": {
+                                PathFrom = path.resolve(offersPath, fileName);
+                                PathTo = path.resolve(offersPath, newName);
+                            }
+                            break;
+                            case "P": {
+                                PathFrom = path.resolve(publicPath, fileName);
+                                PathTo = path.resolve(publicPath, newName);
+                            }
+                            break;
+                            default: {
+                                PathFrom = path.resolve(pathToStorage, fileName);
+                                PathTo = path.resolve(pathToStorage, newName);
+                            }
+                        }
+
+                        DB_updateSet = { $set: { "files.$.storageFilename": newName } };
+                        // (<IResource>responseData.data).attributes = { fileName: newName };
+                    }else /*if (ACTION === "DELETE")*/ {
+                        return this._deleteFileHelper({fileSize, storageFilename: fileName, /*isInPublic*/ locationFlag, _id: id}, res);
                     }
-                DB_updateSet = { $set: { "files.$.isInPublic": isInPublic } };
-                responseData = Object.assign(responseData, { links: { self: `${getResourceUrl(req)}${this._serveDestHelper(isInPublic)}${fileName}` } });
 
-            }else if (ACTION === "RENAME") {
-                if (isInPublic) {
-                    PathFrom = path.resolve(publicPath, fileName);
-                    PathTo = path.resolve(publicPath, newName);
-                }else {
-                    PathFrom = path.resolve(pathToStorage, fileName);
-                    PathTo = path.resolve(pathToStorage, newName);
+                    return moveFileAsync(PathFrom, PathTo)
+                                    .then(() => FileStorageModel.findOneAndUpdate({ _id: ServerConfig.FILE_STORAGE.DB_ID, "files._id": id }, DB_updateSet, { new: true, fields: "files sliderMode slideShow maxWidth -_id" }))
+                                    .then((/*{ ok, nModified, n }: any*/resultAfterUpdate) => {
+                                        // if (ok && nModified && n) {
+                                        if (resultAfterUpdate) {
+                                            this._cacheSync(resultAfterUpdate);
+                                            // return JsonAPI.sendData(responseData, res);
+                                            return responseData ? JsonAPI.sendData(responseData, res) : res.status(204).end();
+                                        }
+                                        // }
+                                        throw new Error("Fail to update");
+                                    })
+                                    .catch(() => res.status(500).end());
                 }
-
-                DB_updateSet = { $set: { "files.$.storageFilename": newName } };
-                (<IResource>responseData.data).attributes = { fileName: newName };
-            }else /*if (ACTION === "DELETE")*/ {
-                return this._deleteFileHelper({fileSize, storageFilename: fileName, isInPublic, _id: id}, res);
-            }
-
-            return moveFileAsync(PathFrom, PathTo)
-                            .then(() => FileStorageModel.update({ _id: ServerConfig.FILE_STORAGE.DB_ID, "files._id": id }, DB_updateSet))
-                            .then(({ ok, nModified, n }: any) => {
-                                if (ok && nModified && n) {
-                                    return JsonAPI.sendData(responseData, res);
-                                }
-                                throw new Error("Fail to update");
-                            })
-                            .catch(() => res.status(500).end());
+                return res.status(403).end();
             };
 
     }

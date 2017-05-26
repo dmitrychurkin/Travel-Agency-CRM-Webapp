@@ -10,6 +10,10 @@ import { LandingPageSettingsComponent } from './landing-page-settings.component'
 import { OffersSectionComponent } from './offers-section.component';
 import { OffersModalComponent } from './offers-modal.component';
 import { SelectedTabService } from './selected-tab.service';
+import { SliderPromoSectionComponent } from 'app/dashboard/children/+customize/slider-promo-section.component';
+import { ModalDialogComponent } from './modal-dialog.component';
+import { SiteContactsComponent } from './site-contacts.component';
+import { SliderPromoModalComponent } from './slider-promo-modal.component';
 
 @NgModule({
     imports: [
@@ -24,9 +28,13 @@ import { SelectedTabService } from './selected-tab.service';
         FileStorageComponent,
         LandingPageSettingsComponent,
         OffersSectionComponent,
-        OffersModalComponent
+        OffersModalComponent,
+        SliderPromoSectionComponent,
+        SliderPromoModalComponent,
+        ModalDialogComponent,
+        SiteContactsComponent
     ],
-    entryComponents: [ OffersModalComponent ],
+    entryComponents: [ OffersModalComponent, SliderPromoModalComponent, ModalDialogComponent ],
     providers: [SelectedTabService]
 })
 export class CustomizeModule {}

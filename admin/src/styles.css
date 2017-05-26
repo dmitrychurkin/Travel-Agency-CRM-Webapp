@@ -929,3 +929,18 @@ html, body {
   background: rgba(97,97,97,.9)
 }
 
+/*slider-promo-modal*/
+.slider-promo-mod .mat-tab-header, 
+.slider-promo-mod .mat-tab-body-wrapper {
+  transform: translateY(-46px);
+  transition: .5s ease-out;
+}
+.slider-promo-mod .mat-tab-header {
+  z-index: 1;
+}
+.slider-promo-mod.active .mat-tab-header {
+  transform: translateY(0);
+}
+.slider-promo-mod .mat-tab-labels {
+  background-color: #00bcd4;
+}

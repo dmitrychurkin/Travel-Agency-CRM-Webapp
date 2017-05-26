@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css?family=Pathway+Gothic+One');
+.bottom-tb {
+    /*background-color: rgba(160, 206, 212, 0.64);*/
+    position: fixed;
+    bottom: 0;
+    transform: translateY(62px);
+    transition: .5s ease-out;
+    border-top: 1px solid #e0e0e0;
+}
+.bottom-tb.active {
+    transform: translateY(0);
+}
+.S8 {
+    height: 100vh;
+    overflow: hidden;
+}
+.S8__slider {
+    background-color: #0e1312;
+    min-height: 400px;
+}
+.S8__s-b {
+    background-size: cover;
+    height: 100vh;
+    width: 100%;
+}
+
+.S8__s-c{
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    overflow: hidden;
+}
+.S8__slide .S8__s-c::before{
+    content: '';
+    display: block;
+    transform: translateX(-44%) rotateZ(45deg);
+    position: absolute;
+    z-index: 1;
+    width: 200%;
+    height: 200%;
+}
+
+.S8__s-c::before{
+    background-color: rgba(233, 156, 126, .7);
+}
+
+
+.S8__slide .S8__t{
+    font-family: 'Pathway Gothic One', Arial, Helvetica, sans-serif;
+    position: absolute;
+    z-index: 2;
+    top: 15%;
+    left: 7%;
+    color: #fff;
+    max-height: 375px;
+    overflow: hidden;
+}
+.S8__t-h-link, .S8__t-link{
+    color: #fff;
+    text-decoration: none;
+    display: inline-block;
+    margin: auto;
+    border-radius: 16px;
+    border: 2px solid #fff;
+}
+.S8__t-h-link {
+    border: none;
+}
+
+.S8__t-link button, .S8__t-h-link button {
+    outline: none;
+    border-radius: 16px;
+    border: none;
+    cursor: pointer;
+    width: 256px;
+    height: 55px;
+    color: #fff;
+    background-color: transparent;
+    font-size: 1.8em;
+    font-family: 'Pathway Gothic One', Arial, Helvetica, sans-serif;
+}
+.S8__t-h-link button {
+    width: 390px;
+    height: auto;
+    max-width: 390px;
+    padding: 0 20px;
+    min-height: 55px;
+    font-size: 3em;
+    text-align: left;
+}
+
+.S8__t-desc{
+    margin-top: 20px;
+    margin-bottom: 40px;
+    font-size: 1.3em;
+    width: 400px;
+}
+
+
+.S8__plugin{
+    position: absolute;
+    top: 20%;
+    left: 60%;
+    z-index: 3;
+}
+
+.chips-material{
+    display: inline-block;
+    margin: auto;
+}
+.chip__cont {
+    display: inline-flex;
+    background-color: #e4e4e4;
+    color: rgba(0,0,0,0.6);
+    border-radius: 16px;
+}
+.chip__bg {
+    background-size: cover;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+.chip__capt {
+    margin: 0;
+    padding: 0;
+    font-family: 'Pathway Gothic One', Arial, Helvetica, sans-serif;
+    font-weight: 600;
+    padding-left: 7px;
+    font-size: 1.2em;
+    line-height: 28px;
+}
+.chip__stars{
+    display: flex;
+    align-items: center;
+    padding-left: 7px;
+}
+.chip__stars svg{
+    width: 24px; 
+    height: 24px;
+    padding-right: 3px;
+}

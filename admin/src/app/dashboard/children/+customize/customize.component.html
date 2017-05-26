@@ -4,6 +4,7 @@
                 <ng-container *ngFor="let listItem of selectedTabService.listOfTabs">
                     <h3 class="list__label">{{listItem.header}}</h3>
                     <md-list-item 
+                        [mdTooltip]="childItem.tabName"
                         class="list__item" 
                         (click)="onListItemSelected(childItem, listItem)" 
                         [ngStyle]="isActiveStyle(childItem) ? {background: 'rgba(0,0,0,.14)', color: '#00bcd4'} : {background: '', color: ''}" 
@@ -36,6 +37,9 @@
                                 </md-tab-group>
                         </md-card-content>
                 </md-card>
+                <ng-container *ngSwitchCase="'contacts'">
+                    <app-site-contacts></app-site-contacts>
+                </ng-container>
                 <ng-container *ngSwitchCase="'landing'">
                     <app-landing-page-settings (onSelected)="onListItemSelected($event)" [sectionTab]="selectedTabService.currentlySelectedChild" [sectionList]="selectedTabService.currentlySelectedTab.children"></app-landing-page-settings>
                 </ng-container>

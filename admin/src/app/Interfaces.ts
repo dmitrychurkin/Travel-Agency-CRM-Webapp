@@ -64,7 +64,8 @@ export interface IFileAttr {
   id: string;
   attributes: {
     fileSize: number;
-    isInPublic: boolean;
+    // isInPublic: boolean;
+    locationFlag: 'S' | 'O' | 'P';
     fileName: string;
   };
   links: {
@@ -82,7 +83,8 @@ export interface IFileEntity {
     attributes: {
       fileSize: number;
       fileName: string;
-      isInPublic: boolean;
+      // isInPublic: boolean;
+      locationFlag: 'S' | 'O' | 'P';
     };
     id: string;
     type: 'files';

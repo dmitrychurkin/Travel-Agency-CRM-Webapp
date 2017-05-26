@@ -9,7 +9,8 @@ const AdminsSchema = new mongoose.Schema({
     },
     name: {
         type: String,
-        unique: true
+        unique: true,
+        trim: true
     },
     password: {
         type: String
@@ -68,19 +69,22 @@ const AdminsSchema = new mongoose.Schema({
                 type: String,
                 required: true,
                 minlength: 2,
-                maxlength: 50
+                maxlength: 50,
+                trim: true
             },
             last_name: {
                 type: String,
                 required: true,
                 minlength: 2,
-                maxlength: 50
+                maxlength: 50,
+                trim: true
             },
             phone: {
                 type: String,
                 required: true,
                 minlength: 5,
-                maxlength: 50
+                maxlength: 50,
+                trim: true
             },
             adult_num: {
                 type: Number,
@@ -103,18 +107,21 @@ const AdminsSchema = new mongoose.Schema({
             remarks: {
                 type: String,
                 maxlength: 1000,
-                default: "-"
+                default: "-",
+                trim: true
             },
             email: {
                 type: String,
                 required: true,
-                match: /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                match: /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                trim: true
             },
             destination: {
                 type: String,
                 required: true,
                 minlength: 2,
-                maxlength: 50
+                maxlength: 50,
+                trim: true
             },
             dep_date: {
                 type: String

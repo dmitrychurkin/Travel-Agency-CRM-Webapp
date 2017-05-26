@@ -5,9 +5,14 @@ import * as shortid from "shortid";
 import ServerConfig from "../serverConfig";
 
 // only test purpose
-import { AdminModel } from "../models";
+import { AdminModel, FileStorageModel } from "../models";
 
-import { adminController, ordersController, fileUploaderController, offersImgsController } from "../controllers";
+import {
+    adminController,
+    ordersController,
+    fileUploaderController,
+    offersImgsController,
+    siteContactsController } from "../controllers";
 export class AppRouter {
     Router = Router();
     private App: Application;
@@ -18,25 +23,29 @@ export class AppRouter {
     private ensureSameOrigin() {
         return (req: Request, res: Response, next: NextFunction) => {
             const isExistSessionGeneralCookie = !!req.signedCookies[ServerConfig.SESSION_COOKIE_NAME];
-            if (req.method === "POST" || req.method === "DELETE" || req.method === "PATCH") {
+            if (req.method === "GET" || req.method === "HEAD") {
+                if (!isExistSessionGeneralCookie) {
+                    const sessOpts: any = req.secure ? {
+                                        signed: true,
+                                        httpOnly: true,
+                                        sameSite: true,
+                                        secure: true
+                    } : { signed: true, httpOnly: true, sameSite: true };
+
+                    res.cookie(ServerConfig.SESSION_COOKIE_NAME, shortid.generate(), sessOpts);
+                }
+                return next();
+
+            }else if (req.method === "POST" || req.method === "DELETE" || req.method === "PATCH") {
                 const HOST = req.get("host");
                 const REFERER = req.get("referer");
 
                 if ( !isExistSessionGeneralCookie || !(REFERER.includes(HOST)) || !req.xhr) {
                     return res.status(403).end();
                 }
+                return next();
             }
-            if (!isExistSessionGeneralCookie) {
-                const sessOpts: any = req.secure ? {
-                                    signed: true,
-                                    httpOnly: true,
-                                    sameSite: true,
-                                    secure: true
-                } : { signed: true, httpOnly: true, sameSite: true };
-
-                res.cookie(ServerConfig.SESSION_COOKIE_NAME, shortid.generate(), sessOpts);
-            }
-            return next();
+            return res.status(403).end();
         };
     }
     securityMiddleware() {
@@ -133,12 +142,16 @@ export class AppRouter {
 // file uploader action routes
         router.patch("/api/files/:fileId", [adminController.tokenValidatorController(true), fileUploaderController.actionFile_JsonAPI()]);
         router.delete("/api/files/:fileId", [adminController.tokenValidatorController(true), fileUploaderController.actionFile_JsonAPI()]);
-        router.get("/api/download", [adminController.tokenValidatorController(true), fileUploaderController.downloadFileAsync]);
+        router.get("/api/download", [adminController.tokenValidatorController(true), fileUploaderController.downloadFileAsync()]);
 
 // files in public usage
-        router.get("/offers", offersImgsController.getOffers_JsonAPI);
+        router.get("/offers", offersImgsController.getOffers_JsonAPI());
         router.patch("/offers", offersImgsController.editSliderMeta_JsonAPI);
         router.patch("/offers/:fileid", [adminController.tokenValidatorController(true), offersImgsController.editOffersMeta_JsonAPI]);
+
+// contacts
+        router.get("/api/contacts", [adminController.tokenValidatorController(true), siteContactsController.getContacts_JsonAPI()]);
+        router.patch("/api/contacts", [adminController.tokenValidatorController(true), siteContactsController.updateContacts_JsonAPI()]);
 /**Test routes */
         router.get("/api/sign-admin", (...args: Array<any>) => {
             const res: Response = args[1];
@@ -253,6 +266,15 @@ export class AppRouter {
             }catch (err) {
                 res.send(err.message);
             }
+        });
+        router.get("/test-populate", (...args: Array<any>) => {
+            let [, res] = args;
+            FileStorageModel.findById("FileStorage")
+                            .populate("siteRef", "isEditorHave")
+                            .then(result => {
+                                res.json(result);
+                            })
+                            .catch(err => res.send(err.message));
         });
         return router;
     }

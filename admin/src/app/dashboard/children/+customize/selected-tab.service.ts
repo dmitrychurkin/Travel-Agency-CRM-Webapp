@@ -14,9 +14,16 @@ export class SelectedTabService {
     listOfTabs: Array<IMenuTab> = [
         {
             header: 'General Site Settings',
-            _name: 'skype',
+            _name: 'contacts',
             ico: 'settings_applications',
-            children: []
+            children: [
+                {
+                    tabName: 'Site Contacts Info',
+                    _name: 'contacts',
+                    ico: 'receipt',
+                    isActive: false
+                }
+            ]
         },
         {
             header: 'Landing Page Settings',

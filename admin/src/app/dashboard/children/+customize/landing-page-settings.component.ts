@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { IMenuSubTab, IMenuTab } from '../../../Interfaces';
+import { IMenuSubTab, IMenuTab } from 'app/Interfaces';
 
 @Component({
   selector: 'app-landing-page-settings',
