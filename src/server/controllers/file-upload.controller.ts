@@ -42,9 +42,8 @@ class FileUploadController {
         return true;
     }
     private _moveUploadedFile(file: IFileEntity, fileStorageMongooseDoc: Document, success: () => void, failure: () => void) {
-
         const destinationFile = path.resolve(FileUploadController.pathToStorage, file.storageFilename);
-        const sourceStream = fs.createReadStream(file.path);
+        /*const sourceStream = fs.createReadStream(file.path);
         const destStream = fs.createWriteStream(destinationFile);
         sourceStream
                     .on("error", (err: Error) => {
@@ -66,7 +65,21 @@ class FileUploadController {
                         .then(success)
                         .catch(failure);
                     })
-                    .pipe(destStream);
+                    .pipe(destStream);*/
+        moveFileAsync(file.path, destinationFile)
+                        .then(() => {
+                            const newObjectFileEntity = {
+                                _id: file.uuid,
+                                fileSize: file.size,
+                                storageFilename: file.storageFilename
+                            };
+                         return fileStorageMongooseDoc.update({
+                                $inc: { currentStorageSize: file.size },
+                                $push: { files: newObjectFileEntity }
+                            });
+                        })
+                        .then(success)
+                        .catch(failure);
     }
     private _onSimpleUpload(fields: IMultipartyParsedFields, file: IFileEntity, responseData: IResponseData, fileStorageMongooseDoc: Document, res: Response, req: Request) {
         const{ files } = <any>fileStorageMongooseDoc;
@@ -87,12 +100,11 @@ class FileUploadController {
                                     fileName: file.storageFilename,
                                     fileSize: file.size,
                                     locationFlag: "S"
-                                    // isInPublic: false
                                 },
                                 id: file.uuid,
                                 type: "files",
                                 links: {
-                                    self: `${getResourceUrl(req)}${this._serveDestHelper(/*false*/ "S")}${file.storageFilename}`
+                                    self: `${getResourceUrl(req)}${this._serveDestHelper("S")}${file.storageFilename}`
                                 }
                             },
                             success: true
@@ -144,7 +156,6 @@ class FileUploadController {
         return async (req: Request, res: Response) => {
             try {
                 const uuid = req.params.uuid;
-
                 const SelectedFileArray = await FileStorageModel.aggregate([{
                     $project: {
                         _id: 0,
@@ -163,21 +174,25 @@ class FileUploadController {
                 }]).exec();
 
                 const SelectedFileEntity = SelectedFileArray[0].files[0];
-                const { fileSize, storageFilename, /*isInPublic*/ locationFlag, _id } = SelectedFileEntity;
-                return this._deleteFileHelper({fileSize, storageFilename, /*isInPublic*/ locationFlag, _id}, res);
-
+                if (SelectedFileEntity) {
+                    const { fileSize, storageFilename, locationFlag, _id } = SelectedFileEntity;
+                    return this._deleteFileHelper({fileSize, storageFilename, locationFlag, _id}, res);
+                }
+                return res.status(204).end();
             }catch (err) {
                 res.status(500).end();
             }
         };
     }
     private _cacheSync(resultAfterUpdate: any) {
-        const CACHE = Application.express.get("offers");
-        const{ files, maxWidth, sliderMode, slideShow } = <any>resultAfterUpdate;
-
-        const publicExtractor = () => files.filter((file: any) => file.locationFlag === "O"/*isInPublic || false*/);
-        CACHE.files = publicExtractor();
-        Application.express.set("offers", Object.assign(CACHE, { maxWidth, sliderMode, slideShow }));
+        let CACHE = Application.express.get("offers");
+        const{ files, offers } = <any>resultAfterUpdate;
+        if (!CACHE) {
+            CACHE = {};
+        }
+        CACHE.files = files.filter((file: any) => file.locationFlag === "O");
+        CACHE.offers = offers;
+        Application.express.set("offers", CACHE);
     }
     private _pathResolver(locationFlag: "S" | "P" | "O", storageFilename: string) {
         const { pathToStorage, publicPath, offersPath } = FileUploadController;
@@ -187,9 +202,9 @@ class FileUploadController {
                     path.resolve(publicPath, storageFilename) :
                     path.resolve(offersPath, storageFilename);
     }
-    private _deleteFileHelper({ /*isInPublic*/locationFlag , storageFilename, fileSize, _id }: { /*isInPublic: boolean*/ locationFlag: "S" | "P" | "O", storageFilename: string, fileSize: number, _id: string }, res: Response) {
-        // const { pathToStorage, publicPath, offersPath } = FileUploadController;
-        const PathToDelete = /*isInPublic*/ this._pathResolver(locationFlag, storageFilename);
+    private _deleteFileHelper({ locationFlag , storageFilename, fileSize, _id }: { locationFlag: "S" | "P" | "O", storageFilename: string, fileSize: number, _id: string }, res: Response) {
+
+        const PathToDelete = this._pathResolver(locationFlag, storageFilename);
         return rimraf(PathToDelete, err => {
                 if (err) {
                     return res.status(500).end();
@@ -197,7 +212,7 @@ class FileUploadController {
             return FileStorageModel.findByIdAndUpdate(ServerConfig.FILE_STORAGE.DB_ID, {
                     $inc: { currentStorageSize: -fileSize },
                     $pull: { files: { _id } }
-                }, { new: true, select: "files sliderMode slideShow maxWidth -_id" })
+                }, { new: true, select: "files offers -_id" })
                 .then((resultAfterUpdate: any) => {
                     this._cacheSync(resultAfterUpdate);
                     res.status(204).end();
@@ -205,26 +220,58 @@ class FileUploadController {
                 .catch(() => res.status(500).end());
         });
     }
-    // private _endPointStartUrl(req: Request) {
-    //     return req.protocol + "://" + req.get("host");
-    // }
-    private _serveDestHelper(/*isInPublic: boolean*/locationFlag: "S" | "O" | "P") {
+
+    private _serveDestHelper(locationFlag: "S" | "O" | "P") {
         const{ SERVED_OFFERS_PATH, SERVED_PUBLIC_PATH, SERVED_STORAGE_PATH } = ServerConfig.FILE_STORAGE;
-        return /*isInPublic*/ locationFlag === "O" ?
+        return locationFlag === "O" ?
                 SERVED_OFFERS_PATH :
                 locationFlag === "S" ?
                 SERVED_STORAGE_PATH :
                 SERVED_PUBLIC_PATH;
     }
     fetchStoreController_JsonAPI() {
-        return (...args: Array<any>) => {
-            const [ req, res ] = args;
+        return (req: Request, res: Response) => {
             if (!JsonAPI.validateRequest(req, res)) return;
-
+            if (Object.keys(req.query).length > 0) {
+                const{ fields } = req.query;
+                if (fields) {
+                    switch (fields.locationFlag.toUpperCase()) {
+                        case "P":
+                            return FileStorageModel.aggregate({
+                                                    $project: {
+                                                        _id: 0,
+                                                        files: {
+                                                            $filter: {
+                                                                input: "$files",
+                                                                as: "file",
+                                                                cond: { $eq: [ "$$file.locationFlag", "P" ] }
+                                                            }
+                                                        }
+                                                    }
+                                                })
+                                                .then(([result]: any) => {
+                                                    const responseObject: IJsonAPISpec = {
+                                                        data: result.files.map((file: any) => {
+                                                            return {
+                                                                id: file._id,
+                                                                type: "image",
+                                                                links: {
+                                                                    self: `${getResourceUrl(req)}${this._serveDestHelper("P")}${file.storageFilename}`
+                                                                }
+                                                            };
+                                                        })
+                                                    };
+                                                    JsonAPI.sendData(responseObject, res);
+                                                })
+                                                .catch(() => res.status(500).end());
+                    }
+                }
+            }
             return FileStorageModel.findById(ServerConfig.FILE_STORAGE.DB_ID)
-                                    .select("-_id files sliderMode slideShow maxWidth")
-                                    .then(({ files, sliderMode, slideShow, maxWidth}: any) => {
+                                    .select("-_id files offers")
+                                    .then(({ files, offers}: any) => {
                                         let CACHE = Application.express.get("offers");
+
                                         const responseData: IJsonAPISpec = {
                                             links: {
                                                 self:  getResourceUrl(req) + req.originalUrl
@@ -234,12 +281,13 @@ class FileUploadController {
                                         if (!CACHE) {
                                             CACHE = {
                                                 files: [],
+                                                offers,
                                                 new: true
                                             };
                                         }
                                         files.forEach((file: any) => {
-                                            const{ _id, fileSize, storageFilename, locationFlag /*isInPublic*/ } = file;
-                                            if (CACHE.new && /*isInPublic*/ locationFlag === "O") {
+                                            const{ _id, fileSize, storageFilename, locationFlag } = file;
+                                            if (CACHE.new && locationFlag === "O") {
                                                 CACHE.files.push(file);
                                             }
 
@@ -249,19 +297,18 @@ class FileUploadController {
                                                     id: _id,
                                                     attributes: {
                                                         fileSize,
-                                                        /*isInPublic,*/
                                                         locationFlag,
                                                         fileName: storageFilename
                                                     },
                                                     links: {
-                                                        self: `${getResourceUrl(req)}${this._serveDestHelper(/*isInPublic*/ locationFlag)}${storageFilename}`
+                                                        self: `${getResourceUrl(req)}${this._serveDestHelper(locationFlag)}${storageFilename}`
                                                     }
                                                 }
                                             );
                                         });
                                         if (CACHE.new) {
                                             delete CACHE.new;
-                                            Application.express.set("offers", Object.assign(CACHE, { sliderMode, slideShow, maxWidth }));
+                                            Application.express.set("offers", CACHE);
                                         }
 
                                         JsonAPI.sendData(responseData, res);
@@ -273,8 +320,6 @@ class FileUploadController {
 
         return (req: Request, res: Response) => {
             if (req && req.method === "GET" && req.query && req.query.file && req.query.location) {
-                    // const { query= {} } = req;
-                    // const { pathToStorage, publicPath, offersPath } = FileUploadController;
                     const { file, location } = req.query;
 
                     return res.download(this._pathResolver(location, file), file, err => {
@@ -292,7 +337,7 @@ class FileUploadController {
 
             if (req && req.body && req.body.data && req.body.data.attributes && req.body.meta) {
 
-                    const { data: { id, type, attributes: { fileName, /*isInPublic,*/ locationFlag, fileSize } }, meta: { ACTION, newName, newLocation } } = req.body;
+                    const { data: { id, type, attributes: { fileName, locationFlag, fileSize } }, meta: { ACTION, newName, newLocation } } = req.body;
 
                     const { pathToStorage, publicPath, offersPath } = FileUploadController;
 
@@ -313,16 +358,10 @@ class FileUploadController {
                     let PathFrom: string;
                     let PathTo: string;
                     let DB_updateSet: { $set: { [key: string]: any } };
-                    // let responseData: IJsonAPISpec = { data: { id, type } };
+
                     let responseData: IJsonAPISpec;
                     if (ACTION === "MOVE") {
-                            /*if (isInPublic) {
-                                PathFrom = path.resolve(pathToStorage, fileName);
-                                PathTo = path.resolve(publicPath, fileName);
-                            }else {
-                                PathFrom = path.resolve(publicPath, fileName);
-                                PathTo = path.resolve(pathToStorage, fileName);
-                            }*/
+
                             PathFrom = path.resolve(getPathHelper(locationFlag), fileName);
                             switch (newLocation) {
                                 case "O":
@@ -334,22 +373,16 @@ class FileUploadController {
                                 default:
                                     PathTo = path.resolve(pathToStorage, fileName);
                             }
-                        // DB_updateSet = { $set: { "files.$.isInPublic": isInPublic } };
+
                         DB_updateSet = { $set: { "files.$.locationFlag": newLocation } };
-                        // responseData = Object.assign(responseData, { links: { self: `${getResourceUrl(req)}${this._serveDestHelper(isInPublic)}${fileName}` } });
+
                         responseData = {
                             data: { id, type },
                             links: { self: `${getResourceUrl(req)}${this._serveDestHelper(newLocation)}${fileName}` }
                         };
 
                     }else if (ACTION === "RENAME") {
-                        /*if (isInPublic) {
-                            PathFrom = path.resolve(publicPath, fileName);
-                            PathTo = path.resolve(publicPath, newName);
-                        }else {
-                            PathFrom = path.resolve(pathToStorage, fileName);
-                            PathTo = path.resolve(pathToStorage, newName);
-                        }*/
+
                         switch (locationFlag) {
                             case "O": {
                                 PathFrom = path.resolve(offersPath, fileName);
@@ -368,21 +401,20 @@ class FileUploadController {
                         }
 
                         DB_updateSet = { $set: { "files.$.storageFilename": newName } };
-                        // (<IResource>responseData.data).attributes = { fileName: newName };
+
                     }else /*if (ACTION === "DELETE")*/ {
-                        return this._deleteFileHelper({fileSize, storageFilename: fileName, /*isInPublic*/ locationFlag, _id: id}, res);
+                        return this._deleteFileHelper({fileSize, storageFilename: fileName, locationFlag, _id: id}, res);
                     }
 
                     return moveFileAsync(PathFrom, PathTo)
-                                    .then(() => FileStorageModel.findOneAndUpdate({ _id: ServerConfig.FILE_STORAGE.DB_ID, "files._id": id }, DB_updateSet, { new: true, fields: "files sliderMode slideShow maxWidth -_id" }))
-                                    .then((/*{ ok, nModified, n }: any*/resultAfterUpdate) => {
-                                        // if (ok && nModified && n) {
+                                    .then(() => FileStorageModel.findOneAndUpdate({ _id: ServerConfig.FILE_STORAGE.DB_ID, "files._id": id }, DB_updateSet, { new: true, fields: "files offers -_id" }))
+                                    .then((resultAfterUpdate) => {
+
                                         if (resultAfterUpdate) {
                                             this._cacheSync(resultAfterUpdate);
-                                            // return JsonAPI.sendData(responseData, res);
                                             return responseData ? JsonAPI.sendData(responseData, res) : res.status(204).end();
                                         }
-                                        // }
+
                                         throw new Error("Fail to update");
                                     })
                                     .catch(() => res.status(500).end());

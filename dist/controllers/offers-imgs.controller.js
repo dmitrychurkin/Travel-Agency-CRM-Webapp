@@ -20,9 +20,7 @@ class OffersImgsController {
                         cond: { $eq: ["$$file.locationFlag", "O"] }
                     }
                 },
-                maxWidth: 1,
-                slideShow: 1,
-                sliderMode: 1
+                offers: 1
             }
         })
             .then((result) => {
@@ -39,7 +37,7 @@ class OffersImgsController {
                 return;
             this._offersFetcher()
                 .then((result) => {
-                const { files, maxWidth, slideShow, sliderMode } = result;
+                const { files, offers: { maxWidth, slideShow, sliderMode } } = result;
                 const responseResult = {
                     data: [],
                     meta: { maxWidth, slideShow, sliderMode }
@@ -87,55 +85,59 @@ class OffersImgsController {
         };
     }
     editSliderMeta_JsonAPI(req, res) {
-        if (req && req.body && req.body.data && req.body.data.attributes && services_1.JsonAPI.validateRequest(req, res)) {
+        if (!services_1.JsonAPI.validateRequest(req, res))
+            return;
+        if (req && req.body && req.body.data && req.body.data.attributes) {
             const { attributes } = req.body.data;
             const dbSetOptions = { $set: {} };
             const CACHE = app_1.Application.express.get("offers");
             for (const metaField in attributes) {
                 if (attributes[metaField]) {
-                    dbSetOptions.$set[metaField] = attributes[metaField];
+                    dbSetOptions.$set[`offers.${metaField}`] = attributes[metaField];
                     if (CACHE) {
-                        CACHE[metaField] = attributes[metaField];
+                        CACHE.offers[metaField] = attributes[metaField];
                     }
                 }
-            }
-            if (CACHE) {
-                app_1.Application.express.set("offers", CACHE);
             }
             return models_1.FileStorageModel.update({ _id: serverConfig_1.default.FILE_STORAGE.DB_ID }, dbSetOptions)
                 .then(({ ok, nModified, n }) => {
                 if (ok && nModified && n) {
+                    if (CACHE) {
+                        app_1.Application.express.set("offers", CACHE);
+                    }
                     return res.status(204).end();
                 }
                 throw new Error("Fail to update");
             })
                 .catch(() => res.status(500).end());
         }
-        return !res.headersSent ? res.status(403).end() : null;
+        return res.status(403).end();
     }
     editOffersMeta_JsonAPI(req, res) {
-        if (req && req.params && req.params.fileid && req.body && req.body.data && req.body.data.attributes && services_1.JsonAPI.validateRequest(req, res)) {
+        if (!services_1.JsonAPI.validateRequest(req, res))
+            return;
+        if (req && req.params && req.params.fileid && req.body && req.body.data && req.body.data.attributes) {
             const { data: { attributes: { meta } } } = req.body;
             const { fileid } = req.params;
             const CACHE = app_1.Application.express.get("offers");
-            if (CACHE) {
-                for (const file of CACHE.files) {
-                    if (file._id === fileid) {
-                        file.meta = meta;
-                    }
-                }
-                app_1.Application.express.set("offers", CACHE);
-            }
             return models_1.FileStorageModel.update({ _id: serverConfig_1.default.FILE_STORAGE.DB_ID, "files._id": fileid }, { $set: { "files.$.meta": meta } })
                 .then(({ ok, nModified, n }) => {
                 if (ok && nModified && n) {
+                    if (CACHE) {
+                        for (const file of CACHE.files) {
+                            if (file._id === fileid) {
+                                file.meta = meta;
+                            }
+                        }
+                        app_1.Application.express.set("offers", CACHE);
+                    }
                     return res.status(204).end();
                 }
                 throw new Error("Fail to update");
             })
                 .catch(() => res.status(500).end());
         }
-        return !res.headersSent ? res.status(403).end() : null;
+        return res.status(403).end();
     }
 }
 exports.offersImgsController = new OffersImgsController();

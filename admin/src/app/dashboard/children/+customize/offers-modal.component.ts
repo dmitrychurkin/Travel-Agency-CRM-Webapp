@@ -7,19 +7,18 @@ import { Component,
         ViewChildren,
         ViewChild,
         QueryList,
-        ElementRef } from '@angular/core';
-import { Response, RequestMethod } from '@angular/http';
+        ElementRef,
+        Injector} from '@angular/core';
 import { DOCUMENT } from '@angular/platform-browser';
-import { MdSliderChange, MdSelect, MdOption, MdSelectChange } from '@angular/material';
+import { MdSliderChange, MdSelect, MdOption, MdSelectChange, MdButton } from '@angular/material';
 import { trigger, state, style, transition, animate } from '@angular/animations';
-import { ErrorEmmiter, errorMessages } from '../../../error.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { async } from 'rxjs/scheduler/async';
 import { asap } from 'rxjs/scheduler/asap';
 import 'rxjs/add/observable/timer';
-import { BackendService, JSON_API_HEADER_EXTENDED } from '../../../backend.service';
 import { IPortOffersResponse, IOfferData, offersURL } from './offers-section.component';
+import { BasicComponentClass } from './basic-component.class';
 
 const enum MenuActions {
     Resize = 1,
@@ -58,9 +57,8 @@ const enum MenuActions {
         ])
     ]
 })
-export class OffersModalComponent implements AfterViewInit, OnDestroy, AfterViewChecked {
+export class OffersModalComponent extends BasicComponentClass implements AfterViewInit, OnDestroy, AfterViewChecked {
     private _sub: Subscription;
-    private _isRequestSent = false;
     private _slideShow: number;
     private _sliderMode: 'sequensed' | 'static';
     componentRef: ComponentRef<OffersModalComponent>;
@@ -73,10 +71,9 @@ export class OffersModalComponent implements AfterViewInit, OnDestroy, AfterView
 
     offers: IPortOffersResponse;
     selectedMenuItem: MenuActions = MenuActions.Resize;
-    constructor(
-        @Inject(DOCUMENT) public document: Document,
-        private backendService: BackendService,
-        private errorService: ErrorEmmiter) {}
+    constructor(@Inject(DOCUMENT) public document: Document, injector: Injector) {
+        super(injector);
+    }
     get currentMaxWidth() {
         const{ maxWidth } = this.offers.meta;
         if (typeof maxWidth === 'number') {
@@ -111,7 +108,6 @@ export class OffersModalComponent implements AfterViewInit, OnDestroy, AfterView
         const ModeTimeResolution = mode === 'static' ? 0 : 2000;
         const { length } = this.imgs;
         if (length === 0) {
-            // TODO : show dummy img
             return;
         }else if (length === 1) {
             this.currentImg = this.imgs.first.nativeElement;
@@ -175,7 +171,19 @@ export class OffersModalComponent implements AfterViewInit, OnDestroy, AfterView
             this.componentRef.destroy();
         }
     }
-    onSaveChanges() {
+    isButtonSaveShow() {
+        const{ resizedMaxWidth, _slideShow, _sliderMode } = this;
+        const{ maxWidth, slideShow, sliderMode } = this.offers.meta;
+        if (
+            (resizedMaxWidth && maxWidth !== resizedMaxWidth) ||
+            (_slideShow && slideShow !== _slideShow) ||
+            (_sliderMode && sliderMode !== _sliderMode)
+            ) {
+            return true;
+        }
+        return false;
+    }
+    onSaveChanges(btnSaveRef: MdButton) {
         const{ _isRequestSent, resizedMaxWidth, _slideShow, _sliderMode } = this;
         const{ maxWidth, slideShow, sliderMode } = this.offers.meta;
 
@@ -192,22 +200,23 @@ export class OffersModalComponent implements AfterViewInit, OnDestroy, AfterView
             }
 
             if (Object.keys(attributesObject).length > 0) {
-                return this.backendService.sendRequest(
-                        offersURL,
-                        {
-                            method: RequestMethod.Patch,
-                            headers: JSON_API_HEADER_EXTENDED,
-                            body: this.backendService.serializeResource('offers', '', attributesObject)
-                        })
+                this._setBtn(btnSaveRef, true);
+                return this._patchRequest(offersURL, { id: '1', type: 'offers', attr: attributesObject })
                         .then(() => {
+                            this._showSucMess();
                             for (const metaField in attributesObject) {
                                 if (attributesObject[metaField]) {
                                     this.offers.meta[metaField] = attributesObject[metaField];
                                 }
                             }
-                            this.errorService.emmiter.emit('Changes saved!');
+                            delete this._sliderMode;
+                            delete this._slideShow;
+                            delete this.resizedMaxWidth;
                         })
-                        .catch( () => this.errorService.emmiter.emit(errorMessages.load) );
+                        .catch( () => this._showErrMess(0) )
+                        .then(() => {
+                            this._setBtn(btnSaveRef, false);
+                        });
             }
         }
     }

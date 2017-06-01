@@ -429,230 +429,41 @@
                         </ul>
                     </div>
                     <div class="S8__slides">
-                        <div class="S8__slide S8__s0 S8__active">
-                            <div class="S8__s-b"></div>
+                    <% let slideBGLeft = 50, slideLeft = -100; app.sliderPromo.forEach( (slide, slideIndex) => {  -%>
+                        <div class="S8__slide S8__s<%=slideIndex%> <%= slideIndex==0 ? 'S8__active' : ''%>" style="left: <%=slideLeft += 100%>%">
+                            <div class="S8__s-b" style="background-image: url(<%=slide.backgroundImage%>); left: <%=slideBGLeft -= 50%>%"></div>
                             <div class="S8__s-c">
                                 <div class="S8__ctrl S8__c_left S8__inactive"></div>
                                 <div class="S8__ctrl S8__c_right"></div>
                                 <div class="S8__t">
                                     <a class="S8__t-h-link">
-                                        <button class="ripple">African Safari Tours</button>
+                                        <button class="ripple"><%=slide.title%></button>
                                     </a>
-                                    <p class="S8__t-desc">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio veniam minus illo debitis nihil animi facere, doloremque voluptate tempore quia. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio veniam minus illo debitis nihil animi facere, doloremque voluptate tempore quia.</p>
+                                    <p class="S8__t-desc"><%=slide.description%></p>
                                     <a class="S8__t-link"><button class="ripple">Read more</button></a>
                                 </div>
                             </div>
                             <div class="S8__plugin">
                                 <div class="chips-material">
+                                <% slide.chips.forEach( (chip, chipIndex) => { -%>
                                     <div class="chip">
                                         <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">African Safari</p>
-                                            <div data-star-count="1" class="chip__stars">
+                                            <div class="chip__bg" style="background-image: url(<%=chip.avatar%>)"></div>
+                                            <p class="chip__capt"><%=chip.destination%></p>
+                                            <div data-star-count="<%=chip.starCount%>" class="chip__stars">
+                                            <% if (slideIndex == 0 && chipIndex == 0) { -%>
                                                 <svg xmlns="http://www.w3.org/2000/svg">
                                                     <path class="chip__st" transform="scale(.09)" fill="#F8D64E" d="m48,234 73-226 73,226-192-140h238z"/>
                                                 </svg>
+                                            <%}-%>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">South Africa Safari</p>
-                                            <div data-star-count="2" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">Tanzania Safari</p>
-                                            <div data-star-count="3" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">Kenya Safari</p>
-                                            <div data-star-count="4" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">Botswana Safari</p>
-                                            <div data-star-count="4" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">Zambia Safari</p>
-                                            <div data-star-count="4" class="chip__stars"></div>
-                                        </div>
-                                    </div>
+                                <%} ) -%>
                                 </div>
                             </div>
                         </div>
-                        <div class="S8__slide S8__s1">
-                            <div class="S8__s-b"></div>
-                            <div class="S8__s-c">
-                                <div class="S8__ctrl S8__c_left"></div>
-                                <div class="S8__ctrl S8__c_right"></div>
-                                <div class="S8__t">
-                                    <a class="S8__t-h-link">
-                                        <button class="ripple">European Tours</button>
-                                    </a>
-                                    <p class="S8__t-desc">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio veniam minus illo debitis nihil animi facere, doloremque voluptate tempore quia. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio veniam minus illo debitis nihil animi facere, doloremque voluptate tempore quia.</p>
-                                    <a class="S8__t-link"><button class="ripple">Read more</button></a>
-                                </div>
-                            </div>
-                            <div class="S8__plugin">
-                                <div class="chips-material">
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">Italy Tours</p>
-                                            <div data-star-count="1" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">Greece Tours</p>
-                                            <div data-star-count="2" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">Spain Tours</p>
-                                            <div data-star-count="3" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">France Tours</p>
-                                            <div data-star-count="4" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">UK Tours</p>
-                                            <div data-star-count="3" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">Ireland Tours</p>
-                                            <div data-star-count="4" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">Croatia Tours</p>
-                                            <div data-star-count="4" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="S8__slide S8__s2">
-                            <div class="S8__s-b"></div>
-                            <div class="S8__s-c">
-                                <div class="S8__ctrl S8__c_left"></div>
-                                <div class="S8__ctrl S8__c_right"></div>
-                                <div class="S8__t">
-                                    <a class="S8__t-h-link">
-                                        <button class="ripple">Australia & New Zealand Tours</button>
-                                    </a>
-                                    <p class="S8__t-desc">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio veniam minus illo debitis nihil animi facere, doloremque voluptate tempore quia. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio veniam minus illo debitis nihil animi facere, doloremque voluptate tempore quia.</p>
-                                    <a class="S8__t-link"><button class="ripple">Read more</button></a>
-                                </div>
-                            </div>
-                            <div class="S8__plugin">
-                                <div class="chips-material">
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">Australia Tours</p>
-                                            <div data-star-count="1" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">New Zealand Tours</p>
-                                            <div data-star-count="2" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="S8__slide S8__s3">
-                            <div class="S8__s-b"></div>
-                            <div class="S8__s-c">
-                                <div class="S8__ctrl S8__c_left"></div>
-                                <div class="S8__ctrl S8__c_right"></div>
-                                <div class="S8__t">
-                                    <a class="S8__t-h-link">
-                                        <button class="ripple">Asia Tours</button>
-                                    </a>
-                                    <p class="S8__t-desc">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio veniam minus illo debitis nihil animi facere, doloremque voluptate tempore quia. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio veniam minus illo debitis nihil animi facere, doloremque voluptate tempore quia.</p>
-                                    <a class="S8__t-link"><button class="ripple">Read more</button></a>
-                                </div>
-                            </div>
-                            <div class="S8__plugin">
-                                <div class="chips-material">
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">India Tours</p>
-                                            <div data-star-count="1" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">China Tours</p>
-                                            <div data-star-count="2" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">Vietnam Tours</p>
-                                            <div data-star-count="3" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">Thailand Tours</p>
-                                            <div data-star-count="4" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">Cambodia Tours</p>
-                                            <div data-star-count="4" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                
-                                    <div class="chip">
-                                        <div class="chip__cont">
-                                            <div class="chip__bg"></div>
-                                            <p class="chip__capt">Japan Tours</p>
-                                            <div data-star-count="4" class="chip__stars"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <%} ) -%>
                     </div>
                 </div>
                 <div class="S8__lim"></div>

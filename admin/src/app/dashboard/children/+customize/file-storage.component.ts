@@ -1,10 +1,6 @@
-import { FileStorageBasic } from './file-storage-basic.class';
-import { Component, OnInit, DoCheck, ViewChild, ElementRef } from '@angular/core';
-import { Response } from '@angular/http';
+import { FileStorageBasic, filesUrl } from './file-storage-basic.class';
+import { Component, OnInit, DoCheck, ViewChild, ElementRef, Injector } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { BackendService } from 'app/backend.service';
-import { ErrorEmmiter } from 'app/error.service';
-import { ProgressBarService } from 'app/progress-bar.service';
 import { IFileStoragePortResponse, IFileAttr } from 'app/Interfaces';
 
 @Component({
@@ -65,18 +61,13 @@ export class FileStorageComponent extends FileStorageBasic implements OnInit, Do
 
   @ViewChild('input') inputRef: ElementRef;
 
-  constructor(
-      errorEmmiterService: ErrorEmmiter,
-      domSanitizer: DomSanitizer,
-      backendService: BackendService,
-      progressBarService: ProgressBarService
-  ) {
-      super(errorEmmiterService, domSanitizer, backendService, progressBarService);
+  constructor(domSanitizer: DomSanitizer, injector: Injector) {
+      super(domSanitizer, injector);
       this.$this = this;
    }
   ngDoCheck() {
-    const { inputRef, isRequestSent, _focusResolveLink } = this;
-    if (inputRef && !isRequestSent && typeof _focusResolveLink === 'function') {
+    const { inputRef, _isRequestSent, _focusResolveLink } = this;
+    if (inputRef && !_isRequestSent && typeof _focusResolveLink === 'function') {
         _focusResolveLink();
     }
   }
@@ -96,7 +87,8 @@ export class FileStorageComponent extends FileStorageBasic implements OnInit, Do
     if (FileStorageComponent.files) {
         return this.filesResponse = FileStorageComponent.files;
     }
-    this._getFiles().then(response => FileStorageComponent.files = response);
+
+    this._getResource(jsRes => FileStorageComponent.files = this.filesResponse = jsRes, filesUrl);
   }
   getMenuArray(indexOfTab: number) {
     return this.menuModel.filter((item, i) => indexOfTab !== i);
@@ -127,7 +119,7 @@ export class FileStorageComponent extends FileStorageBasic implements OnInit, Do
     this._requestSender(file, ACTION, index);
   }
   private _onInputBlur(file: IFileAttr) {
-    if (this.isRequestSent) {
+    if (this._isRequestSent) {
         return;
     }
     const{ modelFileName, fileExt } = this.renameFileFields;
@@ -138,7 +130,7 @@ export class FileStorageComponent extends FileStorageBasic implements OnInit, Do
     for (const { attributes: { fileName } } of this.filesResponse.data) {
         if (fileName === compiledFileName) {
             this.renameFileFields.cancelAll();
-            return this._errorEmmiterService.emmiter.emit('File name must to be unique in File Storage!');
+            return this._showErrMess('File name must to be unique in File Storage!');
         }
     }
     const ACTION = 'RENAME';

@@ -15,20 +15,22 @@ const FileStorageSchema = new Schema({
         type: Number,
         default: 0
     },
-    maxWidth: {
-        type: Number,
-        default: 600,
-        min: 10
-    },
-    slideShow: {
-        type: Number,
-        default: 10,
-        min: 4
-    },
-    sliderMode: {
-        type: String,
-        enum: ["sequensed", "static"],
-        default: "sequensed"
+    offers: {
+        maxWidth: {
+            type: Number,
+            default: 600,
+            min: 10
+        },
+        slideShow: {
+            type: Number,
+            default: 10,
+            min: 4
+        },
+        sliderMode: {
+            type: String,
+            enum: ["sequensed", "static"],
+            default: "sequensed"
+        },
     },
     files: [{
             _id: {

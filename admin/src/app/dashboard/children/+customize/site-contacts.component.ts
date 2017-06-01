@@ -1,11 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { Response, RequestMethod } from '@angular/http';
-import { MdDialog } from '@angular/material';
+import { Component, OnInit, Injector } from '@angular/core';
+import { MdButton } from '@angular/material';
 import { IModalData } from './modal-dialog.component';
 import { BasicComponentClass } from './basic-component.class';
-import { ErrorEmmiter, errorMessages } from 'app/error.service';
-import { BackendService, JSON_API_HEADER_BASIC, JSON_API_HEADER_EXTENDED } from 'app/backend.service';
-import { ProgressBarService } from 'app/progress-bar.service';
 
 @Component({
     selector: 'app-site-contacts',
@@ -18,34 +14,22 @@ import { ProgressBarService } from 'app/progress-bar.service';
 })
 export class SiteContactsComponent extends BasicComponentClass implements OnInit {
     private _api = '/api/contacts';
-    objectRecord: string;
-    isEditing = false;
+
     isSkypeHas = false;
     modelEdit: Array<IContactType | undefined> = [];
     selectedIndex = 0;
     selectedTab: IContactGroup;
     contactsModel: Array<IContactGroup>;
 
-    constructor(
-        private _errorService: ErrorEmmiter,
-        private _backendService: BackendService,
-        private _progressBarService: ProgressBarService,
-        _dialog: MdDialog) {
-        super(_dialog);
+    constructor(injector: Injector) {
+        super(injector);
     }
     ngOnInit() {
-        this._backendService.sendRequest(this._api, { headers: JSON_API_HEADER_BASIC })
-                            .then((response: Response) => {
-                                const jsonResp = response.json();
-                                this.contactsModel = jsonResp.data.attributes.contacts;
-                                this.objectRecord = JSON.stringify(this.contactsModel);
-                                this.selectedTab = this.contactsModel[0];
-                            })
-                            .catch(() => this._errorService.emmiter.emit(errorMessages.load));
+        this._getResource(this._onGetResourse, this._api);
     }
 
     deleteAction(values?: Array<IContactGroup | IContactType>, index?: number) {
-        return (subject: string | IModalData, newTabName: string) => {
+        return (newTabName: string, subject: string | IModalData) => {
             if (typeof subject === 'string') {
                 values.splice(index, 1);
 
@@ -55,18 +39,18 @@ export class SiteContactsComponent extends BasicComponentClass implements OnInit
                                         <IContactGroup>values[ index ] :
                                         <IContactGroup>values[ index - 1 ];
                         this.modelEdit.length = 0;
-                        this.isEditing = false;
+                        this._isEditing = false;
                     }
                     break;
                     case 'contact': {
                         delete this.modelEdit[index];
-                        this.isEditing = !this._isEditComplete<IContactType>(this.modelEdit);
+                        this._isEditing = !this._isEditComplete<IContactType>(this.modelEdit);
                     }
                     this.isSkypeHas = false;
                 }
             }else {
                 if (this._isNewGropMatched(newTabName)) {
-                    return this._errorService.emmiter.emit('Group with this name already exists!');
+                   return this._showErrMess('Group with this name already exists!');
                 }
                 this.contactsModel.push({ group: newTabName, values: [] });
                 if (!this.selectedTab) {
@@ -89,7 +73,7 @@ export class SiteContactsComponent extends BasicComponentClass implements OnInit
 
     onEdit(obj: IContactType, index: number) {
         this.modelEdit[index] = this._cloneObj(Object.assign({ $modelValue: obj.values.join(', ') }, obj));
-        this.isEditing = true;
+        this._isEditing = true;
     }
     onOk(obj: IContactType, index: number) {
         const editedModel = this.modelEdit[index];
@@ -106,23 +90,21 @@ export class SiteContactsComponent extends BasicComponentClass implements OnInit
         }
         delete this.modelEdit[index];
 
-        this.isEditing = !this._isEditComplete<IContactType>(this.modelEdit);
+        this._isEditing = !this._isEditComplete<IContactType>(this.modelEdit);
     }
     onTabChange(tabIndex: number) {
         this.modelEdit.length = 0;
         this.isSkypeHas = false;
         this.selectedTab = this.contactsModel[tabIndex];
     }
-    onSaveChanges() {
-        this._progressBarService.emmiter.emit(true);
-        this._backendService.sendRequest(this._api, {
-            method: RequestMethod.Patch,
-            headers: JSON_API_HEADER_EXTENDED,
-            body: this._backendService.serializeResource('contacts', '1', { contacts: this.contactsModel })
-        })
-        .then(() => this._errorService.emmiter.emit(`Contacts successfully updated.`))
-        .catch(() => this._errorService.emmiter.emit(`Couldn't update contacts due network error.`))
-        .then(() => this._progressBarService.emmiter.emit(false));
+    onSave(btnSaveRef: MdButton) {
+        super._onSaveChanges<Array<IContactGroup>>(this._api, this.contactsModel)
+        (btnSaveRef, { id: '1', type: 'contacts', attr: { contacts: this.contactsModel } });
+
+    }
+    private _onGetResourse(jsRes) {
+        this._setModelRecord(this.contactsModel = jsRes.data.attributes.contacts);
+        this.selectedTab = this.contactsModel[0];
     }
     private _isNewGropMatched(newGroupName: string) {
         for (const { group } of this.contactsModel) {

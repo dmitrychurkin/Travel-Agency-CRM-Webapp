@@ -2,18 +2,18 @@ import { Component,
         ViewChild,
         ElementRef,
         OnInit,
-        AfterViewChecked } from '@angular/core';
-import { Response, RequestMethod } from '@angular/http';
-import { SelectedTabService } from './selected-tab.service';
+        AfterViewChecked,
+        Injector} from '@angular/core';
 import { OffersModalComponent } from './offers-modal.component';
-import { BackendService, JSON_API_HEADER_BASIC, JSON_API_HEADER_EXTENDED } from 'app/backend.service';
-import { ErrorEmmiter, errorMessages } from 'app/error.service';
+import { BasicComponentClass } from './basic-component.class';
+
 export const offersURL = '/offers';
+
 @Component({
     selector: 'app-offers-section',
     templateUrl: 'offers-section.component.html'
 })
-export class OffersSectionComponent implements OnInit, AfterViewChecked {
+export class OffersSectionComponent extends BasicComponentClass implements OnInit, AfterViewChecked {
     private _isFocused = false;
     alt: string;
     title: string;
@@ -21,13 +21,11 @@ export class OffersSectionComponent implements OnInit, AfterViewChecked {
     isNeedEdit = false;
     index: number;
     @ViewChild('inputField') inputField: ElementRef;
-    constructor(private backendService: BackendService,
-                private _selectedTabService: SelectedTabService,
-                private errorService: ErrorEmmiter) {}
+    constructor(injector: Injector) {
+        super(injector);
+    }
     ngOnInit() {
-        this.backendService.sendRequest(offersURL, { headers: JSON_API_HEADER_BASIC })
-                            .then((response: Response) => this.offers = response.json())
-                            .catch(() => this.errorService.emmiter.emit(errorMessages.load));
+        this._getResource(jsRes => this.offers = jsRes, offersURL);
     }
     ngAfterViewChecked() {
         const {inputField, _isFocused} = this;
@@ -36,20 +34,9 @@ export class OffersSectionComponent implements OnInit, AfterViewChecked {
             this._isFocused = true;
         }
     }
-    /*private _iterateThrough(id: string, action: (offer: IOfferData) => void) {
-        for (const offerImgs of this.offers.data) {
-            if (id === offerImgs.id) {
-                action(offerImgs);
-            }
-        }
-    }*/
-    onEdit({ /*id*/ attributes: { meta: { alt, title } } }: IOfferData) {
+
+    onEdit({ attributes: { meta: { alt, title } } }: IOfferData) {
         this.isNeedEdit = true;
-        /*this._iterateThrough(id, offer => {
-            const{ attributes: { meta: { alt, title } } } = offer;
-            this.alt = alt;
-            this.title = title;
-        });*/
         this.alt = alt;
         this.title = title;
     }
@@ -64,17 +51,10 @@ export class OffersSectionComponent implements OnInit, AfterViewChecked {
         }
         const meta = { alt, title };
 
-        this.backendService.sendRequest(
-                `${offersURL}/${id}`,
-                {
-                    method: RequestMethod.Patch,
-                    headers: JSON_API_HEADER_EXTENDED,
-                    body: this.backendService.serializeResource('offers', id, { meta })
-                }
-            )
-            .then(() => Object.assign(offer.attributes.meta, meta))
-            .catch((response: Response) => this.errorService.emmiter.emit(response.text()))
-            .then(resetModels);
+        this._patchRequest(`${offersURL}/${id}`, { id, type: 'offers', attr: { meta } })
+                .then(() => Object.assign(offer.attributes.meta, meta))
+                .catch(() => this._showErrMess(0))
+                .then(resetModels);
     }
     openModal() {
         if (this.offers) {

@@ -1,50 +1,58 @@
-import { Component, ViewChild } from '@angular/core';
-import { MdSidenav } from '@angular/material';
-import { SelectedTabService } from './selected-tab.service';
-import { IMenuSubTab, IMenuTab } from '../../../Interfaces';
+import { Component, Injector } from '@angular/core';
+import { IMenuSubTab, IMenuTab } from 'app/Interfaces';
+import { BasicComponentClass } from './basic-component.class';
 
 @Component({
     selector: 'app-admin-customize',
     templateUrl: 'customize.component.html',
-    styleUrls: ['customize.component.css'],
-    viewProviders: []
+    styleUrls: ['customize.component.css']
 })
-export class CustomizeComponent {
-    // selectedItem: IMenuSubTab;
-    @ViewChild('sideNav') sideNav: MdSidenav;
+export class CustomizeComponent extends BasicComponentClass {
 
-    constructor(
-        private selectedTabService: SelectedTabService
-        ) {}
+    constructor(injector: Injector) {
+        super(injector);
+    }
     isActiveStyle(childItem: IMenuSubTab) {
-        const {currentlySelectedChild} = this.selectedTabService;
+        const {currentlySelectedChild} = this._selectedTabService;
         return currentlySelectedChild &&
                currentlySelectedChild._name === childItem._name &&
                currentlySelectedChild.isActive;
     }
     onIntroCardClick(item: IMenuTab) {
-        this.selectedTabService.currentlySelectedTab = item;
-        const childrenArray = this.selectedTabService.currentlySelectedTab.children;
+        this._selectedTabService.currentlySelectedTab = item;
+        const childrenArray = this._selectedTabService.currentlySelectedTab.children;
         if (childrenArray.length === 1) {
             childrenArray[0].isActive = true;
-            this.selectedTabService.currentlySelectedChild = childrenArray[0];
+            this._selectedTabService.currentlySelectedChild = childrenArray[0];
         }
     }
-    onListItemSelected(childItem: IMenuSubTab, listItem?: IMenuTab) {
-        console.log(childItem.isActive, this.selectedTabService.currentlySelectedChild);
+    async onListItemSelected(childItem: IMenuSubTab, listItem?: IMenuTab) {
         if (childItem.isActive) {
             return;
         }
+        if (!this._selectedTabService.isChangesSaved) {
+            const result = await this._showModalOnUnsaved();
+            if (!result) {
+                return;
+            }
+            this._selectedTabService.isChangesSaved = true;
+        }
+
         if (listItem) {
-            this.selectedTabService.currentlySelectedTab = listItem;
+            this._selectedTabService.currentlySelectedTab = listItem;
         }
 
         childItem.isActive = true;
-        const {currentlySelectedChild} = this.selectedTabService;
+        const {currentlySelectedChild} = this._selectedTabService;
         if (currentlySelectedChild && currentlySelectedChild.isActive) {
-            this.selectedTabService.currentlySelectedChild.isActive = false;
+            this._selectedTabService.currentlySelectedChild.isActive = false;
         }
-        this.selectedTabService.currentlySelectedChild = childItem;
+        this._selectedTabService.currentlySelectedChild = childItem;
     }
-
+    private _showModalOnUnsaved() {
+        return new Promise(resolve => {
+            this._customDialogMessage = 'All changes will be lost, continue?';
+            this.openDialog(resolve);
+        });
+    }
 }

@@ -1,4 +1,4 @@
-import { Component, HostBinding, HostListener, OnInit, OnDestroy, ComponentRef } from '@angular/core';
+import { Component, HostBinding, HostListener, OnInit, ComponentRef } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import { async } from 'rxjs/scheduler/async';
@@ -24,7 +24,7 @@ const hostStyles = [
         'style': hostStyles.join(';')
     }
 })
-export class SliderPromoModalComponent implements OnInit, OnDestroy {
+export class SliderPromoModalComponent implements OnInit {
     private _initSub: Subscription;
     private _moveSub: Subscription;
     modelData: any;
@@ -47,9 +47,6 @@ export class SliderPromoModalComponent implements OnInit, OnDestroy {
                                     .subscribe(() => this.isActive = false);
     }
 
-    ngOnDestroy() {
-
-    }
     onCloseModal() {
         this._modalAnimation = '0';
         this._moveSub.unsubscribe();

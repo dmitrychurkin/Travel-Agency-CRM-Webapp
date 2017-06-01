@@ -1,20 +1,18 @@
 import { Response, RequestMethod } from '@angular/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { BackendService, JSON_API_HEADER_EXTENDED, JSON_API_HEADER_BASIC } from 'app/backend.service';
-import { ErrorEmmiter, errorMessages } from 'app/error.service';
-import { ProgressBarService } from 'app/progress-bar.service';
 import { IFileStoragePortResponse, IFileAttr, IFileEntity } from 'app/Interfaces';
 import { async } from 'rxjs/scheduler/async';
+import { BasicComponentClass } from './basic-component.class';
 declare const System: any;
 
-export class FileStorageBasic {
-    private _getFilesURL = '/api/files';
+export const filesUrl = '/api/files';
+
+export class FileStorageBasic extends BasicComponentClass {
     private _downloadFilesURL = '/api/download';
     private UPLOADER: any;
     private qq: any;
     private simpleThumbnail: SafeHtml;
 
-    isRequestSent = false;
     filesResponse: IFileStoragePortResponse;
 
 
@@ -26,12 +24,9 @@ export class FileStorageBasic {
            this.modelFileName = this.fileId = this.fileExt = '';
        }
     };
-    constructor(
-        protected _errorEmmiterService: ErrorEmmiter,
-        private _domSanitizer: DomSanitizer,
-        protected _backendService: BackendService,
-        protected _progressBarService: ProgressBarService
-    ) {}
+    constructor(private _domSanitizer: DomSanitizer, injector) {
+        super(injector);
+    }
     protected MOVE(file: IFileAttr, response: Response, moveToFlag: 'S' | 'P' | 'O') {
         const{ status, ok } = response;
         const dataResponse = response.json();
@@ -61,18 +56,14 @@ export class FileStorageBasic {
 
         return window.location.href = `${this._downloadFilesURL}?id=${id}&file=${fileName}&location=${locationFlag}`;
     }
-    protected _getFiles() {
-        return this._backendService.sendRequest(this._getFilesURL, { headers: JSON_API_HEADER_BASIC })
-                        .then((response: Response) => this.filesResponse = response.json())
-                        .catch(() => this._errorEmmiterService.emmiter.emit(errorMessages.load));
-    }
+
     protected _requestSender(file: IFileAttr, ACTION: string, metaInfo?: number | 'S' | 'P' | 'O') {
-        if (this.isRequestSent) {
+        if (this._isRequestSent) {
             return;
         }
-        this.isRequestSent = true;
+        this._isRequestSent = true;
 
-        const{ fileName, locationFlag, fileSize } = file.attributes;
+        const{ id, attributes: { fileName, locationFlag, fileSize } } = file;
         let baseObject = { fileName, locationFlag };
         let meta = { ACTION };
         let method = RequestMethod.Patch;
@@ -92,27 +83,16 @@ export class FileStorageBasic {
         if (ACTION !== 'RENAME') {
             this._progressBarService.emmiter.emit(true);
         }
-        return this._backendService.sendRequest(
-                    `${this._getFilesURL}/${file.id}`,
-                    {
-                        method,
-                        headers: JSON_API_HEADER_EXTENDED,
-                        body: this._backendService.serializeResource('files', file.id, baseObject, meta)
-                    }
-                )
+        return this._patchRequest(`${filesUrl}/${file.id}`, { id, type: 'files', attr: baseObject, meta })
                 .then((response: Response) => this[ACTION](file, response, metaInfo))
-                .catch((err) => {
-                    console.log(err);
-                    this._errorEmmiterService.emmiter.emit('Oops, something went wrong, try later');
-                })
+                .catch(() => this._showErrMess(0))
                 .then(() => {
-                    this.isRequestSent = false;
+                    this._isRequestSent = false;
                     this.renameFileFields.cancelAll();
                     if (ACTION !== 'RENAME') {
                         this._progressBarService.emmiter.emit(false);
                     }
                 });
-
     }
     private _notifyQQ(renamedFileProps: IFileAttr, action: 'RENAME' | 'DELETE') {
         const fileQQArray = this.UPLOADER.getUploads({status: this.qq.status.UPLOAD_SUCCESSFUL});
@@ -173,7 +153,7 @@ export class FileStorageBasic {
                     },
                     callbacks: {
                         onError: (id, name, errorReason, xhrOrXdr) => {
-                            this._errorEmmiterService.emmiter.next(errorReason);
+                            this._showErrMess(errorReason);
                         },
                         onComplete(id, name, responseJSON, xhr) {
                             this.setName(id, responseJSON.data.attributes.fileName);
@@ -202,14 +182,14 @@ export class FileStorageBasic {
 
                         },
                         onSubmitDelete() {
-                            if ($this.isRequestSent) {
+                            if ($this._isRequestSent) {
                                 return false;
                             }
                         }
                     }
                 });
             this._f_u__Patch(this.UPLOADER);
-        }).catch(err => this._errorEmmiterService.emmiter.next(err.message));
+        }).catch(err => this._showErrMess(err.message));
     }
     protected _sanitizeTemplate() {
         // tslint:disable-next-line:max-line-length

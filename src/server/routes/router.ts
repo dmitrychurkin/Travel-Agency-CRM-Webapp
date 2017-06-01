@@ -12,7 +12,9 @@ import {
     ordersController,
     fileUploaderController,
     offersImgsController,
-    siteContactsController } from "../controllers";
+    siteContactsController,
+    sliderPromoController,
+    mainController } from "../controllers";
 export class AppRouter {
     Router = Router();
     private App: Application;
@@ -54,11 +56,11 @@ export class AppRouter {
     }
     configureAppRoutes() {
         const{ Router: router } = this;
-        router.get("/", (...args: Array<any>): void => {
+        /*router.get("/", (...args: Array<any>): void => {
             const res: Response = args[1];
             return res.render("index", { title: "Express" });
-        });
-
+        });*/
+        router.get("/", mainController.getSitePropsController());
         /**Debag service routes */
         router.get("/air-ticketing-and-reservation/", (...args: Array<any>) => {
             const res: Response = args[1];
@@ -152,6 +154,11 @@ export class AppRouter {
 // contacts
         router.get("/api/contacts", [adminController.tokenValidatorController(true), siteContactsController.getContacts_JsonAPI()]);
         router.patch("/api/contacts", [adminController.tokenValidatorController(true), siteContactsController.updateContacts_JsonAPI()]);
+
+// slider promo
+        router.get("/api/slider-promo/", [adminController.tokenValidatorController(true), sliderPromoController.getSlides_JsonAPI()]);
+        router.patch("/api/slider-promo/", [adminController.tokenValidatorController(true), sliderPromoController.setSlides_JsonAPI()]);
+        // router.get("/api/files", [adminController.tokenValidatorController(true), sliderPromoController.getPublicImages_JsonAPI()]);
 /**Test routes */
         router.get("/api/sign-admin", (...args: Array<any>) => {
             const res: Response = args[1];

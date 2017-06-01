@@ -7,9 +7,11 @@ import { IFileDbProps, IUpdatePayload } from "../interfaces";
 
 interface IOffersAggrResult {
     files: Array<IFileDbProps>;
-    maxWidth: number;
-    slideShow: number;
-    sliderMode: "sequensed" | "static";
+    offers: {
+        maxWidth: number;
+        slideShow: number;
+        sliderMode: "sequensed" | "static";
+    };
 }
 interface IAttrs {
     fileName: string;
@@ -50,9 +52,7 @@ class OffersImgsController {
                         cond: { $eq: [ "$$file.locationFlag", "O" ] }
                     }
                 },
-                maxWidth: 1,
-                slideShow: 1,
-                sliderMode: 1
+                offers: 1
             }
         })
         .then((result: Array<IOffersAggrResult>) => {
@@ -70,7 +70,7 @@ class OffersImgsController {
             this._offersFetcher()
             .then((result: IOffersAggrResult) => {
 
-                const{ files, maxWidth, slideShow, sliderMode } = result;
+                const{ files, offers: { maxWidth, slideShow, sliderMode } } = result;
                 const responseResult: IPortOffersResponse = {
                     data: [],
                     meta: { maxWidth, slideShow, sliderMode }
@@ -117,7 +117,8 @@ class OffersImgsController {
         };
     }
     editSliderMeta_JsonAPI(req: Request, res: Response) {
-        if ( req && req.body && req.body.data && req.body.data.attributes && JsonAPI.validateRequest(req, res) ) {
+        if (!JsonAPI.validateRequest(req, res)) return;
+        if ( req && req.body && req.body.data && req.body.data.attributes ) {
 
             const{ attributes } = req.body.data;
 
@@ -127,41 +128,35 @@ class OffersImgsController {
 
             for (const metaField in attributes) {
                 if (attributes[metaField]) {
-                    dbSetOptions.$set[metaField] = attributes[metaField];
+                    dbSetOptions.$set[`offers.${metaField}`] = attributes[metaField];
                     if (CACHE) {
-                        CACHE[metaField] = attributes[metaField];
+                        CACHE.offers[metaField] = attributes[metaField];
                     }
                 }
-            }
-            if (CACHE) {
-                Application.express.set("offers", CACHE);
             }
 
             return FileStorageModel.update({ _id: ServerConfig.FILE_STORAGE.DB_ID }, dbSetOptions)
                         .then(({ ok, nModified, n }: IUpdatePayload) => {
                             if (ok && nModified && n) {
+                                if (CACHE) {
+                                    Application.express.set("offers", CACHE);
+                                }
                                 return res.status(204).end();
                             }
                             throw new Error("Fail to update");
                         })
                         .catch(() => res.status(500).end());
         }
-        return !res.headersSent ? res.status(403).end() : null;
+        return res.status(403).end();
     }
     editOffersMeta_JsonAPI(req: Request, res: Response) {
-        if (req && req.params && req.params.fileid && req.body && req.body.data && req.body.data.attributes && JsonAPI.validateRequest(req, res)) {
+        if (!JsonAPI.validateRequest(req, res)) return;
+        if ( req && req.params && req.params.fileid && req.body && req.body.data && req.body.data.attributes ) {
 
             const{ data: { attributes: { meta } } } = req.body;
             const{ fileid } = req.params;
             const CACHE = Application.express.get("offers");
-            if (CACHE) {
-                for (const file of CACHE.files) {
-                    if (file._id === fileid) {
-                        file.meta = meta;
-                    }
-                }
-                Application.express.set("offers", CACHE);
-            }
+
 
             return FileStorageModel.update(
                     { _id: ServerConfig.FILE_STORAGE.DB_ID, "files._id": fileid },
@@ -169,13 +164,21 @@ class OffersImgsController {
                 )
                 .then(({ ok, nModified, n }: IUpdatePayload) => {
                     if (ok && nModified && n) {
+                        if (CACHE) {
+                            for (const file of CACHE.files) {
+                                if (file._id === fileid) {
+                                    file.meta = meta;
+                                }
+                            }
+                            Application.express.set("offers", CACHE);
+                        }
                         return res.status(204).end();
                     }
                     throw new Error("Fail to update");
                 })
                 .catch(() => res.status(500).end());
         }
-        return !res.headersSent ? res.status(403).end() : null;
+        return res.status(403).end();
     }
 }
 

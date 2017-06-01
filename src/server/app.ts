@@ -20,6 +20,7 @@ import servicesRoutes from "./routes/services";*/
 // caching variables:
 // 1. offers
 // 2. siteContacts
+// 3. sliderPromo
 
 class App {
   server: Server;

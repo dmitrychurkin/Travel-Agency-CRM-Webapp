@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose = require("mongoose");
+const shortid = require("shortid");
 const SiteSchema = new mongoose.Schema({
     _id: String,
     fileStorageRef: {
@@ -23,6 +24,37 @@ const SiteSchema = new mongoose.Schema({
                             type: String,
                             trim: true
                         }]
+                }
+            ]
+        }
+    ],
+    sliderPromo: [
+        {
+            _id: {
+                type: String,
+                "default": shortid.generate
+            },
+            backgroundImage: String,
+            title: {
+                type: String,
+                trim: true
+            },
+            description: {
+                type: String,
+                trim: true
+            },
+            chips: [
+                {
+                    _id: {
+                        type: String,
+                        "default": shortid.generate
+                    },
+                    destination: {
+                        type: String,
+                        trim: true
+                    },
+                    avatar: String,
+                    starCount: Number
                 }
             ]
         }

@@ -1,13 +1,13 @@
-<div fxLayout="column">
+<div *ngIf="sliderModel; else Spinner" fxLayout="column">
     <md-card fxFlexAlign="center" style="width:92%; margin: 30px 0">
-        <md-tab-group *ngIf="fakeModelSlides.data.length; else NoContent" [(selectedIndex)]="tabIndex" [dynamicHeight]="true" (selectChange)="modelChips.length=0">
-            <md-tab [disabled]="isEditing && tabIndex != i" *ngFor="let slide of fakeModelSlides.data; let i=index">
+        <md-tab-group *ngIf="sliderModel.length; else NoContent" [(selectedIndex)]="tabIndex" [dynamicHeight]="true" (selectChange)="modelChips.length=0">
+            <md-tab [disabled]="_isEditing && tabIndex != i" *ngFor="let slide of sliderModel; let i=index">
                 <ng-template md-tab-label>
                     <span>Slide {{i + 1}}</span>
                 </ng-template>
                 <div>
                     <h3>Title</h3>
-                    <h4>{{(modelTitle || slide.attributes.title || notSpecifiedMessage) | uppercase}}</h4>
+                    <h4>{{(modelTitle || slide.title || notSpecifiedMessage) | uppercase}}</h4>
                 </div>
                 <div *ngIf="isTitleEditing">
                     <md-input-container dividerColor="accent">
@@ -26,31 +26,35 @@
                 <div>
                     <h3>Background Image</h3>
                     <p><i>For the best user experience natural <strong>image width must to be >= 1280px</strong> and <strong>image height >= 1024px</strong></i></p>
-                    <img *ngIf="modelBgImg.modelUrl || slide.attributes.backgroundImage; else NotSpecified" style="max-width:500px" [src]="modelBgImg.modelUrl || slide.attributes.backgroundImage">
+                    <img *ngIf="modelBgImg.modelUrl || slide.backgroundImage; else NotSpecified" style="max-width:500px" [src]="modelBgImg.modelUrl || slide.backgroundImage">
                 </div>
-                <div *ngIf="modelBgImg.modelUrl">
+                <div *ngIf="modelBgImg.modelUrl || modelBgImg.modelUrl === ''">
                     <h4>Select background slide image:</h4>
-                    <md-tab-group [dynamicHeight]="true">
-                        <md-tab *ngFor="let image of publicImagesFakeModel.data; index as i">
-                            <ng-template md-tab-label>
-                                <span>Image {{i + 1}}</span>
-                                <img style="width:30px;position:relative;top:10px;left:20px" [src]="image.links.self">
-                            </ng-template>
-                            <div fxLayout="row">
-                                <div>
-                                    <img #slideImgRef (click)="onBackgroundImgClick(image, slideImgRef)" style="width:300px;cursor:pointer;transition:.7s" [src]="image.links.self">
-                                </div>
-                                <div style="margin-left:25%">
-                                    <p><i>Natural image size:</i></p>
-                                    <p>{{slideImgRef?.naturalWidth}} &#10006; {{slideImgRef?.naturalHeight}}</p>
-                                </div>
-                            </div>
-                        </md-tab>
-                    </md-tab-group>
+                    <ng-container *ngIf="!publicImages.isRequestSent; else Spinner">
+                        <ng-container *ngIf="publicImages.data?.length > 0; else PublicEmpty">
+                            <md-tab-group [dynamicHeight]="true">
+                                <md-tab *ngFor="let image of publicImages.data; index as i">
+                                    <ng-template md-tab-label>
+                                        <span>Image {{i + 1}}</span>
+                                        <img style="width:30px;position:relative;top:10px;left:20px" [src]="image.links.self">
+                                    </ng-template>
+                                    <div fxLayout="row">
+                                        <div>
+                                            <img #slideImgRef (click)="onBackgroundImgClick(image, slideImgRef)" style="width:300px;cursor:pointer;transition:.7s" [src]="image.links.self">
+                                        </div>
+                                        <div style="margin-left:25%">
+                                            <p><i>Natural image size:</i></p>
+                                            <p>{{getNaturalSize(slideImgRef, 'naturalWidth')}} &#10006; {{getNaturalSize(slideImgRef, 'naturalHeight')}}</p>
+                                        </div>
+                                    </div>
+                                </md-tab>
+                            </md-tab-group>
+                        </ng-container>
+                    </ng-container>
                 </div>
                 <div class="action-btn-cont" fxLayout="row">
-                    <button *ngIf="!modelBgImg.modelUrl" (click)="onEdit(slide, 'B_IMG')" md-raised-button color="accent">EDIT</button>
-                    <ng-container *ngIf="modelBgImg.modelUrl">
+                    <button *ngIf="!modelBgImg.modelUrl && modelBgImg.modelUrl !== ''" (click)="onEdit(slide, 'B_IMG')" md-raised-button color="accent">EDIT</button>
+                    <ng-container *ngIf="modelBgImg.modelUrl || modelBgImg.modelUrl === ''">
                         <button (click)="onCancelEdit('B_IMG')" md-raised-button color="accent">CANCEL</button>
                         <button class="ok-btn-gap" (click)="onOk('B_IMG', slide)" md-raised-button color="warn">OK</button>
                     </ng-container>
@@ -58,7 +62,7 @@
                 <hr>
                 <div>
                     <h3>Slide Description</h3>
-                    <p>{{modelDesc || slide.attributes.description || notSpecifiedMessage}}</p>
+                    <p>{{modelDesc || slide.description || notSpecifiedMessage}}</p>
                 </div>
                 <div *ngIf="isDescEditing">
                     <md-input-container style="width:50%" dividerColor="accent">
@@ -81,14 +85,14 @@
                 <div>
                     <h3>Tours</h3>
                     
-                        <ng-container *ngFor="let chip of slide.attributes.chips; index as j">
+                        <ng-container *ngFor="let chip of slide.chips; index as j">
                             <md-chip-list class="mat-chip-list-stacked">
                             <md-chip #chipRef
                             style="width:330px;display:block;margin:20px 0;cursor:pointer"
                             color="primary"
                             (click)="onChipClick(chipRef, chip, j)">
                                 <div fxLayout="row" fxLayoutAlign="space-between">
-                                    <div fxFlexAlign="center" class="chip-avatar" [style.backgroundImage]="'url('+ getAvatarImage(chip, j) +')'"></div>
+                                    <div fxFlexAlign="center" class="chip-avatar" [style.backgroundImage]="modelChips[j] ? ( modelChips[j].item.avatar ? 'url('+ modelChips[j].item.avatar +')' : null) : ( chip.avatar ? 'url('+ chip.avatar +')' : null )"></div>
                                     <p fxFlexAlign="center" style="padding:0 10px;font-weight:bold;text-align:center;width:154px">{{modelChips[j]?.item.destination || chip.destination}}</p>
                                     <div style="width:126px;height:26px" fxFlexAlign="center">
                                         <ng-container *ngFor="let star of 'Putin'.split(''); index as starIndex">
@@ -99,27 +103,31 @@
                                     </div>
                                 </div>
                             </md-chip>
-                            <!--<div *ngFor="let editChip of modelChips">-->
+                            
                                 <div *ngIf="modelChips[j]">
                                     <div>
                                         <h4>1. Select avatar:</h4>
-                                        <md-tab-group [dynamicHeight]="true">
-                                            <md-tab *ngFor="let image of publicImagesFakeModel.data; index as i">
-                                                <ng-template md-tab-label>
-                                                    <span>Image {{i + 1}}</span>
-                                                    <img style="width:30px;position:relative;top:10px;left:20px" [src]="image.links.self">
-                                                </ng-template>
-                                                <div fxLayout="row">
-                                                    <div>
-                                                        <img #imgRef (click)="onAvatarImageClick(j, image.links.self, imgRef)" style="width:100px;cursor:pointer;transition:.7s" [src]="image.links.self">
-                                                    </div>
-                                                    <div style="margin-left:25%">
-                                                        <p><i>Natural image size:</i></p>
-                                                        <p>{{imgRef?.naturalWidth}} &#10006; {{imgRef?.naturalHeight}}</p>
-                                                    </div>
-                                                </div>
-                                            </md-tab>
-                                        </md-tab-group>
+                                        <ng-container *ngIf="!publicImages.isRequestSent; else Spinner">
+                                            <ng-container *ngIf="publicImages.data?.length > 0; else PublicEmpty">
+                                                <md-tab-group [dynamicHeight]="true">
+                                                    <md-tab *ngFor="let image of publicImages.data; index as i">
+                                                        <ng-template md-tab-label>
+                                                            <span>Image {{i + 1}}</span>
+                                                            <img style="width:30px;position:relative;top:10px;left:20px" [src]="image.links.self">
+                                                        </ng-template>
+                                                        <div fxLayout="row">
+                                                            <div>
+                                                                <img #imgRef (click)="onAvatarImageClick(j, image.links.self, imgRef)" style="width:100px;cursor:pointer;transition:.7s" [src]="image.links.self">
+                                                            </div>
+                                                            <div style="margin-left:25%">
+                                                                <p><i>Natural image size:</i></p>
+                                                                <p>{{getNaturalSize(imgRef, 'naturalWidth')}} &#10006; {{getNaturalSize(imgRef, 'naturalHeight')}}</p>
+                                                            </div>
+                                                        </div>
+                                                    </md-tab>
+                                                </md-tab-group>
+                                            </ng-container>
+                                        </ng-container>
                                     </div>
                                     <div>
                                         <h4>2. Edit destination of tour:</h4>
@@ -142,7 +150,7 @@
                                     </div>
                                     
                                 </div>
-                            <!--</div>-->
+                            
                             </md-chip-list>
                         </ng-container>
                     <div style="margin:30px 0" fxLayout="row">
@@ -158,11 +166,29 @@
     </md-card>
     <div style="margin:30px 0" fxLayout="row" fxLayoutAlign="space-around">
         <button (click)="onAddNewSlide()" md-raised-button color="primary">ADD NEW SLIDE</button>
-        <button *ngIf="fakeModelSlides.data.length" (click)="onViewSlides()" md-raised-button color="accent">VIEW SLIDES</button>
-        <button *ngIf="isNeedSaveChanges(objectRecord, fakeModelSlides)" md-raised-button color="warn">SAVE CHANGES</button>
+        <button *ngIf="sliderModel.length" (click)="onViewSlides()" md-raised-button color="accent">VIEW SLIDES</button>
+        <button #btnRef *ngIf="isNeedSaveChanges(sliderModel)" (click)="onSave(btnRef)" md-raised-button color="warn">SAVE CHANGES</button>
     </div>
 </div>
-
+<ng-template #PublicEmpty>
+    <div 
+    fxLayout="row" 
+    [style.height]="'153px'">
+        <div fxLayout="row" style="height:inherit;width:100%"><div style="margin:auto;color:rgba(0,0,0,.4)">Public Storage empty!</div></div>
+    </div>
+</ng-template>
+<ng-template #Spinner>
+    <div 
+    fxLayout="row" 
+    [style.height]="
+    publicImages.isRequestSent && !publicImages.forChip ?
+      '353px' : 
+    publicImages.isRequestSent && publicImages.forChip ?
+      '153px' : 
+      'calc(100vh - 137px)'">
+        <div fxLayout="row" style="height:inherit;width:100%"><md-spinner style="margin:auto" color="accent"></md-spinner></div>
+    </div>
+</ng-template>
 <ng-template #NoContent>
     <div fxLayout="row" fxLayoutAlign="center center" style="height:300px;width:100%">
         <h1 style="color:rgba(0,0,0,.4)">No Slides here yet...</h1>

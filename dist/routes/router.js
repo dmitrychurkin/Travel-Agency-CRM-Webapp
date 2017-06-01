@@ -45,10 +45,7 @@ class AppRouter {
     }
     configureAppRoutes() {
         const { Router: router } = this;
-        router.get("/", (...args) => {
-            const res = args[1];
-            return res.render("index", { title: "Express" });
-        });
+        router.get("/", controllers_1.mainController.getSitePropsController());
         router.get("/air-ticketing-and-reservation/", (...args) => {
             const res = args[1];
             res.render("services/air_ticketing_and_reservation");
@@ -123,6 +120,8 @@ class AppRouter {
         router.patch("/offers/:fileid", [controllers_1.adminController.tokenValidatorController(true), controllers_1.offersImgsController.editOffersMeta_JsonAPI]);
         router.get("/api/contacts", [controllers_1.adminController.tokenValidatorController(true), controllers_1.siteContactsController.getContacts_JsonAPI()]);
         router.patch("/api/contacts", [controllers_1.adminController.tokenValidatorController(true), controllers_1.siteContactsController.updateContacts_JsonAPI()]);
+        router.get("/api/slider-promo/", [controllers_1.adminController.tokenValidatorController(true), controllers_1.sliderPromoController.getSlides_JsonAPI()]);
+        router.patch("/api/slider-promo/", [controllers_1.adminController.tokenValidatorController(true), controllers_1.sliderPromoController.setSlides_JsonAPI()]);
         router.get("/api/sign-admin", (...args) => {
             const res = args[1];
             const req = args[0];

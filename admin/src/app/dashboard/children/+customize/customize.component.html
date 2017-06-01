@@ -1,7 +1,7 @@
 <md-sidenav-container class="nav__container">
         <md-sidenav class="nav__side-nav" #sideNav mode="side" [opened]="true">
             <md-list class="list" dense>
-                <ng-container *ngFor="let listItem of selectedTabService.listOfTabs">
+                <ng-container *ngFor="let listItem of _selectedTabService.listOfTabs">
                     <h3 class="list__label">{{listItem.header}}</h3>
                     <md-list-item 
                         [mdTooltip]="childItem.tabName"
@@ -17,12 +17,12 @@
             </md-list>
         </md-sidenav>
         <div>
-            <ng-container *ngIf="selectedTabService.currentlySelectedTab">
+            <ng-container *ngIf="_selectedTabService.currentlySelectedTab">
                 <md-toolbar color="primary">
-                    <span>{{selectedTabService.currentlySelectedTab.header}}</span>
+                    <span>{{_selectedTabService.currentlySelectedTab.header}}</span>
                 </md-toolbar>
             </ng-container>
-            <div [ngSwitch]="selectedTabService.currentlySelectedTab?._name">
+            <div [ngSwitch]="_selectedTabService.currentlySelectedTab?._name">
                 <md-card *ngSwitchCase="'some content'" class="card__content">
                         <md-card-content>
                                 <md-tab-group>
@@ -41,7 +41,7 @@
                     <app-site-contacts></app-site-contacts>
                 </ng-container>
                 <ng-container *ngSwitchCase="'landing'">
-                    <app-landing-page-settings (onSelected)="onListItemSelected($event)" [sectionTab]="selectedTabService.currentlySelectedChild" [sectionList]="selectedTabService.currentlySelectedTab.children"></app-landing-page-settings>
+                    <app-landing-page-settings (onSelected)="onListItemSelected($event)" [sectionTab]="_selectedTabService.currentlySelectedChild" [sectionList]="_selectedTabService.currentlySelectedTab.children"></app-landing-page-settings>
                 </ng-container>
                 <ng-container *ngSwitchCase="'file uploads'">
                     <app-file-storage></app-file-storage>
@@ -49,7 +49,7 @@
                 <ng-container *ngSwitchDefault>
                     <h1 class="headings">This is that place, where You can make our business better...</h1>
                     <div fxLayout="row" fxLayoutAlign="space-around" fxLayoutWrap="wrap">  
-                        <md-card *ngFor="let item of selectedTabService.listOfTabs" (click)="onIntroCardClick(item)" class="intro-cards">
+                        <md-card *ngFor="let item of _selectedTabService.listOfTabs" (click)="onIntroCardClick(item)" class="intro-cards">
                             <md-card-title class="headings">{{item.header}}</md-card-title>
                             <div fxLayout="row" fxLayoutAlign="center">   
                                 <md-card-content>

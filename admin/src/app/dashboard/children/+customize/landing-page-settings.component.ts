@@ -15,7 +15,6 @@ export class LandingPageSettingsComponent {
     this._selectedSectionTab = tab;
   }
   @Input() set sectionList(list: Array<IMenuSubTab>) {
-    console.log(list);
     this._sectionList = list;
   }
   @Output() onSelected = new EventEmitter(true);

@@ -15,7 +15,7 @@
                     </div>
                     <div class="fs__f-text-cont fs__fname-text-cont" fxLayout="column">
                       
-                      <div class="f-s__text" *ngIf="renameFileFields.fileId === file.id && !isRequestSent; else RenameInput" fxFlexAlign="center" >
+                      <div class="f-s__text" *ngIf="renameFileFields.fileId === file.id && !_isRequestSent; else RenameInput" fxFlexAlign="center" >
                           <input #input (blur)="blurResolveLink()" [(ngModel)]="renameFileFields.modelFileName" style="height: 15px" spellcheck="false"><span>.</span><span>{{renameFileFields.fileExt}}</span>
                       </div>
                       <ng-template #RenameInput>
@@ -32,51 +32,10 @@
                       </button>
                       
                       <md-menu #appMenu="mdMenu">
-              
                           <button *ngFor="let menuItem of getMenuArray(indexOfTab)" (click)="menuItem.action.call($this, file, indexOfFile)" fxLayout="row" md-menu-item>
                             <md-icon fxFlexAlign="center">{{menuItem.ico}}</md-icon>
                             <span fxFlexAlign="center">{{menuItem.name}}</span>
                           </button>
-
-                            <!--<button (click)="onMoveFile(file, 'O')" fxLayout="row" md-menu-item>
-                              <md-icon fxFlexAlign="center">fast_forward</md-icon>
-                              <span fxFlexAlign="center">Move to Offers</span>
-                            </button>
-
-                            <button (click)="onMoveFile(file, 'S')" fxLayout="row" md-menu-item #secondMenuItem="mdMenuItem">
-                              <md-icon fxFlexAlign="center">fast_forward</md-icon>
-                              <span fxFlexAlign="center">Move to Storage</span>
-                            </button>
-
-                            <button (click)="onMoveFile(file, 'O')" fxLayout="row" md-menu-item>
-                              <md-icon fxFlexAlign="center">fast_forward</md-icon>
-                              <span fxFlexAlign="center">Move to Offers</span>
-                            </button>
-
-                            <button (click)="onMoveFile(file, 'S')" fxLayout="row" md-menu-item #thirdMenuItem="mdMenuItem">
-                              <md-icon fxFlexAlign="center">fast_forward</md-icon>
-                              <span fxFlexAlign="center">Move to Storage</span>
-                            </button>
-
-                            <button (click)="onMoveFile(file, 'P')" fxLayout="row" md-menu-item>
-                              <md-icon fxFlexAlign="center">fast_forward</md-icon>
-                              <span fxFlexAlign="center">Move to Public</span>
-                            </button>
-
-                        
-                        <button (click)="onRenameFile(file)" fxLayout="row" md-menu-item>
-                            <md-icon fxFlexAlign="center">loop</md-icon>
-                            <span fxFlexAlign="center">Rename</span>
-                        </button>
-                        <button (click)="onDeleteFile(file, i)" fxLayout="row" md-menu-item>
-                            <md-icon fxFlexAlign="center">delete_forever</md-icon>
-                            <span fxFlexAlign="center">Delete</span>-->
-                            <!--<md-icon [ngStyle]="{'margin':0}" fxFlexAlign="center" class="menu-ico">delete_forever</md-icon>-->
-                        <!--</button>
-                        <button (click)="onDownloadFile(file)" fxLayout="row" md-menu-item>
-                            <md-icon fxFlexAlign="center">get_app</md-icon>
-                            <span fxFlexAlign="center">Download</span>
-                        </button>-->
                       </md-menu>
 
                     </div>
@@ -86,60 +45,6 @@
           </ng-container>
         </ng-container>
       </md-tab>
-      <!--<md-tab label="Files in Public">
-        <ng-container *ngIf="filesResponse; else Spinner">
-          <ng-container *ngIf="!isEmpty('public'); else EmptyPublic">
-            <ng-container *ngFor="let file of filesResponse.data; index as i">
-              <md-card class="f-s__file-cont" *ngIf="file.attributes.isInPublic">
-                  <div fxLayout="row">
-                    <div class="fs__menu-cont" [ngStyle]="{'padding-right':'55px'}" fxLayout="row">
-                      
-                      <button class="f-s__text" md-icon-button [mdMenuTriggerFor]="appMenu" (onMenuOpen)="appMenu.focusFirstItem()">
-                        <md-icon>more_vert</md-icon>
-                      </button>
-                      
-                      <md-menu #appMenu="mdMenu">
-                        <button (click)="onMoveToStorage(file)" fxLayout="row" md-menu-item>
-                          <md-icon fxFlexAlign="center">fast_rewind</md-icon>
-                          <span fxFlexAlign="center">Move to Storage</span>
-                        </button>
-                        <button (click)="onRenameFile(file)" fxLayout="row" md-menu-item>
-                            <md-icon fxFlexAlign="center">loop</md-icon>
-                            <span fxFlexAlign="center">Rename</span>
-                        </button>
-                        <button (click)="onDeleteFile(file, i)" fxLayout="row" md-menu-item>
-                            <md-icon fxFlexAlign="center">delete_forever</md-icon>
-                            <span fxFlexAlign="center">Delete</span>
-                        </button>
-                        <button (click)="onDownloadFile(file)" fxLayout="row" md-menu-item>
-                            <md-icon fxFlexAlign="center">get_app</md-icon>
-                            <span fxFlexAlign="center">Download</span>
-                        </button>
-                      </md-menu>
-
-                    </div>
-                    <div class="f-s__img-cont" fxLayout="row">
-                      <img class="f-s__img" [src]="file.links.self">
-                    </div>
-                    <div class="fs__f-text-cont fs__fname-text-cont" fxLayout="column">
-
-                      <div class="f-s__text" *ngIf="renameFileFields.fileId === file.id && !isRequestSent; else RenameInput" fxFlexAlign="center" >
-                          <input #input (blur)="blurResolveLink()" [(ngModel)]="renameFileFields.modelFileName" style="height: 15px" spellcheck="false"><span>.</span><span>{{renameFileFields.fileExt}}</span>
-                      </div>
-                      <ng-template #RenameInput>
-                        <p class="f-s__text" fxFlexAlign="center">{{displayFileName(file)}}</p>
-                      </ng-template>
-                    </div>
-                    <div class="fs__f-text-cont" fxLayout="row">
-                      <p class="f-s__text" fxFlexAlign="center">{{(file.attributes.fileSize / 1024).toFixed(2)}}Kb</p>
-                    </div>
-                    
-                  </div>
-              </md-card>
-            </ng-container>
-          </ng-container>
-        </ng-container>
-      </md-tab>-->
     </md-tab-group>
   </md-card>
 </div>

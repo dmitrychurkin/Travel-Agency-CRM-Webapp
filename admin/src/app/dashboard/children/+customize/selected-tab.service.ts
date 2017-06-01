@@ -66,6 +66,7 @@ export class SelectedTabService {
     ];
     currentlySelectedTab: IMenuTab;
     currentlySelectedChild: IMenuSubTab;
+    isChangesSaved = true;
 
     constructor(
         @Inject(DOCUMENT) private _document: Document,

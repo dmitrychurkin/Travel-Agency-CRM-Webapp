@@ -1,7 +1,7 @@
 <div *ngIf="contactsModel; else Spinner" fxLayout="column">
     <md-card fxFlexAlign="center" style="width:92%; margin: 30px 0">
         <md-tab-group *ngIf="contactsModel?.length > 0; else NoContactsYet" [dynamicHeight]="true" [(selectedIndex)]="selectedIndex" (selectChange)="onTabChange(selectedIndex)">
-            <md-tab [disabled]="selectedIndex != indexTab && isEditing" [label]="contact.group | uppercase" *ngFor="let contact of contactsModel; index as indexTab">
+            <md-tab [disabled]="selectedIndex != indexTab && _isEditing" [label]="contact.group | uppercase" *ngFor="let contact of contactsModel; index as indexTab">
                 <ng-container *ngIf="contact.values.length > 0; else NoContactsYet">
                     <div *ngFor="let contactType of contact.values; index as ind; count as num">
                         <h3>{{ind + 1}}. {{(modelEdit[ind]?.type || contactType.type || notSpecifiedMessage) | titlecase}} <span *ngIf="(contact.group | lowercase) === 'skype' && selectedTab?.values[0]?.type && ind == 0">*</span>:</h3>
@@ -57,7 +57,7 @@
     <div style="margin:10px 0" fxLayout="row" fxLayoutAlign="space-around">
         <button (click)="openDialog(deleteAction(), modalData)" md-raised-button color="primary">ADD GROUP</button>
         <button *ngIf="contactsModel?.length > 0" (click)="openDialog(deleteAction(contactsModel, selectedIndex), 'group')" md-raised-button color="warn">DELETE GROUP</button>
-        <button *ngIf="isNeedSaveChanges(objectRecord, contactsModel)" (click)="onSaveChanges()" md-raised-button color="warn">SAVE CHANGES</button>
+        <button #btnSaveRef *ngIf="isNeedSaveChanges(contactsModel)" (click)="onSave(btnSaveRef)" md-raised-button color="warn">SAVE CHANGES</button>
     </div>
 </div>
 

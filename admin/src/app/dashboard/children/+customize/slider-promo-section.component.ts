@@ -1,190 +1,8 @@
-import { Component } from '@angular/core';
-import { MdChip, MdDialog } from '@angular/material';
-import { ModalDialogComponent } from './modal-dialog.component';
+import { Component, OnInit, ChangeDetectorRef, Injector } from '@angular/core';
+import { MdChip, MdButton } from '@angular/material';
 import { BasicComponentClass } from './basic-component.class';
-import { SelectedTabService } from './selected-tab.service';
 import { SliderPromoModalComponent } from './slider-promo-modal.component';
-
-const fakeModelImages = {
-        data: [
-            {
-                type: 'slide',
-                id: 1,
-                attributes: {
-                    backgroundImage: '/images/3d-slider-1.jpg',
-                    title: 'African Safari Tours',
-
-                    description: `Lorem ipsum dolor sit amet, 
-                    consectetur adipisicing elit. 
-                    Distinctio veniam minus 
-                    illo debitis nihil animi facere, doloremque 
-                    voluptate tempore quia. Lorem ipsum dolor sit amet,
-                    consectetur adipisicing elit. Distinctio veniam 
-                    minus illo debitis nihil animi facere, doloremque 
-                    voluptate tempore quia.`,
-                    chips: [
-                        {
-                            destination: 'African Safari',
-                            avatar: '/images/yuna.jpg',
-                            starCount: 3
-                        },
-                        {
-                            destination: 'South African Safari',
-                            avatar: '/images/yuna.jpg',
-                            starCount: 4
-                        },
-                        {
-                            destination: 'Tanzania Safari',
-                            avatar: '/images/yuna.jpg',
-                            starCount: 2
-                        },
-                        {
-                            destination: 'Kenia Safari',
-                            avatar: '/images/yuna.jpg',
-                            starCount: 5
-                        }
-                    ]
-                }
-            },
-            {
-                type: 'slide',
-                id: 2,
-                attributes: {
-                    backgroundImage: '/images/3d-slider-2.jpg',
-                    title: 'European Tours',
-                    description: `Lorem ipsum dolor sit amet, 
-                    consectetur adipisicing elit. Distinctio 
-                    veniam minus illo debitis nihil animi facere, 
-                    doloremque voluptate tempore quia. Lorem ipsum dolor sit
-                    amet, consectetur adipisicing elit. Distinctio veniam 
-                    minus illo debitis nihil animi facere, doloremque
-                    voluptate tempore quia.`,
-                    chips: [
-                        {
-                            destination: 'Italy Tours',
-                            avatar: '/images/yuna.jpg',
-                            starCount: 3
-                        },
-                        {
-                            destination: 'Greece Tours',
-                            avatar: '/images/yuna.jpg',
-                            starCount: 4
-                        },
-                        {
-                            destination: 'Spain Tours',
-                            avatar: '/images/yuna.jpg',
-                            starCount: 4
-                        }
-                    ]
-                }
-            },
-            {
-                type: 'slide',
-                id: 3,
-                attributes: {
-                    backgroundImage: '/images/3d-slider-3.jpg',
-                    title: 'Asian Tours',
-                    description: `Lorem ipsum dolor sit amet, 
-                    consectetur adipisicing elit. Distinctio 
-                    veniam minus illo debitis nihil animi facere, 
-                    doloremque voluptate tempore quia. Lorem ipsum dolor sit
-                    amet, consectetur adipisicing elit. Distinctio veniam 
-                    minus illo debitis nihil animi facere, doloremque
-                    voluptate tempore quia.`,
-                    chips: [
-                        {
-                            destination: 'India Tours',
-                            avatar: '/images/yuna.jpg',
-                            starCount: 3
-                        },
-                        {
-                            destination: 'China Tours',
-                            avatar: '/images/yuna.jpg',
-                            starCount: 4
-                        },
-                        {
-                            destination: 'Vietnam Tours',
-                            avatar: '/images/yuna.jpg',
-                            starCount: 3
-                        },
-                        {
-                            destination: 'Thailand Tours',
-                            avatar: '/images/yuna.jpg',
-                            starCount: 5
-                        }
-                    ]
-                }
-            }
-        ]
-    };
-
-const publicImagesFakeModel = {
-    data: [
-        {
-            type: 'image',
-            id: 1,
-            links: {
-                self: '/images/yuna.jpg'
-            }
-        },
-        {
-            type: 'image',
-            id: 2,
-            links: {
-                self: '/images/cat1.jfif'
-            }
-        },
-        {
-            type: 'image',
-            id: 3,
-            links: {
-                self: '/images/cat2.jfif'
-            }
-        },
-        {
-            type: 'image',
-            id: 4,
-            links: {
-                self: '/images/cat3.jfif'
-            }
-        },
-        {
-            type: 'image',
-            id: 5,
-            links: {
-                self: '/images/cat4.jfif'
-            }
-        },
-        {
-            type: 'image',
-            id: 6,
-            links: {
-                self: '/images/cat5.jfif'
-            }
-        },
-        {
-            type: 'image',
-            id: 7,
-            links: {
-                self: '/images/3d-slider-1.jpg'
-            }
-        },
-        {
-            type: 'image',
-            id: 8,
-            links: {
-                self: '/images/3d-slider-2.jpg'
-            }
-        },
-        {
-            type: 'image',
-            id: 9,
-            links: {
-                self: '/images/3d-slider-3.jpg'
-            }
-        }
-    ]
-};
+import { filesUrl } from './file-storage-basic.class';
 
 @Component({
     selector: 'app-slider-promo-section',
@@ -207,12 +25,9 @@ const publicImagesFakeModel = {
         }
     `]
 })
-export class SliderPromoSectionComponent extends BasicComponentClass {
-    // private _editAction: 'TIT' | 'B_IMG' | 'DESC' | 'CHIP';
-    objectRecord: string;
+export class SliderPromoSectionComponent extends BasicComponentClass implements OnInit {
 
-    isEditing = false;
-
+    private _slidesUrl = '/api/slider-promo/';
     modelTitle: string;
     isTitleEditing = false;
     modelDesc: string;
@@ -220,24 +35,30 @@ export class SliderPromoSectionComponent extends BasicComponentClass {
     modelBgImg: IModelBgSlideImg  | object = {};
     modelChips: Array<IEditedChip> = [];
 
-    publicImagesFakeModel = publicImagesFakeModel;
-    fakeModelSlides = fakeModelImages;
+    publicImages: {
+        isRequestSent: boolean;
+        forChip: boolean;
+        data?: Array<{ id: string; type: 'image', links: { self: string } }>;
+    } = { isRequestSent: false, forChip: false };
 
-    constructor(_mdDialog: MdDialog, private _selectedTabService: SelectedTabService) {
-        super(_mdDialog);
-        // dev only
-        this.objectRecord = JSON.stringify(this.fakeModelSlides);
+    sliderModel: Array<ISlideProps>;
+
+    constructor(private _changeDetectorRef: ChangeDetectorRef, injector: Injector) {
+        super(injector);
+    }
+    ngOnInit() {
+        this._getResource(jsRes => this._setModelRecord(this.sliderModel = jsRes.data.attributes.slides), this._slidesUrl);
     }
     onOk(action: 'TIT' | 'B_IMG' | 'DESC' | 'CHIP', subject: ISlideProps | IChipProps, index?: number) {
         switch (action) {
             case 'TIT':
-                (<ISlideProps>subject).attributes.title = this.modelTitle;
+                (<ISlideProps>subject).title = this.modelTitle;
             break;
             case 'DESC':
-                (<ISlideProps>subject).attributes.description = this.modelDesc;
+                (<ISlideProps>subject).description = this.modelDesc;
             break;
             case 'B_IMG':
-                (<ISlideProps>subject).attributes.backgroundImage = (<IModelBgSlideImg>this.modelBgImg).modelUrl;
+                (<ISlideProps>subject).backgroundImage = (<IModelBgSlideImg>this.modelBgImg).modelUrl;
             break;
             case 'CHIP':
                 this.modelChips[index].chipRef.toggleSelected();
@@ -260,16 +81,17 @@ export class SliderPromoSectionComponent extends BasicComponentClass {
         switch (action) {
             case 'TIT':
                 this.isTitleEditing = true;
-                this.modelTitle = slide.attributes.title;
+                this.modelTitle = slide.title;
             break;
             case 'DESC':
                 this.isDescEditing = true;
-                this.modelDesc = slide.attributes.description;
+                this.modelDesc = slide.description;
             break;
             case 'B_IMG':
-                (<IModelBgSlideImg>this.modelBgImg).modelUrl = slide.attributes.backgroundImage;
+                (<IModelBgSlideImg>this.modelBgImg).modelUrl = slide.backgroundImage || '';
+                this._getPublicImages();
         }
-        this.isEditing = true;
+        this._isEditing = true;
     }
     onCancelEdit(action: 'TIT' | 'B_IMG' | 'DESC' | 'CHIP') {
         switch (action) {
@@ -295,14 +117,24 @@ export class SliderPromoSectionComponent extends BasicComponentClass {
             avatar: '',
             starCount: 0
         };
-        slide.attributes.chips.push(newChipProps);
+        slide.chips.push(newChipProps);
     }
-    getAvatarImage(chip: IChipProps, index: number) {
-        if (this.modelChips[index]) {
-            return this.modelChips[index].item.avatar;
+    getNaturalSize(imgRef: HTMLImageElement, property: string) {
+        if (!imgRef[property] && !imgRef.onload) {
+            imgRef.onload = () => this._changeDetectorRef.detectChanges();
+        }else if (imgRef[property] && imgRef.onload) {
+            imgRef.onload = null;
         }
-        return chip.avatar;
+        return imgRef[property];
     }
+    /*getAvatarImage(chip: IChipProps, index: number) {
+        const fn = avatarUrl => avatarUrl ? `url(${avatarUrl})` : !!avatarUrl;
+        if (this.modelChips[index]) {
+            console.log('index i = ', index, this.modelChips[index].item);
+            return fn(this.modelChips[index].item.avatar);
+        }
+        return fn(chip.avatar);
+    }*/
     getChipStarCount(chip: IChipProps, index: number) {
         const modelChipItem: IEditedChip = this.modelChips[index];
         if (modelChipItem) {
@@ -320,7 +152,8 @@ export class SliderPromoSectionComponent extends BasicComponentClass {
         }
         this.modelChips[index] = { chipRef, item: Object.assign({}, item) };
         chipRef.toggleSelected();
-        this.isEditing = true;
+        this._getPublicImages(true);
+        this._isEditing = true;
     }
 
     onStartCountChange(e, index: number) {
@@ -339,24 +172,24 @@ export class SliderPromoSectionComponent extends BasicComponentClass {
         this._checkEditingState();
     }
     onAddNewSlide() {
-        const lastElem = this.fakeModelSlides.data.length - 1;
-        const addBaseObject = {
+        const lastElem = this.sliderModel.length - 1;
+        const addBaseObject: ISlideProps = {
             type: 'slide',
-            id: this.fakeModelSlides.data[lastElem] ? this.fakeModelSlides.data[lastElem].id + 1 : 1,
-            attributes: {
-                title: '',
-                backgroundImage: '',
-                description: '',
-                chips: []
-            }
+            title: '',
+            backgroundImage: '',
+            description: '',
+            chips: []
         };
-        this.fakeModelSlides.data.push(addBaseObject);
+        this.sliderModel.push(addBaseObject);
     }
     onViewSlides() {
         const sliderPromoModal = this._selectedTabService.attachViewToDOM(SliderPromoModalComponent);
-        sliderPromoModal.instance.modelData = this.fakeModelSlides;
+        sliderPromoModal.instance.modelData = this.sliderModel;
         sliderPromoModal.instance.componentRef = sliderPromoModal;
-        console.log(sliderPromoModal);
+    }
+    onSave(btnRef: MdButton) {
+        super._onSaveChanges<Array<ISlideProps>>(this._slidesUrl, this.sliderModel)
+        (btnRef, { id: '1', type: 'slides', attr: { slides: this.sliderModel } });
     }
     private _clickImageHelper(assignTarget: any, imgRef: HTMLImageElement) {
         if (assignTarget.clickedImgRef) {
@@ -371,22 +204,31 @@ export class SliderPromoSectionComponent extends BasicComponentClass {
             Object.keys(this.modelBgImg).length === 0 &&
             this._isEditComplete<IEditedChip>(this.modelChips)) {
 
-            this.isEditing = false;
+            this._isEditing = false;
         }
     }
-
+    private _getPublicImages(forChip= false) {
+        if (!this.publicImages.data) {
+            if (forChip) {
+                this.publicImages.forChip = true;
+            }
+            this.publicImages.isRequestSent = true;
+            this._getResource(res => this.publicImages.data = res.data, filesUrl, { params: 'fields[locationFlag]=P' })
+                .then(() => this.publicImages.isRequestSent = false);
+        }
+    }
     deleteSubject(slideIndex: number, chipIndex?: number) {
-        return (subject: 'slide' | 'tour') => {
+        return (...args) => {
+            const[, subject] = args;
                 switch (subject) {
                     case 'slide': {
-                        this.fakeModelSlides.data.splice(slideIndex, 1);
+                        this.sliderModel.splice(slideIndex, 1);
                         this.modelChips.length = 0;
                     }
                     break;
                     case 'tour': {
-                        this.fakeModelSlides
-                            .data[slideIndex]
-                            .attributes
+                        this.sliderModel
+                            [slideIndex]
                             .chips
                             .splice(chipIndex, 1);
                         delete this.modelChips[chipIndex];
@@ -417,13 +259,13 @@ interface IImagesProps {
 }
 interface ISlideProps {
     type: 'slide';
-    id?: number;
-    attributes: {
-        backgroundImage: string;
-        title: string;
-        description: string;
-        chips: IChipProps[];
-    };
+    id?: number | string;
+
+    backgroundImage: string;
+    title: string;
+    description: string;
+    chips: IChipProps[];
+
 }
 interface IChipProps {
     destination: string;
