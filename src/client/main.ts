@@ -55,6 +55,7 @@ class WFW extends Utilities {
             // this._U_IReady(".Intersector", "IReady")(),
             document.querySelector(".Intersector")!.classList.add("IReady"),
             // this.S14.imLoader();
+            this._U_setBgAttrs();
             this.S14.getOffers();
             let videoEl = <HTMLVideoElement>document.querySelector(".S10__vid");
             videoEl.poster = "/images/Lonely-Blue.jpg";

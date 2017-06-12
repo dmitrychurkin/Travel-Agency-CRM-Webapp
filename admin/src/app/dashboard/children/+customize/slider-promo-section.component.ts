@@ -1,8 +1,10 @@
 import { Component, OnInit, ChangeDetectorRef, Injector } from '@angular/core';
 import { MdChip, MdButton } from '@angular/material';
-import { BasicComponentClass } from './basic-component.class';
+import { BasicActionsComponent } from './basic-actions-component.class';
 import { SliderPromoModalComponent } from './slider-promo-modal.component';
-import { filesUrl } from './file-storage-basic.class';
+import { ModelBasic, ModelImageService, ModelChip, IChipProps, IEditedChip } from './basic-model-types.class';
+
+// import { filesUrl } from './file-storage-basic.class';
 
 @Component({
     selector: 'app-slider-promo-section',
@@ -25,31 +27,70 @@ import { filesUrl } from './file-storage-basic.class';
         }
     `]
 })
-export class SliderPromoSectionComponent extends BasicComponentClass implements OnInit {
+export class SliderPromoSectionComponent extends BasicActionsComponent implements OnInit {
 
     private _slidesUrl = '/api/slider-promo/';
-    modelTitle: string;
-    isTitleEditing = false;
-    modelDesc: string;
-    isDescEditing = false;
-    modelBgImg: IModelBgSlideImg  | object = {};
+    // modelTitle: string;
+    // isTitleEditing = false;
+    modelTitle = new ModelBasic;
+    // modelDesc: string;
+    // isDescEditing = false;
+    modelDesc = new ModelBasic;
+
+    // modelBgImg: IModelBgSlideImg  | object = {};
+    modelBgImg = new ModelImageService;
+
     modelChips: Array<IEditedChip> = [];
 
-    publicImages: {
+    /*modelTemplate: ISlideProps = {
+            type: 'slide',
+            title: '',
+            backgroundImage: '',
+            description: '',
+            chips: []
+    };*/
+    /*chipTemplate: IChipProps = {
+            destination: '',
+            avatar: '',
+            starCount: 0
+    };*/
+    /*publicImages: {
         isRequestSent: boolean;
         forChip: boolean;
         data?: Array<{ id: string; type: 'image', links: { self: string } }>;
-    } = { isRequestSent: false, forChip: false };
+    } = { isRequestSent: false, forChip: false };*/
 
-    sliderModel: Array<ISlideProps>;
+    // sliderModel: Array<ISlideProps>;
 
-    constructor(private _changeDetectorRef: ChangeDetectorRef, injector: Injector) {
+    constructor(/*private _changeDetectorRef: ChangeDetectorRef,*/ injector: Injector) {
         super(injector);
+        this._setArrayOfComponentModels(
+            this.modelTitle,
+            this.modelDesc,
+            this.modelBgImg,
+            this.modelChips
+        );
     }
     ngOnInit() {
-        this._getResource(jsRes => this._setModelRecord(this.sliderModel = jsRes.data.attributes.slides), this._slidesUrl);
+        this._getResource(jsRes => this._setModelRecord(this.componentModel = jsRes.data.attributes.slides), this._slidesUrl);
     }
-    onOk(action: 'TIT' | 'B_IMG' | 'DESC' | 'CHIP', subject: ISlideProps | IChipProps, index?: number) {
+    get modelTemplate(): ISlideProps {
+        return {
+            type: 'slide',
+            title: '',
+            backgroundImage: '',
+            description: '',
+            chips: []
+        };
+    }
+    get chipTemplate(): IChipProps {
+        return {
+            destination: '',
+            avatar: '',
+            starCount: 0
+        };
+    }
+    /*onOk(action: 'TIT' | 'B_IMG' | 'DESC' | 'CHIP', subject: ISlideProps | IChipProps, index?: number) {
         switch (action) {
             case 'TIT':
                 (<ISlideProps>subject).title = this.modelTitle;
@@ -72,12 +113,12 @@ export class SliderPromoSectionComponent extends BasicComponentClass implements 
         }
 
         this.onCancelEdit(action);
-    }
-    onBackgroundImgClick(image: IImagesProps, slideImgRef: HTMLImageElement) {
+    }*/
+    /*onBackgroundImgClick(image: IImagesProps, slideImgRef: HTMLImageElement) {
         (<IModelBgSlideImg>this.modelBgImg).modelUrl = image.links.self;
         this._clickImageHelper(this.modelBgImg, slideImgRef);
-    }
-    onEdit(slide: ISlideProps, action: 'TIT' | 'B_IMG' | 'DESC') {
+    }*/
+    /*onEdit(slide: ISlideProps, action: 'TIT' | 'B_IMG' | 'DESC') {
         switch (action) {
             case 'TIT':
                 this.isTitleEditing = true;
@@ -92,8 +133,8 @@ export class SliderPromoSectionComponent extends BasicComponentClass implements 
                 this._getPublicImages();
         }
         this._isEditing = true;
-    }
-    onCancelEdit(action: 'TIT' | 'B_IMG' | 'DESC' | 'CHIP') {
+    }*/
+    /*onCancelEdit(action: 'TIT' | 'B_IMG' | 'DESC' | 'CHIP') {
         switch (action) {
             case 'TIT': {
                 delete this.modelTitle;
@@ -110,23 +151,23 @@ export class SliderPromoSectionComponent extends BasicComponentClass implements 
         }
 
         this._checkEditingState();
-    }
-    addNewTour(slide: ISlideProps) {
+    }*/
+    /*addNewTour(slide: ISlideProps) {
         const newChipProps: IChipProps = {
             destination: '',
             avatar: '',
             starCount: 0
         };
         slide.chips.push(newChipProps);
-    }
-    getNaturalSize(imgRef: HTMLImageElement, property: string) {
+    }*/
+    /*getNaturalSize(imgRef: HTMLImageElement, property: string) {
         if (!imgRef[property] && !imgRef.onload) {
             imgRef.onload = () => this._changeDetectorRef.detectChanges();
         }else if (imgRef[property] && imgRef.onload) {
             imgRef.onload = null;
         }
         return imgRef[property];
-    }
+    }*/
     /*getAvatarImage(chip: IChipProps, index: number) {
         const fn = avatarUrl => avatarUrl ? `url(${avatarUrl})` : !!avatarUrl;
         if (this.modelChips[index]) {
@@ -150,7 +191,7 @@ export class SliderPromoSectionComponent extends BasicComponentClass implements 
         if (this.modelChips[index]) {
             return;
         }
-        this.modelChips[index] = { chipRef, item: Object.assign({}, item) };
+        this.modelChips[index] = new ModelChip(item, chipRef);
         chipRef.toggleSelected();
         this._getPublicImages(true);
         this._isEditing = true;
@@ -166,12 +207,12 @@ export class SliderPromoSectionComponent extends BasicComponentClass implements 
             this.modelChips[index].item.starCount = count;
         }
     }
-    onEditChipCancel(chip: IChipProps, index: number) {
+    /*onEditChipCancel(chip: IChipProps, index: number) {
         this.modelChips[index].chipRef.toggleSelected();
         delete this.modelChips[index];
         this._checkEditingState();
-    }
-    onAddNewSlide() {
+    }*/
+    /*onAddNewSlide() {
         const lastElem = this.sliderModel.length - 1;
         const addBaseObject: ISlideProps = {
             type: 'slide',
@@ -181,24 +222,24 @@ export class SliderPromoSectionComponent extends BasicComponentClass implements 
             chips: []
         };
         this.sliderModel.push(addBaseObject);
-    }
+    }*/
     onViewSlides() {
         const sliderPromoModal = this._selectedTabService.attachViewToDOM(SliderPromoModalComponent);
-        sliderPromoModal.instance.modelData = this.sliderModel;
+        sliderPromoModal.instance.modelData = this.componentModel;
         sliderPromoModal.instance.componentRef = sliderPromoModal;
     }
     onSave(btnRef: MdButton) {
-        super._onSaveChanges<Array<ISlideProps>>(this._slidesUrl, this.sliderModel)
-        (btnRef, { id: '1', type: 'slides', attr: { slides: this.sliderModel } });
+        super._onSaveChanges<Array<ISlideProps>>(this._slidesUrl, this.componentModel)
+        (btnRef, { id: '1', type: 'slides', attr: { slides: this.componentModel } });
     }
-    private _clickImageHelper(assignTarget: any, imgRef: HTMLImageElement) {
+    /*private _clickImageHelper(assignTarget: any, imgRef: HTMLImageElement) {
         if (assignTarget.clickedImgRef) {
             assignTarget.clickedImgRef.style.opacity = '';
         }
         assignTarget.clickedImgRef = imgRef;
         imgRef.style.opacity = .5.toString();
-    }
-    private _checkEditingState() {
+    }*/
+    /*private _checkEditingState() {
         if (!this.isTitleEditing &&
             !this.isDescEditing &&
             Object.keys(this.modelBgImg).length === 0 &&
@@ -206,8 +247,8 @@ export class SliderPromoSectionComponent extends BasicComponentClass implements 
 
             this._isEditing = false;
         }
-    }
-    private _getPublicImages(forChip= false) {
+    }*/
+    /*private _getPublicImages(forChip= false) {
         if (!this.publicImages.data) {
             if (forChip) {
                 this.publicImages.forChip = true;
@@ -216,18 +257,19 @@ export class SliderPromoSectionComponent extends BasicComponentClass implements 
             this._getResource(res => this.publicImages.data = res.data, filesUrl, { params: 'fields[locationFlag]=P' })
                 .then(() => this.publicImages.isRequestSent = false);
         }
-    }
+    }*/
     deleteSubject(slideIndex: number, chipIndex?: number) {
         return (...args) => {
             const[, subject] = args;
                 switch (subject) {
                     case 'slide': {
-                        this.sliderModel.splice(slideIndex, 1);
+                        this.componentModel.splice(slideIndex, 1);
+                        this._resetAllModels();
                         this.modelChips.length = 0;
                     }
                     break;
                     case 'tour': {
-                        this.sliderModel
+                        this.componentModel
                             [slideIndex]
                             .chips
                             .splice(chipIndex, 1);
@@ -241,22 +283,22 @@ export class SliderPromoSectionComponent extends BasicComponentClass implements 
     }
 
 }
-interface IModelBgSlideImg {
+/*interface IModelBgSlideImg {
     clickedImgRef: HTMLImageElement;
     modelUrl: string;
-}
-interface IEditedChip {
+}*/
+/*interface IEditedChip {
     chipRef: MdChip;
     item: IChipProps;
     clickedImgRef?: HTMLImageElement;
-}
-interface IImagesProps {
+}*/
+/*interface IImagesProps {
     type: 'image';
     id: number;
     links: {
         self: string;
     };
-}
+}*/
 interface ISlideProps {
     type: 'slide';
     id?: number | string;
@@ -267,8 +309,8 @@ interface ISlideProps {
     chips: IChipProps[];
 
 }
-interface IChipProps {
+/*interface IChipProps {
     destination: string;
     avatar: string;
     starCount: number;
-}
+}*/

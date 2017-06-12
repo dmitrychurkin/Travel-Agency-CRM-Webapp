@@ -44,6 +44,14 @@
 .fs__menu-cont {
     width: 50px;
 }
+.f-s__img-ico {
+    font-size: 10em;
+    position: relative;
+    top: -5px;
+    left: 43px;
+    text-shadow: 1px 1px 2px #808080;
+    color: #808080;
+}
 /*.menu-item {
     width: 70%;
 }

@@ -18,6 +18,7 @@ import { IRegistrationCredentials, IRequestForRegistration, IAdminData } from '.
 export class AdminRegistrationComponent implements OnInit, AfterViewChecked {
     checked: boolean;
     isCanEdit = false;
+    fbMess = 'Incorrect input';
     endPoint = '/api/register-new/';
     _isSend = false;
     constructor(

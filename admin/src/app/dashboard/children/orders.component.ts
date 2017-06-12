@@ -17,7 +17,7 @@ export class OrdersComponent implements OnInit {
     private MainOrders: Array<IOrdersData>;
     constructor(
         private ordersService: OrdersService,
-        private webSocketService: WebSocketService
+        public webSocketService: WebSocketService
         ) {}
     calcIndex(item: IPortUserOrder) {
         return OrdersService.ordersRegistry.indexOf(item.orderId) + 1;

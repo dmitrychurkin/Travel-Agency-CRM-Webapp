@@ -10,7 +10,7 @@ class MainController {
         this._siteProperties = "siteContacts sliderPromo";
     }
     get _DBRef() {
-        return models_1.SiteModel.findById(serverConfig_1.default.SITE_ID);
+        return models_1.LandingPageModel.findById(serverConfig_1.default.LANDING_PAGE_ID);
     }
     getSitePropsController() {
         let DBRef;

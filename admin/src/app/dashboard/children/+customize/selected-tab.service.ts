@@ -31,13 +31,31 @@ export class SelectedTabService {
             ico: 'developer_board',
             children: [
                 {
+                    tabName: 'Our Key People (S6)',
+                    _name: 'key_people',
+                    ico: 'supervisor_account',
+                    isActive: false
+                },
+                {
                     tabName: 'Slider Promo Section (S8)',
                     _name: 'slider',
                     ico: 'perm_media',
                     isActive: false
                 },
                 {
-                    tabName: 'Offers section (S14)',
+                    tabName: 'Customers Reviews(S9)',
+                    _name: 'reviews',
+                    ico: 'thumbs_up_down',
+                    isActive: false
+                },
+                {
+                    tabName: 'Our Sponsores(S12)',
+                    _name: 'sponsores',
+                    ico: 'trending_up',
+                    isActive: false
+                },
+                {
+                    tabName: 'Offers Section (S14)',
                     _name: 'offers',
                     ico: 'stars',
                     isActive: false
@@ -69,7 +87,7 @@ export class SelectedTabService {
     isChangesSaved = true;
 
     constructor(
-        @Inject(DOCUMENT) private _document: Document,
+        @Inject(DOCUMENT) private _document: any,
         private _componentFactoryResolver: ComponentFactoryResolver,
         private _appRef: ApplicationRef,
         private _injector: Injector

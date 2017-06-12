@@ -23,7 +23,7 @@ export class ModalDialogComponent implements OnInit {
     isDataObject: boolean;
     name: string;
     constructor(
-        @Inject(MD_DIALOG_DATA) private data: string | IModalData,
+        @Inject(MD_DIALOG_DATA) public data: any,
         public dialogRef: MdDialogRef<ModalDialogComponent>
     ) {}
     ngOnInit() {

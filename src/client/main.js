@@ -32,7 +32,8 @@ var WFW = (function (_super) {
         var _this = _super.call(this) || this;
         var fnImages = function () {
             document.querySelector(".Intersector").classList.add("IReady"),
-                _this.S14.getOffers();
+                _this._U_setBgAttrs();
+            _this.S14.getOffers();
             var videoEl = document.querySelector(".S10__vid");
             videoEl.poster = "/images/Lonely-Blue.jpg";
         };

@@ -10,7 +10,7 @@ class SiteContactsController {
         if (CACHE) {
             return Promise.resolve(CACHE);
         }
-        return models_1.SiteModel.findById(serverConfig_1.default.SITE_ID)
+        return models_1.LandingPageModel.findById(serverConfig_1.default.LANDING_PAGE_ID)
             .select("siteContacts -_id")
             .then(({ siteContacts }) => {
             app_1.Application.express.set("siteContacts", siteContacts);
@@ -39,17 +39,20 @@ class SiteContactsController {
     }
     updateContacts_JsonAPI() {
         return (req, res) => {
-            if (req && req.body && req.body.data && req.body.data.attributes && req.body.data.attributes.contacts && services_1.JsonAPI.validateRequest(req, res)) {
+            if (!services_1.JsonAPI.validateRequest(req, res)) {
+                return;
+            }
+            if (req && req.body && req.body.data && req.body.data.attributes && req.body.data.attributes.contacts) {
                 const { contacts } = req.body.data.attributes;
                 const siteContacts = { siteContacts: contacts };
-                return models_1.SiteModel.findByIdAndUpdate(serverConfig_1.default.SITE_ID, { $set: siteContacts }, { new: true, select: "siteContacts -_id" })
+                return models_1.LandingPageModel.findByIdAndUpdate(serverConfig_1.default.LANDING_PAGE_ID, { $set: siteContacts }, { new: true, select: "siteContacts -_id" })
                     .then(({ siteContacts }) => {
                     app_1.Application.express.set("siteContacts", siteContacts);
                     res.status(204).end();
                 })
-                    .catch(() => !res.headersSent ? res.status(500).end() : null);
+                    .catch(() => res.status(500).end());
             }
-            return !res.headersSent ? res.status(403).end() : null;
+            return res.status(403).end();
         };
     }
 }

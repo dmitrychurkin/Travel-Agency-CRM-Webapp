@@ -9,8 +9,17 @@ export interface IArrOfFontsArgs {
 }
 declare let IntersectionObserver: any;
 export default class Utilities {
+    // data-backgroung
+    private _bgAttr = "data-background-url";
     // Release a polyfills method
     private _S_reserved: symbol = Symbol();
+    protected _U_setBgAttrs() {
+        const targets = Array.from(document.querySelectorAll(`[${this._bgAttr}]`)) as HTMLElement[];
+        for (const el of targets) {
+            el.style.backgroundImage = `url(${el.getAttribute(this._bgAttr)})`;
+            el.removeAttribute(this._bgAttr);
+        }
+    }
     _U_Polyfill_Helper() {
         RequestAnimFrame();
     }

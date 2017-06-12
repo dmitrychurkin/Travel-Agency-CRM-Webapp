@@ -2,20 +2,62 @@ import { Response, RequestMethod } from '@angular/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { IFileStoragePortResponse, IFileAttr, IFileEntity } from 'app/Interfaces';
 import { async } from 'rxjs/scheduler/async';
-import { BasicComponentClass } from './basic-component.class';
+import { BasicComponentClass, filesUrl } from './basic-component.class';
 declare const System: any;
 
-export const filesUrl = '/api/files';
 
 export class FileStorageBasic extends BasicComponentClass {
+    private static _files: IFileStoragePortResponse;
     private _downloadFilesURL = '/api/download';
     private UPLOADER: any;
     private qq: any;
-    private simpleThumbnail: SafeHtml;
+    protected _FTP_Empty_flags = {
+        'file storage': !!1,
+        'public images': !!1,
+        'offers': !!1,
+        'public media': !!1,
+        'public docs': !!1
+    };
+    simpleThumbnail: SafeHtml;
 
     filesResponse: IFileStoragePortResponse;
 
-
+    allowedFileTypes = {
+        images: {
+            mimes: 'image/jpeg,image/png,image/gif,image/tiff,image/bmp,',
+            exts: ['jpg', 'jpeg', 'png', 'gif', 'tiff', 'bmp', 'jfif']
+        },
+        media: {
+            mimes: 'video/avi,video/mpeg,video/webm,video/ogg,audio/ogg,audio/webm,audio/x-wav,audio/aac,',
+            exts: ['avi', 'mp4', 'mpeg', 'webm', 'ogv', 'ogg', 'mp3', 'weba', 'wav', 'oga', 'aac']
+        },
+        docs: {
+            mimes: 'application/pdf,text/plain,application/msword',
+            exts: ['pdf', 'txt', 'doc', 'docx']
+        }
+    };
+    tabs = [
+      {
+          name: 'file storage',
+          flag: 'S'
+      },
+      {
+          name: 'public images',
+          flag: 'P'
+      },
+      {
+          name: 'offers',
+          flag: 'O'
+      },
+      {
+          name: 'public media',
+          flag: 'P'
+      },
+      {
+          name: 'public docs',
+          flag: 'P'
+      }
+    ];
     protected renameFileFields = {
        modelFileName: '',
        fileId: '',
@@ -24,8 +66,14 @@ export class FileStorageBasic extends BasicComponentClass {
            this.modelFileName = this.fileId = this.fileExt = '';
        }
     };
-    constructor(private _domSanitizer: DomSanitizer, injector) {
-        super(injector);
+    protected _fetchAllFiles() {
+        if (FileStorageBasic._files) {
+            this.filesResponse = FileStorageBasic._files;
+            return Promise.resolve(this.filesResponse.data);
+        }
+
+        return this._getResource(jsRes => FileStorageBasic._files = this.filesResponse = jsRes, filesUrl)
+                    .then(() => this.filesResponse.data);
     }
     protected MOVE(file: IFileAttr, response: Response, moveToFlag: 'S' | 'P' | 'O') {
         const{ status, ok } = response;
@@ -89,6 +137,7 @@ export class FileStorageBasic extends BasicComponentClass {
                 .then(() => {
                     this._isRequestSent = false;
                     this.renameFileFields.cancelAll();
+                    this._setFTP_Flags_IsEmpty();
                     if (ACTION !== 'RENAME') {
                         this._progressBarService.emmiter.emit(false);
                     }
@@ -123,8 +172,57 @@ export class FileStorageBasic extends BasicComponentClass {
             }
         }
     }
+    protected _getFileExt(fileName: string) {
+        return fileName.split('.')[1];
+    }
+    protected _setFTP_Flags_IsEmpty(allFiles?: Array<IFileAttr>) {
+        const FilesToIterate =  allFiles || this.filesResponse.data;
+        const { images, media, docs } = this.allowedFileTypes;
+
+        const _indicators = Array( this.tabs.length ).fill(!!1);
+
+        for (const { attributes: { locationFlag, fileName } } of FilesToIterate) {
+            if ( locationFlag === this.tabs[0].flag && _indicators[0] ) {
+                delete _indicators[0];
+                this._FTP_Empty_flags[ this.tabs[0].name ] = false;
+
+            }else if ( locationFlag === this.tabs[1].flag && _indicators[1] && images.exts.includes( this._getFileExt(fileName) ) ) {
+                delete _indicators[1];
+                this._FTP_Empty_flags[ this.tabs[1].name ] = false;
+
+                                                            // for offers only images
+            }else if ( locationFlag === this.tabs[2].flag && _indicators[2] && images.exts.includes( this._getFileExt(fileName) ) ) {
+                delete _indicators[2];
+                this._FTP_Empty_flags[ this.tabs[2].name ] = false;
+
+            }else if ( locationFlag === this.tabs[3].flag && _indicators[3] && media.exts.includes( this._getFileExt(fileName) ) ) {
+                delete _indicators[3];
+                this._FTP_Empty_flags[ this.tabs[3].name ] = false;
+
+            }else if ( locationFlag === this.tabs[4].flag && _indicators[4] && docs.exts.includes( this._getFileExt(fileName) ) ) {
+                delete _indicators[4];
+                this._FTP_Empty_flags[ this.tabs[4].name ] = false;
+            }
+        }
+        _indicators.forEach((item, i) => {
+            if (item) {
+                this._FTP_Empty_flags[ this.tabs[i].name ] = true;
+            }
+        });
+    }
+    private _concatFilePropsTypes() {
+        let mimes = '', exts = [];
+        for (const fileType in this.allowedFileTypes) {
+            if (typeof this.allowedFileTypes[fileType] === 'object') {
+                mimes += this.allowedFileTypes[fileType].mimes;
+                exts = exts.concat(this.allowedFileTypes[fileType].exts);
+            }
+        }
+        return [mimes, exts];
+    }
     protected _onFileStorageActive() {
         const $this = this;
+        const allowedFileTypesArr = this._concatFilePropsTypes();
         System.import('file-uploader.js').then(qq => {
             this.qq = qq;
             this.UPLOADER = new qq.FineUploader({
@@ -148,8 +246,8 @@ export class FileStorageBasic extends BasicComponentClass {
                         enableAuto: true
                     },
                     validation: {
-                        acceptFiles: 'image/jpeg,image/png,image/gif,image/tiff,image/bmp',
-                        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'tiff', 'bmp']
+                        acceptFiles: allowedFileTypesArr[0],
+                        allowedExtensions: allowedFileTypesArr[1]
                     },
                     callbacks: {
                         onError: (id, name, errorReason, xhrOrXdr) => {
@@ -260,7 +358,7 @@ export class FileStorageBasic extends BasicComponentClass {
             </script>
             `;
 
-        this.simpleThumbnail = this._domSanitizer.bypassSecurityTrustHtml(template);
+        this.simpleThumbnail = this._sanitize(template);
     }
     private _f_u__Patch(fileUploaderLink) {
         // Patch for cancel / retry buttons

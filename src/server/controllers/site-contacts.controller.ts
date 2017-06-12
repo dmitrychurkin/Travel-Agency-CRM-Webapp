@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { JsonAPI } from "../services";
-import { SiteModel } from "../models";
+import { LandingPageModel } from "../models";
 import ServerConfig from "../serverConfig";
 import { Application } from "../app";
 
@@ -11,7 +11,7 @@ class SiteContactsController {
         if (CACHE) {
             return Promise.resolve(CACHE);
         }
-        return SiteModel.findById(ServerConfig.SITE_ID)
+        return LandingPageModel.findById(ServerConfig.LANDING_PAGE_ID)
                             .select("siteContacts -_id")
                             .then(({ siteContacts }: any) => {
                                 Application.express.set("siteContacts", siteContacts);
@@ -41,17 +41,20 @@ class SiteContactsController {
     }
     updateContacts_JsonAPI() {
         return (req: Request, res: Response) => {
-            if (req && req.body && req.body.data && req.body.data.attributes && req.body.data.attributes.contacts && JsonAPI.validateRequest(req, res)) {
+            if (!JsonAPI.validateRequest(req, res)) {
+                return;
+            }
+            if (req && req.body && req.body.data && req.body.data.attributes && req.body.data.attributes.contacts) {
                 const{ contacts } = req.body.data.attributes;
                 const siteContacts = { siteContacts: contacts };
-                return SiteModel.findByIdAndUpdate(ServerConfig.SITE_ID, { $set: siteContacts }, { new: true, select: "siteContacts -_id" })
+                return LandingPageModel.findByIdAndUpdate(ServerConfig.LANDING_PAGE_ID, { $set: siteContacts }, { new: true, select: "siteContacts -_id" })
                                 .then(({ siteContacts }: any) => {
                                     Application.express.set("siteContacts", siteContacts);
                                     res.status(204).end();
                                 })
-                                .catch(() => !res.headersSent ? res.status(500).end() : null);
+                                .catch(() => res.status(500).end());
             }
-            return !res.headersSent ? res.status(403).end() : null;
+            return res.status(403).end();
         };
     }
 }

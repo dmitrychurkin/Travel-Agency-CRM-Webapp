@@ -8,12 +8,15 @@ import { Subscription } from 'rxjs/Subscription';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
+  host: {
+    style: 'display: block;z-index:0;position:relative;'
+  }
 })
 export class AppComponent implements OnInit, OnDestroy {
   private _sub_progBar: Subscription;
   private _sub_err: Subscription;
-  private isActive: boolean;
+  public isActive: boolean;
   private _timemarkInitial: number;
   constructor(
     private snackBar: MdSnackBar,

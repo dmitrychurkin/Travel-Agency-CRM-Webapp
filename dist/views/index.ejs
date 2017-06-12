@@ -431,7 +431,7 @@
                     <div class="S8__slides">
                     <% let slideBGLeft = 50, slideLeft = -100; app.sliderPromo.forEach( (slide, slideIndex) => {  -%>
                         <div class="S8__slide S8__s<%=slideIndex%> <%= slideIndex==0 ? 'S8__active' : ''%>" style="left: <%=slideLeft += 100%>%">
-                            <div class="S8__s-b" style="background-image: url(<%=slide.backgroundImage%>); left: <%=slideBGLeft -= 50%>%"></div>
+                            <div class="S8__s-b" data-background-url="<%=slide.backgroundImage%>" style="left: <%=slideBGLeft -= 50%>%"></div>
                             <div class="S8__s-c">
                                 <div class="S8__ctrl S8__c_left S8__inactive"></div>
                                 <div class="S8__ctrl S8__c_right"></div>
@@ -448,7 +448,7 @@
                                 <% slide.chips.forEach( (chip, chipIndex) => { -%>
                                     <div class="chip">
                                         <div class="chip__cont">
-                                            <div class="chip__bg" style="background-image: url(<%=chip.avatar%>)"></div>
+                                            <div class="chip__bg" data-background-url="<%=chip.avatar%>"></div>
                                             <p class="chip__capt"><%=chip.destination%></p>
                                             <div data-star-count="<%=chip.starCount%>" class="chip__stars">
                                             <% if (slideIndex == 0 && chipIndex == 0) { -%>

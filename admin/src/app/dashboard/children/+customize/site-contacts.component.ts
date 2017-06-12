@@ -17,7 +17,7 @@ export class SiteContactsComponent extends BasicComponentClass implements OnInit
 
     isSkypeHas = false;
     modelEdit: Array<IContactType | undefined> = [];
-    selectedIndex = 0;
+
     selectedTab: IContactGroup;
     contactsModel: Array<IContactGroup>;
 
@@ -54,7 +54,7 @@ export class SiteContactsComponent extends BasicComponentClass implements OnInit
                 }
                 this.contactsModel.push({ group: newTabName, values: [] });
                 if (!this.selectedTab) {
-                    this.selectedTab = this.contactsModel[this.selectedIndex = 0];
+                    this.selectedTab = this.contactsModel[this.tabIndex = 0];
                 }
             }
         };

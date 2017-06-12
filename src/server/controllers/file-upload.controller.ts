@@ -18,11 +18,31 @@ import {
 class FileUploadController {
     static fileInputName = "qqfile";
     static pathToStorage = ServerConfig.FILE_STORAGE.PATH_TO_STORAGE; // path.resolve(__dirname, "../fileUploads");
-    static maxStorageSize = ServerConfig.FILE_STORAGE.MAX_STORAGE_SIZE; // 30000 * 1024;
+    static maxStorageSize = ServerConfig.FILE_STORAGE.MAX_STORAGE_SIZE; // 100000 * 1024;
 
     static offersPath = ServerConfig.FILE_STORAGE.PATH_TO_OFFERS; // path.resolve(__dirname, "../public/offers");
-    static publicPath = ServerConfig.FILE_STORAGE.PATH_TO_PUBLIC;
+    // static publicPath__IMAGES = ServerConfig.FILE_STORAGE.PATH_TO_PUBLIC_IMAGES;
+    // static publicPath__MEDIA = ServerConfig.FILE_STORAGE.PATH_TO_PUBLIC_MEDIA;
+    // static publicPath__DOCS = ServerConfig.FILE_STORAGE.PATH_TO_PUBLIC_DOCS;
     static maxFileSize = ServerConfig.FILE_STORAGE.MAX_FILE_SIZE;
+
+    static fileExtensionRelation = [
+        {
+            extensions: ["jpg", "jpeg", "png", "gif", "tiff", "bmp", "jfif"],
+            location: ServerConfig.FILE_STORAGE.PATH_TO_PUBLIC_IMAGES,
+            serveLocation: ServerConfig.FILE_STORAGE.SERVED_PUBLIC_IMAGES
+        },
+        {
+            extensions: ["avi", "mp4", "mpeg", "webm", "ogv", "ogg", "mp3", "weba", "wav", "oga", "aac"],
+            location: ServerConfig.FILE_STORAGE.PATH_TO_PUBLIC_MEDIA,
+            serveLocation: ServerConfig.FILE_STORAGE.SERVED_PUBLIC_MEDIA
+        },
+        {
+            extensions: ["pdf", "txt", "doc", "docx"],
+            location: ServerConfig.FILE_STORAGE.PATH_TO_PUBLIC_DOCS,
+            serveLocation: ServerConfig.FILE_STORAGE.PATH_TO_PUBLIC_DOCS
+        }
+    ];
 
     private _failWithTooBigFile(responseData: IResponseData, res: Response) {
         responseData.error = "Too big!";
@@ -41,7 +61,7 @@ class FileUploadController {
         }
         return true;
     }
-    private _moveUploadedFile(file: IFileEntity, fileStorageMongooseDoc: Document, success: () => void, failure: () => void) {
+    private _moveUploadedFile(file: IFileEntity, fileStorageMongooseDoc: Document, success: () => void, failure: (e?: Error) => void) {
         const destinationFile = path.resolve(FileUploadController.pathToStorage, file.storageFilename);
         /*const sourceStream = fs.createReadStream(file.path);
         const destStream = fs.createWriteStream(destinationFile);
@@ -84,7 +104,7 @@ class FileUploadController {
     private _onSimpleUpload(fields: IMultipartyParsedFields, file: IFileEntity, responseData: IResponseData, fileStorageMongooseDoc: Document, res: Response, req: Request) {
         const{ files } = <any>fileStorageMongooseDoc;
 
-        const fileNameWithExtension = file.originalFilename.toString();
+        const fileNameWithExtension = fields.qqfilename.toString() || file.originalFilename.toString();
         file.storageFilename = fileNameWithExtension;
         file.uuid = fields.qquuid.toString();
         if ( !this._isFileNameUnique(files, fileNameWithExtension) ) {
@@ -94,6 +114,12 @@ class FileUploadController {
 
         if (this._isValidFileSize(file.size)) {
             this._moveUploadedFile(file, fileStorageMongooseDoc, () => {
+                        let serveDestination: string;
+                        try {
+                            serveDestination = this._serveDestHelper("S", file.storageFilename);
+                        }catch (e) {
+                            throw e;
+                        }
                         responseData = Object.assign(responseData, {
                             data: {
                                 attributes: {
@@ -104,15 +130,15 @@ class FileUploadController {
                                 id: file.uuid,
                                 type: "files",
                                 links: {
-                                    self: `${getResourceUrl(req)}${this._serveDestHelper("S")}${file.storageFilename}`
+                                    self: `${getResourceUrl(req)}${serveDestination}${file.storageFilename}`
                                 }
                             },
                             success: true
                         });
                         res.send(responseData);
                     },
-                    () => {
-                        responseData.error = "Problem copying the file!";
+                    (e: Error) => {
+                        responseData.error = (e && e.message) || "Problem copying the file!";
                         res.send(responseData);
                     });
         }else {
@@ -194,40 +220,53 @@ class FileUploadController {
         CACHE.offers = offers;
         Application.express.set("offers", CACHE);
     }
+    private _getAppropriateLocation(fileName: string, isToServe= false) {
+        for (const extensionGroup of FileUploadController.fileExtensionRelation) {
+            if ( extensionGroup.extensions.includes( fileName.split(".")[1] ) ) {
+                return isToServe ? extensionGroup.serveLocation : extensionGroup.location;
+            }
+        }
+            throw new Error("Invalid file extension");
+    }
     private _pathResolver(locationFlag: "S" | "P" | "O", storageFilename: string) {
-        const { pathToStorage, publicPath, offersPath } = FileUploadController;
-        return locationFlag === "S" ?
-                    path.resolve(pathToStorage, storageFilename) :
-                locationFlag === "P" ?
-                    path.resolve(publicPath, storageFilename) :
-                    path.resolve(offersPath, storageFilename);
+        const { pathToStorage, offersPath } = FileUploadController;
+        if (locationFlag === "S") {
+            return path.resolve(pathToStorage, storageFilename);
+        }else if (locationFlag === "P") {
+            return path.resolve( this._getAppropriateLocation( storageFilename ), storageFilename );
+        }
+        return path.resolve(offersPath, storageFilename);
     }
     private _deleteFileHelper({ locationFlag , storageFilename, fileSize, _id }: { locationFlag: "S" | "P" | "O", storageFilename: string, fileSize: number, _id: string }, res: Response) {
-
-        const PathToDelete = this._pathResolver(locationFlag, storageFilename);
-        return rimraf(PathToDelete, err => {
-                if (err) {
-                    return res.status(500).end();
-                }
-            return FileStorageModel.findByIdAndUpdate(ServerConfig.FILE_STORAGE.DB_ID, {
-                    $inc: { currentStorageSize: -fileSize },
-                    $pull: { files: { _id } }
-                }, { new: true, select: "files offers -_id" })
-                .then((resultAfterUpdate: any) => {
-                    this._cacheSync(resultAfterUpdate);
-                    res.status(204).end();
-                })
-                .catch(() => res.status(500).end());
-        });
+        try {
+            const PathToDelete = this._pathResolver(locationFlag, storageFilename);
+            return rimraf(PathToDelete, err => {
+                    if (err) {
+                        return res.status(500).end();
+                    }
+                return FileStorageModel.findByIdAndUpdate(ServerConfig.FILE_STORAGE.DB_ID, {
+                        $inc: { currentStorageSize: -fileSize },
+                        $pull: { files: { _id } }
+                    }, { new: true, select: "files offers -_id" })
+                    .then((resultAfterUpdate: any) => {
+                        this._cacheSync(resultAfterUpdate);
+                        res.status(204).end();
+                    })
+                    .catch(() => res.status(500).end());
+            });
+        }catch (e) {
+            res.status(500).end();
+        }
     }
 
-    private _serveDestHelper(locationFlag: "S" | "O" | "P") {
-        const{ SERVED_OFFERS_PATH, SERVED_PUBLIC_PATH, SERVED_STORAGE_PATH } = ServerConfig.FILE_STORAGE;
-        return locationFlag === "O" ?
-                SERVED_OFFERS_PATH :
-                locationFlag === "S" ?
-                SERVED_STORAGE_PATH :
-                SERVED_PUBLIC_PATH;
+    private _serveDestHelper(locationFlag: "S" | "O" | "P", fileName: string) {
+        const{ SERVED_OFFERS_PATH, SERVED_STORAGE_PATH } = ServerConfig.FILE_STORAGE;
+        if (locationFlag === "O") {
+            return SERVED_OFFERS_PATH;
+        }else if (locationFlag === "S") {
+            return SERVED_STORAGE_PATH;
+        }
+        return this._getAppropriateLocation(fileName, true);
     }
     fetchStoreController_JsonAPI() {
         return (req: Request, res: Response) => {
@@ -237,7 +276,7 @@ class FileUploadController {
                 if (fields) {
                     switch (fields.locationFlag.toUpperCase()) {
                         case "P":
-                            return FileStorageModel.aggregate({
+                            /*return FileStorageModel.aggregate({
                                                     $project: {
                                                         _id: 0,
                                                         files: {
@@ -248,20 +287,30 @@ class FileUploadController {
                                                             }
                                                         }
                                                     }
-                                                })
-                                                .then(([result]: any) => {
-                                                    const responseObject: IJsonAPISpec = {
-                                                        data: result.files.map((file: any) => {
-                                                            return {
+                                                })*/
+                            return FileStorageModel.findById(ServerConfig.FILE_STORAGE.DB_ID)
+                                                .select("files -_id")
+                                                .then(({ files }: any) => {
+                                                    const data: any = [];
+                                                    files.forEach((file: any) => {
+                                                        if ( file.locationFlag === "P" && FileUploadController.fileExtensionRelation[ fields.type ].extensions.includes(file.storageFilename.split(".")[1]) ) {
+                                                            let serveDestination: string;
+                                                            try {
+                                                                serveDestination = this._serveDestHelper("P", file.storageFilename);
+                                                            }catch (e) {
+                                                                throw e;
+                                                            }
+                                                            data.push({
                                                                 id: file._id,
                                                                 type: "image",
                                                                 links: {
-                                                                    self: `${getResourceUrl(req)}${this._serveDestHelper("P")}${file.storageFilename}`
+                                                                    self: `${getResourceUrl(req)}${serveDestination}${file.storageFilename}`
                                                                 }
-                                                            };
-                                                        })
-                                                    };
-                                                    JsonAPI.sendData(responseObject, res);
+                                                            });
+                                                        }
+                                                    });
+
+                                                    JsonAPI.sendData({ data }, res);
                                                 })
                                                 .catch(() => res.status(500).end());
                     }
@@ -290,7 +339,12 @@ class FileUploadController {
                                             if (CACHE.new && locationFlag === "O") {
                                                 CACHE.files.push(file);
                                             }
-
+                                            let serveDestination: string;
+                                            try {
+                                                serveDestination = this._serveDestHelper(locationFlag, storageFilename);
+                                            }catch (e) {
+                                                throw e;
+                                            }
                                             (<IResource[]>responseData.data).push(
                                                 {
                                                     type: "files",
@@ -301,7 +355,7 @@ class FileUploadController {
                                                         fileName: storageFilename
                                                     },
                                                     links: {
-                                                        self: `${getResourceUrl(req)}${this._serveDestHelper(locationFlag)}${storageFilename}`
+                                                        self: `${getResourceUrl(req)}${serveDestination}${storageFilename}`
                                                     }
                                                 }
                                             );
@@ -321,8 +375,13 @@ class FileUploadController {
         return (req: Request, res: Response) => {
             if (req && req.method === "GET" && req.query && req.query.file && req.query.location) {
                     const { file, location } = req.query;
-
-                    return res.download(this._pathResolver(location, file), file, err => {
+                    let resolvedPath: string;
+                    try {
+                        resolvedPath = this._pathResolver(location, file);
+                    }catch (e) {
+                        return res.status(500).end();
+                    }
+                    return res.download(resolvedPath, file, err => {
                         if (err && !res.headersSent) {
                             res.status(500).end();
                         }
@@ -339,9 +398,9 @@ class FileUploadController {
 
                     const { data: { id, type, attributes: { fileName, locationFlag, fileSize } }, meta: { ACTION, newName, newLocation } } = req.body;
 
-                    const { pathToStorage, publicPath, offersPath } = FileUploadController;
+                    const { pathToStorage, offersPath } = FileUploadController;
 
-                    const getPathHelper = (currentLocationFlag: "S" | "O" | "P") => {
+                    const getPathHelper = (currentLocationFlag: "S" | "O" | "P", fileName: string) => {
                         let path: string;
                         switch (currentLocationFlag) {
                             case "S":
@@ -351,7 +410,7 @@ class FileUploadController {
                                 path = offersPath;
                             break;
                             default:
-                                path = publicPath;
+                                path = this._getAppropriateLocation(fileName);
                         }
                         return path;
                     };
@@ -361,14 +420,23 @@ class FileUploadController {
 
                     let responseData: IJsonAPISpec;
                     if (ACTION === "MOVE") {
-
-                            PathFrom = path.resolve(getPathHelper(locationFlag), fileName);
+                            let destPathFrom: string;
+                            let destPathTo: string;
+                            let serveDestination: string;
+                            try {
+                                destPathFrom = getPathHelper(locationFlag, fileName);
+                                destPathTo = this._getAppropriateLocation(fileName);
+                                serveDestination = this._serveDestHelper(newLocation, fileName);
+                            }catch (e) {
+                                return res.status(500).end();
+                            }
+                            PathFrom = path.resolve(destPathFrom, fileName);
                             switch (newLocation) {
                                 case "O":
                                     PathTo = path.resolve(offersPath, fileName);
                                 break;
                                 case "P":
-                                    PathTo = path.resolve(publicPath, fileName);
+                                    PathTo = path.resolve(destPathTo, fileName);
                                 break;
                                 default:
                                     PathTo = path.resolve(pathToStorage, fileName);
@@ -378,11 +446,18 @@ class FileUploadController {
 
                         responseData = {
                             data: { id, type },
-                            links: { self: `${getResourceUrl(req)}${this._serveDestHelper(newLocation)}${fileName}` }
+                            links: { self: `${getResourceUrl(req)}${serveDestination}${fileName}` }
                         };
 
                     }else if (ACTION === "RENAME") {
-
+                        let destPathFrom: string;
+                        let destPathTo: string;
+                        try {
+                            destPathFrom = this._getAppropriateLocation(fileName);
+                            destPathTo = this._getAppropriateLocation(newName);
+                        }catch (e) {
+                            return res.status(500).end();
+                        }
                         switch (locationFlag) {
                             case "O": {
                                 PathFrom = path.resolve(offersPath, fileName);
@@ -390,8 +465,8 @@ class FileUploadController {
                             }
                             break;
                             case "P": {
-                                PathFrom = path.resolve(publicPath, fileName);
-                                PathTo = path.resolve(publicPath, newName);
+                                PathFrom = path.resolve(destPathFrom, fileName);
+                                PathTo = path.resolve(destPathTo, newName);
                             }
                             break;
                             default: {
@@ -448,5 +523,10 @@ Debug form.parse fields, files =>   { qquuid: [ '823d4c53-9be1-47b0-95e5-af18049
        path: 'C:\\Users\\AACE~1\\AppData\\Local\\Temp\\OCxUeaR9BFtjwRREl3Lztxd5.gif',
        headers: [Object],
        size: 214523 } ] }
+
+Debug form.parse => headers {
+    'content-disposition': 'form-data; name="qqfile"; filename="BrianPrince-200w.jpg"',
+    'content-type': 'image/jpeg'
+}
 */
 

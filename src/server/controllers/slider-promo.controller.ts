@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { Document } from "mongoose";
 import { JsonAPI, IJsonAPISpec } from "../services";
 import { Application } from "../app";
-import { SiteModel } from "../models";
+import { LandingPageModel } from "../models";
 import ServerConfig from "../serverConfig";
 
 interface ISlide {
@@ -26,7 +26,7 @@ class SliderPromoController {
         if (CACHE) {
             return Promise.resolve(CACHE);
         }
-        return SiteModel.findById(ServerConfig.SITE_ID)
+        return LandingPageModel.findById(ServerConfig.LANDING_PAGE_ID)
                         .select("sliderPromo -_id")
                         .then(({ sliderPromo }: Document & ISlides) => {
                             if (!CACHE) {
@@ -59,7 +59,7 @@ class SliderPromoController {
             if (!JsonAPI.validateRequest(req, res)) return;
             if (req && req.body && req.body.data && req.body.data.attributes && req.body.data.attributes.slides) {
                 const{ slides: sliderPromo } = req.body.data.attributes;
-                return SiteModel.findByIdAndUpdate(ServerConfig.SITE_ID, { $set: { sliderPromo } }, { new: true, select: "sliderPromo -_id" })
+                return LandingPageModel.findByIdAndUpdate(ServerConfig.LANDING_PAGE_ID, { $set: { sliderPromo } }, { new: true, select: "sliderPromo -_id" })
                                 .then(({ sliderPromo }: Document & ISlides) => {
                                     Application.express.set("sliderPromo", sliderPromo);
                                     return res.status(204).end();

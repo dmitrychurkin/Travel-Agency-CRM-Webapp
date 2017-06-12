@@ -29,12 +29,17 @@ exports.default = {
     FILE_STORAGE: {
         DB_ID: "FileStorage",
         PATH_TO_STORAGE: path.resolve(__dirname, "./fileUploads"),
-        MAX_STORAGE_SIZE: 30000 * 1024,
+        MAX_STORAGE_SIZE: 100000 * 1024,
         PATH_TO_OFFERS: path.resolve(__dirname, "./public/offers"),
-        PATH_TO_PUBLIC: path.resolve(__dirname, "./public/images"),
+        PATH_TO_PUBLIC_IMAGES: path.resolve(__dirname, "./public/images"),
+        PATH_TO_PUBLIC_MEDIA: path.resolve(__dirname, "./public/media"),
+        PATH_TO_PUBLIC_DOCS: path.resolve(__dirname, "./public/docs"),
         MAX_FILE_SIZE: 0,
         SERVED_STORAGE_PATH: "/storage/",
         SERVED_OFFERS_PATH: "/offers/",
-        SERVED_PUBLIC_PATH: "/images/"
-    }
+        SERVED_PUBLIC_IMAGES: "/images/",
+        SERVED_PUBLIC_MEDIA: "/media/",
+        SERVED_PUBLIC_DOCS: "/docs/"
+    },
+    LANDING_PAGE_ID: "LandingPageWFW"
 };

@@ -6,3 +6,4 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./admins.model"));
 __export(require("./site.model"));
 __export(require("./file-storage-registry.model"));
+__export(require("./landing-page.model"));

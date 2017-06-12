@@ -14,6 +14,11 @@ import { SliderPromoSectionComponent } from 'app/dashboard/children/+customize/s
 import { ModalDialogComponent } from './modal-dialog.component';
 import { SiteContactsComponent } from './site-contacts.component';
 import { SliderPromoModalComponent } from './slider-promo-modal.component';
+import { KeyPeopleComponent } from './key-people.component';
+import { FroalaEditorModule, FroalaViewModule } from 'angular2-froala-wysiwyg';
+import { FroalaEditorService } from './froala-text-editor.service';
+import { CustomerReviewsComponent } from './customer-reviews.component';
+import { OurSponsoresComponent } from './our-sponsores.component';
 
 @NgModule({
     imports: [
@@ -21,7 +26,9 @@ import { SliderPromoModalComponent } from './slider-promo-modal.component';
         FormsModule,
         MaterialModule,
         CustomizeRoutingModule,
-        FlexLayoutModule
+        FlexLayoutModule,
+        FroalaEditorModule,
+        FroalaViewModule
     ],
     declarations: [
         CustomizeComponent,
@@ -32,9 +39,12 @@ import { SliderPromoModalComponent } from './slider-promo-modal.component';
         SliderPromoSectionComponent,
         SliderPromoModalComponent,
         ModalDialogComponent,
-        SiteContactsComponent
+        SiteContactsComponent,
+        KeyPeopleComponent,
+        CustomerReviewsComponent,
+        OurSponsoresComponent
     ],
     entryComponents: [ OffersModalComponent, SliderPromoModalComponent, ModalDialogComponent ],
-    providers: [SelectedTabService]
+    providers: [SelectedTabService, FroalaEditorService]
 })
 export class CustomizeModule {}

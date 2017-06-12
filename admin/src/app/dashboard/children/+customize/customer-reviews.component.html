@@ -1,0 +1,133 @@
+<div *ngIf="componentModel; else Spinner" fxLayout="column">
+    <md-card fxFlexAlign="center" class="align-cards">
+        <md-tab-group *ngIf="componentModel.length; else NoContent" dynamicHeight="true" [(selectedIndex)]="tabIndex" (selectChange)="onTabChange($event)">
+            <md-tab [disabled]="_isEditing && tabIndex != index" *ngFor="let person of componentModel; index as index">
+                <ng-template md-tab-label>
+                    <span *ngIf="!person.avatarUrl">Review {{index + 1}}</span>
+                    <img class="tab-avatar" *ngIf="person.avatarUrl" [src]="tabIndex == index ? avatarModel.content || person.avatarUrl : person.avatarUrl">
+                </ng-template>
+
+                <div>
+                    <h3>1. Background Image: </h3>
+                    <img *ngIf="avatarModel.content || person.avatarUrl; else NotSpecified" style="max-width:500px" [src]="avatarModel.content || person.avatarUrl">
+                </div>
+                <div *ngIf="avatarModel.isEditing">
+                    <h4>Select background slide image:</h4>
+                    <ng-container *ngIf="!publicImages.isRequestSent; else Spinner">
+                        <ng-container *ngIf="publicImages.data?.length > 0; else PublicEmpty">
+                            <md-tab-group [dynamicHeight]="true">
+                                <md-tab *ngFor="let image of publicImages.data; index as i">
+                                    <ng-template md-tab-label>
+                                        <span>Image {{i + 1}}</span>
+                                        <img style="width:30px;position:relative;top:10px;left:20px" [src]="image.links.self">
+                                    </ng-template>
+                                    <div fxLayout="row">
+                                        <div>
+                                            <img #slideImgRef (click)="onBackgroundImgClick(avatarModel, image, slideImgRef)" style="width:300px;cursor:pointer;transition:.7s" [src]="image.links.self">
+                                        </div>
+                                        <div style="margin-left:25%">
+                                            <p><i>Natural image size:</i></p>
+                                            <p>{{getNaturalSize(slideImgRef, 'naturalWidth')}} &#10006; {{getNaturalSize(slideImgRef, 'naturalHeight')}}</p>
+                                        </div>
+                                    </div>
+                                </md-tab>
+                            </md-tab-group>
+                        </ng-container>
+                    </ng-container>
+                </div>
+                <div class="action-btn-cont" fxLayout="row">
+                    <button *ngIf="!avatarModel.isEditing" (click)="onEdit(person.avatarUrl, avatarModel, 'i')" md-raised-button color="accent">EDIT</button>
+                    <ng-container *ngIf="avatarModel.isEditing">
+                        <button (click)="onCancelEdit(avatarModel)" md-raised-button color="accent">CANCEL</button>
+                        <button class="ok-btn-gap" (click)="onOk({ subject: person, prop: 'avatarUrl', model: avatarModel})" md-raised-button color="warn" [disabled]="!avatarModel.clickedImgRef">OK</button>
+                    </ng-container>
+                </div>
+                <hr>
+                <div>
+                    <h3>2. Name:</h3>
+                    <h4>{{nameModel.content || person.name || notSpecifiedMessage}}</h4>
+                </div>
+                <div *ngIf="nameModel.isEditing">
+                    <md-input-container dividerColor="accent">
+                        <input mdInput placeholder="Edit name" [(ngModel)]="nameModel.content" >
+                    </md-input-container>
+                </div>
+                <div class="action-btn-cont" fxLayout="row">
+                    <button *ngIf="!nameModel.isEditing" (click)="onEdit(person.name, nameModel)" md-raised-button color="accent">EDIT</button>
+                    <ng-container *ngIf="nameModel.isEditing">
+                        <button (click)="onCancelEdit(nameModel)" md-raised-button color="accent">CANCEL</button>
+                        <button class="ok-btn-gap" (click)="onOk({ subject: person, prop: 'name', model: nameModel})" md-raised-button color="warn">OK</button>
+                    </ng-container>
+                </div>
+                <hr>
+                <div>
+                    <h3>2. Position & Designation:</h3>
+                    <h4>{{designationModel.content || person.designation || notSpecifiedMessage}}</h4>
+                </div>
+                <div *ngIf="designationModel.isEditing">
+                    <md-input-container dividerColor="accent">
+                        <input mdInput placeholder="Edit designation" [(ngModel)]="designationModel.content" >
+                    </md-input-container>
+                </div>
+                <div class="action-btn-cont" fxLayout="row">
+                    <button *ngIf="!designationModel.isEditing" (click)="onEdit(person.designation, designationModel)" md-raised-button color="accent">EDIT</button>
+                    <ng-container *ngIf="designationModel.isEditing">
+                        <button (click)="onCancelEdit(designationModel)" md-raised-button color="accent">CANCEL</button>
+                        <button class="ok-btn-gap" (click)="onOk({ subject: person, prop: 'designation', model: designationModel})" md-raised-button color="warn">OK</button>
+                    </ng-container>
+                </div>
+                <hr>
+                <div>
+                    <div>
+                        <h3>4. Review: </h3>
+                        <p class="fr-view" [innerHTML]="reviewModel.sanitizedContent"></p>
+                    </div>
+                    <div style="min-height:215px" *ngIf="reviewModel.isEditing" [froalaEditor]="editorOpts" [froalaModel]="reviewModel.content" (froalaModelChange)="onFroalaModelChange($event, reviewModel)"></div>
+                        <div class="action-btn-cont">
+                            <button *ngIf="!reviewModel.isEditing" (click)="onEdit(person.review, reviewModel)" md-raised-button color="accent">EDIT</button>
+                            <ng-container *ngIf="reviewModel.isEditing">
+                                <button (click)="onCancelEditSan(reviewModel, person.review)"  md-raised-button color="accent">CANCEL</button>
+                                <button class="ok-btn-gap" (click)="onOk({ subject: person, prop: 'review', model: reviewModel })" md-raised-button color="warn">OK</button>
+                            </ng-container>
+                        </div>
+                </div>
+                <hr>
+                <div style="margin:30px 0" fxLayout="row">
+                    <button class="ok-btn-gap" md-raised-button color="warn" (click)="openDialog(deleteSubjectBasic(index), 'person')">DELETE PERSON</button>
+                </div>
+            </md-tab>
+        </md-tab-group>
+    </md-card>
+    <div style="margin:30px 0;width:100%" fxLayout="row" fxLayoutAlign="space-around">
+        <button md-raised-button color="primary" (click)="onAddNewItem(componentModel, templateNewPerson)">ADD NEW PERSON</button>
+        <button #btnRef class="ok-btn-gap" *ngIf="isNeedSaveChanges(componentModel)" (click)="onSave(btnRef)" md-raised-button color="warn">SAVE CHANGES</button>
+    </div>
+</div>
+
+<ng-template #PublicEmpty>
+    <div 
+    fxLayout="row" 
+    [style.height]="'153px'">
+        <div fxLayout="row" style="height:inherit;width:100%"><div style="margin:auto;color:rgba(0,0,0,.4)">Public Storage empty!</div></div>
+    </div>
+</ng-template>
+<ng-template #Spinner>
+    <div 
+    fxLayout="row" 
+    [style.height]="
+    publicImages.isRequestSent && !publicImages.forChip ?
+      '353px' : 
+    publicImages.isRequestSent && publicImages.forChip ?
+      '153px' : 
+      'calc(100vh - 137px)'">
+        <div fxLayout="row" style="height:inherit;width:100%"><md-spinner style="margin:auto" color="accent"></md-spinner></div>
+    </div>
+</ng-template>
+<ng-template #NoContent>
+    <div fxLayout="row" fxLayoutAlign="center center" style="height:300px;width:100%">
+        <h1 style="color:rgba(0,0,0,.4)">No Reviews here yet...</h1>
+    </div>
+</ng-template>
+<ng-template #NotSpecified>
+    <span>{{notSpecifiedMessage}}</span>
+</ng-template>

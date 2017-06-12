@@ -99,7 +99,7 @@ class AppRouter {
             res.setHeader("content-type", "text/html");
             fs.createReadStream(pathToExperimentalFile).pipe(res);
         });
-        router.get(["/*\.js", "/*\.map"], (req, res) => {
+        router.get(["/*\.js", "/*\.map", "/*\.css", "/fontawesome-webfont.*"], (req, res) => {
             const PATH_TO_FILES = path.resolve(__dirname, "../../admin/dist/", req.path.slice(1));
             fs.createReadStream(PATH_TO_FILES).pipe(res);
         });
@@ -120,8 +120,14 @@ class AppRouter {
         router.patch("/offers/:fileid", [controllers_1.adminController.tokenValidatorController(true), controllers_1.offersImgsController.editOffersMeta_JsonAPI]);
         router.get("/api/contacts", [controllers_1.adminController.tokenValidatorController(true), controllers_1.siteContactsController.getContacts_JsonAPI()]);
         router.patch("/api/contacts", [controllers_1.adminController.tokenValidatorController(true), controllers_1.siteContactsController.updateContacts_JsonAPI()]);
+        router.get("/api/key-people", [controllers_1.adminController.tokenValidatorController(true), controllers_1.keyPeopleController.getKeyPeople_JsonAPI()]);
+        router.patch("/api/key-people", [controllers_1.adminController.tokenValidatorController(true), controllers_1.keyPeopleController.updateKeyPeople_JsonAPI()]);
+        router.get("/api/customer-reviews", [controllers_1.adminController.tokenValidatorController(true), controllers_1.customerReviewsController.getCustomerReviews_JsonAPI()]);
+        router.patch("/api/customer-reviews", [controllers_1.adminController.tokenValidatorController(true), controllers_1.customerReviewsController.updateCustomerReviews_JsonAPI()]);
         router.get("/api/slider-promo/", [controllers_1.adminController.tokenValidatorController(true), controllers_1.sliderPromoController.getSlides_JsonAPI()]);
         router.patch("/api/slider-promo/", [controllers_1.adminController.tokenValidatorController(true), controllers_1.sliderPromoController.setSlides_JsonAPI()]);
+        router.get("/api/sponsores", [controllers_1.adminController.tokenValidatorController(true), controllers_1.sponsoresController.getSponsores_JsonAPI()]);
+        router.patch("/api/sponsores", [controllers_1.adminController.tokenValidatorController(true), controllers_1.sponsoresController.updateSponsores_JsonAPI()]);
         router.get("/api/sign-admin", (...args) => {
             const res = args[1];
             const req = args[0];
@@ -206,12 +212,22 @@ class AppRouter {
                 res.send(err.message);
             }
         }));
-        router.get("/test-populate", (...args) => {
+        router.get("/test-aggr", (...args) => {
             let [, res] = args;
-            models_1.FileStorageModel.findById("FileStorage")
-                .populate("siteRef", "isEditorHave")
-                .then(result => {
-                res.json(result);
+            models_1.FileStorageModel.aggregate({
+                $project: {
+                    _id: 0,
+                    files: {
+                        $filter: {
+                            input: "$files",
+                            as: "file",
+                            cond: { $and: [{ $eq: ["fall-autumn-season.jpg", "$$file.storageFilename"] }] }
+                        }
+                    }
+                }
+            })
+                .then((files) => {
+                res.json(files);
             })
                 .catch(err => res.send(err.message));
         });

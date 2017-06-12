@@ -1,34 +1,34 @@
-<div *ngIf="sliderModel; else Spinner" fxLayout="column">
+<div *ngIf="componentModel; else Spinner" fxLayout="column">
     <md-card fxFlexAlign="center" style="width:92%; margin: 30px 0">
-        <md-tab-group *ngIf="sliderModel.length; else NoContent" [(selectedIndex)]="tabIndex" [dynamicHeight]="true" (selectChange)="modelChips.length=0">
-            <md-tab [disabled]="_isEditing && tabIndex != i" *ngFor="let slide of sliderModel; let i=index">
+        <md-tab-group *ngIf="componentModel.length; else NoContent" [(selectedIndex)]="tabIndex" [dynamicHeight]="true" (selectChange)="modelChips.length=0">
+            <md-tab [disabled]="_isEditing && tabIndex != i" *ngFor="let slide of componentModel; let i=index">
                 <ng-template md-tab-label>
                     <span>Slide {{i + 1}}</span>
                 </ng-template>
                 <div>
                     <h3>Title</h3>
-                    <h4>{{(modelTitle || slide.title || notSpecifiedMessage) | uppercase}}</h4>
+                    <h4>{{(modelTitle.content || slide.title || notSpecifiedMessage) | uppercase}}</h4>
                 </div>
-                <div *ngIf="isTitleEditing">
+                <div *ngIf="modelTitle.isEditing">
                     <md-input-container dividerColor="accent">
-                        <input mdInput placeholder="Edit slide Title" [(ngModel)]="modelTitle" >
+                        <input mdInput placeholder="Edit slide Title" [(ngModel)]="modelTitle.content" >
                         <md-hint [style.color]="'#f44336'" align="end">Remember to be short and sweet!</md-hint>
                     </md-input-container>
                 </div>
                 <div class="action-btn-cont" fxLayout="row">
-                    <button *ngIf="!isTitleEditing" (click)="onEdit(slide, 'TIT')" md-raised-button color="accent">EDIT</button>
-                    <ng-container *ngIf="isTitleEditing">
-                        <button (click)="onCancelEdit('TIT')" md-raised-button color="accent">CANCEL</button>
-                        <button class="ok-btn-gap" (click)="onOk('TIT', slide)" md-raised-button color="warn">OK</button>
+                    <button *ngIf="!modelTitle.isEditing" (click)="onEdit(slide.title, modelTitle)" md-raised-button color="accent">EDIT</button>
+                    <ng-container *ngIf="modelTitle.isEditing">
+                        <button (click)="onCancelEdit(modelTitle)" md-raised-button color="accent">CANCEL</button>
+                        <button class="ok-btn-gap" (click)="onOk({ subject: slide, prop: 'title', model: modelTitle})" md-raised-button color="warn">OK</button>
                     </ng-container>
                 </div>
                 <hr>
                 <div>
                     <h3>Background Image</h3>
                     <p><i>For the best user experience natural <strong>image width must to be >= 1280px</strong> and <strong>image height >= 1024px</strong></i></p>
-                    <img *ngIf="modelBgImg.modelUrl || slide.backgroundImage; else NotSpecified" style="max-width:500px" [src]="modelBgImg.modelUrl || slide.backgroundImage">
+                    <img *ngIf="modelBgImg.content || slide.backgroundImage; else NotSpecified" style="max-width:500px" [src]="modelBgImg.content || slide.backgroundImage">
                 </div>
-                <div *ngIf="modelBgImg.modelUrl || modelBgImg.modelUrl === ''">
+                <div *ngIf="modelBgImg.isEditing">
                     <h4>Select background slide image:</h4>
                     <ng-container *ngIf="!publicImages.isRequestSent; else Spinner">
                         <ng-container *ngIf="publicImages.data?.length > 0; else PublicEmpty">
@@ -40,7 +40,7 @@
                                     </ng-template>
                                     <div fxLayout="row">
                                         <div>
-                                            <img #slideImgRef (click)="onBackgroundImgClick(image, slideImgRef)" style="width:300px;cursor:pointer;transition:.7s" [src]="image.links.self">
+                                            <img #slideImgRef (click)="onBackgroundImgClick(modelBgImg, image, slideImgRef)" style="width:300px;cursor:pointer;transition:.7s" [src]="image.links.self">
                                         </div>
                                         <div style="margin-left:25%">
                                             <p><i>Natural image size:</i></p>
@@ -53,32 +53,32 @@
                     </ng-container>
                 </div>
                 <div class="action-btn-cont" fxLayout="row">
-                    <button *ngIf="!modelBgImg.modelUrl && modelBgImg.modelUrl !== ''" (click)="onEdit(slide, 'B_IMG')" md-raised-button color="accent">EDIT</button>
-                    <ng-container *ngIf="modelBgImg.modelUrl || modelBgImg.modelUrl === ''">
-                        <button (click)="onCancelEdit('B_IMG')" md-raised-button color="accent">CANCEL</button>
-                        <button class="ok-btn-gap" (click)="onOk('B_IMG', slide)" md-raised-button color="warn">OK</button>
+                    <button *ngIf="!modelBgImg.isEditing" (click)="onEdit(slide.backgroundImage, modelBgImg, 'i')" md-raised-button color="accent">EDIT</button>
+                    <ng-container *ngIf="modelBgImg.isEditing">
+                        <button (click)="onCancelEdit(modelBgImg)" md-raised-button color="accent">CANCEL</button>
+                        <button class="ok-btn-gap" (click)="onOk({ subject: slide, prop: 'backgroundImage', model: modelBgImg})" md-raised-button color="warn" [disabled]="!modelBgImg.clickedImgRef">OK</button>
                     </ng-container>
                 </div>
                 <hr>
                 <div>
                     <h3>Slide Description</h3>
-                    <p>{{modelDesc || slide.description || notSpecifiedMessage}}</p>
+                    <p>{{modelDesc.content || slide.description || notSpecifiedMessage}}</p>
                 </div>
-                <div *ngIf="isDescEditing">
+                <div *ngIf="modelDesc.isEditing">
                     <md-input-container style="width:50%" dividerColor="accent">
                         <textarea 
                         mdInput 
                         mdTextareaAutosize 
                         [mdAutosizeMinRows]="5"
                         placeholder="Slide description" 
-                        [(ngModel)]="modelDesc"></textarea>
+                        [(ngModel)]="modelDesc.content"></textarea>
                     </md-input-container>
                 </div>
                 <div class="action-btn-cont" fxLayout="row">
-                    <button *ngIf="!isDescEditing" (click)="onEdit(slide, 'DESC')" md-raised-button color="accent">EDIT</button>
-                    <ng-container *ngIf="isDescEditing">
-                        <button (click)="onCancelEdit('DESC')" md-raised-button color="accent">CANCEL</button>
-                        <button class="ok-btn-gap" (click)="onOk('DESC', slide)" md-raised-button color="warn">OK</button>
+                    <button *ngIf="!modelDesc.isEditing" (click)="onEdit(slide.description, modelDesc)" md-raised-button color="accent">EDIT</button>
+                    <ng-container *ngIf="modelDesc.isEditing">
+                        <button (click)="onCancelEdit(modelDesc)" md-raised-button color="accent">CANCEL</button>
+                        <button class="ok-btn-gap" (click)="onOk({ subject: slide, prop: 'description', model: modelDesc})" md-raised-button color="warn">OK</button>
                     </ng-container>
                 </div>
                 <hr>
@@ -144,9 +144,9 @@
                                         </md-input-container>
                                     </div>
                                     <div style="margin-top:20px">
-                                        <button (click)="onEditChipCancel(chip, j)" md-raised-button color="accent">CANCEL</button>
+                                        <button (click)="onCancelEdit(modelChips, 'CHIP', j)" md-raised-button color="accent">CANCEL</button>
                                         <button class="ok-btn-gap" md-raised-button color="warn" (click)="openDialog(deleteSubject(i, j), 'tour')">DELETE TOUR</button>
-                                        <button class="ok-btn-gap" (click)="onOk('CHIP', chip, j)" md-raised-button color="warn">OK</button>
+                                        <button class="ok-btn-gap" (click)="onOk({ subject: chip, model: modelChips, flag: 'CHIP', index: j })" md-raised-button color="warn">OK</button>
                                     </div>
                                     
                                 </div>
@@ -154,7 +154,7 @@
                             </md-chip-list>
                         </ng-container>
                     <div style="margin:30px 0" fxLayout="row">
-                        <button md-raised-button color="primary" (click)="addNewTour(slide)">ADD NEW TOUR</button>
+                        <button md-raised-button color="primary" (click)="onAddNewItem(slide.chips, chipTemplate)">ADD NEW TOUR</button>
                     </div>
                 </div>
                 <hr>
@@ -165,9 +165,9 @@
         </md-tab-group>
     </md-card>
     <div style="margin:30px 0" fxLayout="row" fxLayoutAlign="space-around">
-        <button (click)="onAddNewSlide()" md-raised-button color="primary">ADD NEW SLIDE</button>
-        <button *ngIf="sliderModel.length" (click)="onViewSlides()" md-raised-button color="accent">VIEW SLIDES</button>
-        <button #btnRef *ngIf="isNeedSaveChanges(sliderModel)" (click)="onSave(btnRef)" md-raised-button color="warn">SAVE CHANGES</button>
+        <button (click)="onAddNewItem(componentModel, modelTemplate)" md-raised-button color="primary">ADD NEW SLIDE</button>
+        <button *ngIf="componentModel.length" (click)="onViewSlides()" md-raised-button color="accent">VIEW SLIDES</button>
+        <button #btnRef *ngIf="isNeedSaveChanges(componentModel)" (click)="onSave(btnRef)" md-raised-button color="warn">SAVE CHANGES</button>
     </div>
 </div>
 <ng-template #PublicEmpty>

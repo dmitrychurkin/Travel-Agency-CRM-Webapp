@@ -85,8 +85,8 @@
 }
 .S14__image {
     /*max-width: 400px;*/
-    /*width: 93%;*/
-    width: 100%;
+    width: 93%;
+    /*width: 100%;*/
     display: block;
     /*margin: 0 auto;*/
     position: absolute;

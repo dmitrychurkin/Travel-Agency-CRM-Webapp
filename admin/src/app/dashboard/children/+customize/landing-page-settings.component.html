@@ -11,11 +11,20 @@
 
 <ng-template #Sections>
   <div [ngSwitch]="sectionTab._name">
+    <ng-container *ngSwitchCase="'key_people'">
+      <app-key-people></app-key-people>
+    </ng-container>
     <ng-container *ngSwitchCase="'slider'">
       <app-slider-promo-section></app-slider-promo-section>
     </ng-container>
+    <ng-container *ngSwitchCase="'reviews'">
+      <app-customer-reviews></app-customer-reviews>
+    </ng-container>
     <ng-container *ngSwitchCase="'offers'">
       <app-offers-section></app-offers-section>
+    </ng-container>
+    <ng-container *ngSwitchCase="'sponsores'">
+      <app-our-sponsores></app-our-sponsores>
     </ng-container>
   </div>
 </ng-template>

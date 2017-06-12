@@ -19,7 +19,7 @@ export class OffersSectionComponent extends BasicComponentClass implements OnIni
     title: string;
     offers: IPortOffersResponse;
     isNeedEdit = false;
-    index: number;
+
     @ViewChild('inputField') inputField: ElementRef;
     constructor(injector: Injector) {
         super(injector);

@@ -2,8 +2,27 @@ import * as tslib_1 from "tslib";
 import { RequestAnimFrame } from "parallax";
 var Utilities = (function () {
     function Utilities() {
+        this._bgAttr = "data-background-url";
         this._S_reserved = Symbol();
     }
+    Utilities.prototype._U_setBgAttrs = function () {
+        var targets = Array.from(document.querySelectorAll("[" + this._bgAttr + "]"));
+        try {
+            for (var targets_1 = tslib_1.__values(targets), targets_1_1 = targets_1.next(); !targets_1_1.done; targets_1_1 = targets_1.next()) {
+                var el = targets_1_1.value;
+                el.style.backgroundImage = "url(" + el.getAttribute(this._bgAttr) + ")";
+                el.removeAttribute(this._bgAttr);
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (targets_1_1 && !targets_1_1.done && (_a = targets_1.return)) _a.call(targets_1);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+        var e_1, _a;
+    };
     Utilities.prototype._U_Polyfill_Helper = function () {
         RequestAnimFrame();
     };
@@ -20,15 +39,15 @@ var Utilities = (function () {
                         return false;
                 }
             }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
             finally {
                 try {
                     if (args_1_1 && !args_1_1.done && (_a = args_1.return)) _a.call(args_1);
                 }
-                finally { if (e_1) throw e_1.error; }
+                finally { if (e_2) throw e_2.error; }
             }
             return true;
-            var e_1, _a;
+            var e_2, _a;
         };
     };
     Utilities.prototype._U_SetScrollOnLoad = function () {
@@ -42,12 +61,12 @@ var Utilities = (function () {
                 families.push(family);
             }
         }
-        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+        catch (e_3_1) { e_3 = { error: e_3_1 }; }
         finally {
             try {
                 if (arrOfFonts_1_1 && !arrOfFonts_1_1.done && (_a = arrOfFonts_1.return)) _a.call(arrOfFonts_1);
             }
-            finally { if (e_2) throw e_2.error; }
+            finally { if (e_3) throw e_3.error; }
         }
         var fontHandler = function (flag) {
             var Fn = function (fn) {
@@ -83,7 +102,7 @@ var Utilities = (function () {
             fontactive: fontHandler(1),
             fontinactive: fontHandler(2)
         });
-        var e_2, _a;
+        var e_3, _a;
     };
     Utilities.prototype._U_WaitForImagesPlugin = function (className, callbacks) {
         var _this = this;
@@ -132,17 +151,17 @@ var Utilities = (function () {
                 delete target[prop];
             }
         }
-        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+        catch (e_4_1) { e_4 = { error: e_4_1 }; }
         finally {
             try {
                 if (_b && !_b.done && (_c = _a.return)) _c.call(_a);
             }
-            finally { if (e_3) throw e_3.error; }
+            finally { if (e_4) throw e_4.error; }
         }
         if (killProto) {
             Object.setPrototypeOf(target, Object.prototype);
         }
-        var e_3, _c;
+        var e_4, _c;
     };
     Utilities.prototype._U_GC_TO_DEL = function (propsObjToDel, target, killProto) {
         if (propsObjToDel === void 0) { propsObjToDel = {}; }
@@ -156,17 +175,17 @@ var Utilities = (function () {
                 }
             }
         }
-        catch (e_4_1) { e_4 = { error: e_4_1 }; }
+        catch (e_5_1) { e_5 = { error: e_5_1 }; }
         finally {
             try {
                 if (_b && !_b.done && (_c = _a.return)) _c.call(_a);
             }
-            finally { if (e_4) throw e_4.error; }
+            finally { if (e_5) throw e_5.error; }
         }
         if (killProto) {
             Object.setPrototypeOf(target, Object.prototype);
         }
-        var e_4, _c;
+        var e_5, _c;
     };
     Utilities.prototype._U_objVarsForTimeline = function (objProps, callbacks) {
         if (objProps === void 0) { objProps = {}; }
@@ -186,14 +205,14 @@ var Utilities = (function () {
                             Fn();
                     }
                 }
-                catch (e_5_1) { e_5 = { error: e_5_1 }; }
+                catch (e_6_1) { e_6 = { error: e_6_1 }; }
                 finally {
                     try {
                         if (callbacks_1_1 && !callbacks_1_1.done && (_a = callbacks_1.return)) _a.call(callbacks_1);
                     }
-                    finally { if (e_5) throw e_5.error; }
+                    finally { if (e_6) throw e_6.error; }
                 }
-                var e_5, _a;
+                var e_6, _a;
             },
             onCompleteParams: tslib_1.__spread(["{self}"], callbacks)
         }, objProps);

@@ -1,6 +1,7 @@
-import { Component, Injector } from '@angular/core';
+import { Component, Injector, Renderer2 } from '@angular/core';
 import { IMenuSubTab, IMenuTab } from 'app/Interfaces';
 import { BasicComponentClass } from './basic-component.class';
+import { FroalaEditorService } from './froala-text-editor.service';
 
 @Component({
     selector: 'app-admin-customize',
@@ -9,8 +10,9 @@ import { BasicComponentClass } from './basic-component.class';
 })
 export class CustomizeComponent extends BasicComponentClass {
 
-    constructor(injector: Injector) {
+    constructor(injector: Injector, renderer2: Renderer2, froalaEditorService: FroalaEditorService) {
         super(injector);
+        froalaEditorService.resolveLinks(renderer2);
     }
     isActiveStyle(childItem: IMenuSubTab) {
         const {currentlySelectedChild} = this._selectedTabService;

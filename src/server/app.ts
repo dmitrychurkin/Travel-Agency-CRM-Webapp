@@ -21,6 +21,9 @@ import servicesRoutes from "./routes/services";*/
 // 1. offers
 // 2. siteContacts
 // 3. sliderPromo
+// 4. keyPeople
+// 5. customerReviews
+// 6. sponsores
 
 class App {
   server: Server;

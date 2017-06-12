@@ -1,14 +1,14 @@
 import { Document } from "mongoose";
 import { Response } from "express";
 import { Application } from "../app";
-import { SiteModel } from "../models";
+import { LandingPageModel } from "../models";
 import { ApplicationError } from "../errors";
 import ServerConfig from "../serverConfig";
 
 class MainController {
     private _siteProperties = "siteContacts sliderPromo";
     private get _DBRef() {
-        return SiteModel.findById(ServerConfig.SITE_ID);
+        return LandingPageModel.findById(ServerConfig.LANDING_PAGE_ID);
     }
     getSitePropsController() {
         let DBRef: Document;

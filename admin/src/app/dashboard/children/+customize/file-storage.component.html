@@ -1,18 +1,28 @@
 <div fxLayout="row" fxLayoutAlign="center">
   <md-card class="f-s__fasade">
     <md-tab-group [dynamicHeight]="true" class="f-s__fix">
-      <md-tab [label]="tab | titlecase" *ngFor="let tab of tabs; index as indexOfTab">
+      <md-tab [label]="tab.name | titlecase" *ngFor="let tab of tabs; index as indexOfTab">
         <ng-template #Empty>
-          <div class="general" fxLayout="row"><h1 class="f-s__text">{{(indexOfTab == 0 ? tab.split(' ')[0] : tab) | titlecase}} Storage is empty</h1></div>
+          <div class="general" fxLayout="row"><h1 class="f-s__text">{{(indexOfTab == 0 ? tab.name.split(' ')[0] : tab.name) | titlecase}} Storage is empty</h1></div>
         </ng-template>
         <ng-container *ngIf="filesResponse; else Spinner">
-          <ng-container *ngIf="!isEmpty(indexOfTab); else Empty">
+          <ng-container *ngIf="!isEmpty(tab); else Empty">
             <ng-container *ngFor="let file of filesResponse.data; index as indexOfFile">
-              <md-card class="f-s__file-cont" *ngIf="(indexOfTab == 0 && file.attributes.locationFlag === 'S') || (indexOfTab == 1 && file.attributes.locationFlag === 'P') || (indexOfTab == 2 && file.attributes.locationFlag === 'O')">
+              <md-card class="f-s__file-cont" *ngIf="fileSorter(file, tab)">
                   <div fxLayout="row">
-                    <div class="f-s__img-cont" fxLayout="row">
+
+                    <div class="f-s__img-cont" *ngIf="allowedFileTypes.images.exts.includes(file.attributes.fileName.split('.')[1])" fxLayout="row">
                       <img class="f-s__img" [src]="file.links.self">
                     </div>
+
+                    <div class="f-s__img-cont" *ngIf="allowedFileTypes.media.exts.includes(file.attributes.fileName.split('.')[1])" fxLayout="row">
+                      <div><md-icon class="f-s__img-ico">music_video</md-icon></div>
+                    </div>
+
+                    <div class="f-s__img-cont" *ngIf="allowedFileTypes.docs.exts.includes(file.attributes.fileName.split('.')[1])" fxLayout="row">
+                      <div><md-icon class="f-s__img-ico">chrome_reader_mode</md-icon></div>
+                    </div>
+                    
                     <div class="fs__f-text-cont fs__fname-text-cont" fxLayout="column">
                       
                       <div class="f-s__text" *ngIf="renameFileFields.fileId === file.id && !_isRequestSent; else RenameInput" fxFlexAlign="center" >
@@ -32,7 +42,7 @@
                       </button>
                       
                       <md-menu #appMenu="mdMenu">
-                          <button *ngFor="let menuItem of getMenuArray(indexOfTab)" (click)="menuItem.action.call($this, file, indexOfFile)" fxLayout="row" md-menu-item>
+                          <button *ngFor="let menuItem of getMenuArray(tab, file)" (click)="menuItem.action.call($this, file, indexOfFile)" fxLayout="row" md-menu-item>
                             <md-icon fxFlexAlign="center">{{menuItem.ico}}</md-icon>
                             <span fxFlexAlign="center">{{menuItem.name}}</span>
                           </button>

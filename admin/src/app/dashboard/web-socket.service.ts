@@ -10,7 +10,7 @@ import { IPortUserOrder, IPortSocketInfo } from '../Interfaces';
 @Injectable()
 export class WebSocketService {
   private socket: any;
-  private isAcknowlegeRecieved: boolean;
+  public isAcknowlegeRecieved: boolean;
   constructor(
     private ordersService: OrdersService,
     private errorEmmiterService: ErrorEmmiter

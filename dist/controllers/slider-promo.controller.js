@@ -10,7 +10,7 @@ class SliderPromoController {
         if (CACHE) {
             return Promise.resolve(CACHE);
         }
-        return models_1.SiteModel.findById(serverConfig_1.default.SITE_ID)
+        return models_1.LandingPageModel.findById(serverConfig_1.default.LANDING_PAGE_ID)
             .select("sliderPromo -_id")
             .then(({ sliderPromo }) => {
             if (!CACHE) {
@@ -45,7 +45,7 @@ class SliderPromoController {
                 return;
             if (req && req.body && req.body.data && req.body.data.attributes && req.body.data.attributes.slides) {
                 const { slides: sliderPromo } = req.body.data.attributes;
-                return models_1.SiteModel.findByIdAndUpdate(serverConfig_1.default.SITE_ID, { $set: { sliderPromo } }, { new: true, select: "sliderPromo -_id" })
+                return models_1.LandingPageModel.findByIdAndUpdate(serverConfig_1.default.LANDING_PAGE_ID, { $set: { sliderPromo } }, { new: true, select: "sliderPromo -_id" })
                     .then(({ sliderPromo }) => {
                     app_1.Application.express.set("sliderPromo", sliderPromo);
                     return res.status(204).end();

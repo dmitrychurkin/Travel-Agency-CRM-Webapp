@@ -11,10 +11,13 @@ import {
     adminController,
     ordersController,
     fileUploaderController,
+    keyPeopleController,
     offersImgsController,
     siteContactsController,
     sliderPromoController,
-    mainController } from "../controllers";
+    mainController,
+    customerReviewsController,
+    sponsoresController } from "../controllers";
 export class AppRouter {
     Router = Router();
     private App: Application;
@@ -121,7 +124,7 @@ export class AppRouter {
             fs.createReadStream(pathToExperimentalFile).pipe(res);
         });
 
-        router.get(["/*\.js", "/*\.map"], (req: Request, res: Response) => {
+        router.get(["/*\.js", "/*\.map", "/*\.css", "/fontawesome-webfont.*"], (req: Request, res: Response) => {
             // const PATH_TO_DIR = "../../../../WebstormProjects/WFW_admin/dist/";
             // const PATH_TO_FILES = path.resolve(PATH_TO_DIR, req.path.slice(1));
             const PATH_TO_FILES = path.resolve(__dirname, "../../admin/dist/", req.path.slice(1));
@@ -155,10 +158,22 @@ export class AppRouter {
         router.get("/api/contacts", [adminController.tokenValidatorController(true), siteContactsController.getContacts_JsonAPI()]);
         router.patch("/api/contacts", [adminController.tokenValidatorController(true), siteContactsController.updateContacts_JsonAPI()]);
 
+// key people
+        router.get("/api/key-people", [adminController.tokenValidatorController(true), keyPeopleController.getKeyPeople_JsonAPI()]);
+        router.patch("/api/key-people", [adminController.tokenValidatorController(true), keyPeopleController.updateKeyPeople_JsonAPI()]);
+
+// customer reviews
+        router.get("/api/customer-reviews", [adminController.tokenValidatorController(true), customerReviewsController.getCustomerReviews_JsonAPI()]);
+        router.patch("/api/customer-reviews", [adminController.tokenValidatorController(true), customerReviewsController.updateCustomerReviews_JsonAPI()]);
+
 // slider promo
         router.get("/api/slider-promo/", [adminController.tokenValidatorController(true), sliderPromoController.getSlides_JsonAPI()]);
         router.patch("/api/slider-promo/", [adminController.tokenValidatorController(true), sliderPromoController.setSlides_JsonAPI()]);
         // router.get("/api/files", [adminController.tokenValidatorController(true), sliderPromoController.getPublicImages_JsonAPI()]);
+
+// sponsores
+        router.get("/api/sponsores", [adminController.tokenValidatorController(true), sponsoresController.getSponsores_JsonAPI()]);
+        router.patch("/api/sponsores", [adminController.tokenValidatorController(true), sponsoresController.updateSponsores_JsonAPI()]);
 /**Test routes */
         router.get("/api/sign-admin", (...args: Array<any>) => {
             const res: Response = args[1];
@@ -274,13 +289,33 @@ export class AppRouter {
                 res.send(err.message);
             }
         });
-        router.get("/test-populate", (...args: Array<any>) => {
+        router.get("/test-aggr", (...args: Array<any>) => {
             let [, res] = args;
-            FileStorageModel.findById("FileStorage")
-                            .populate("siteRef", "isEditorHave")
-                            .then(result => {
-                                res.json(result);
+                // LandingPageModel.findOne({})
+                //             .populate("fileStorageRef")
+                FileStorageModel.aggregate({
+                                $project: {
+                                    _id: 0,
+                                        files: {
+                                            $filter: {
+                                                input: "$files",
+                                                as: "file",
+                                                cond: { $and: [ /*{ $eq: [ "$$file.locationFlag", "P" ] },*/{ $eq: [ "fall-autumn-season.jpg", "$$file.storageFilename" ] } ] }
+                                            }
+                                        }
+                                }
                             })
+                            .then((files: any) => {
+                                res.json(files);
+                                // res.json(files.filter((file: any) => file.locationFlag === "P" && ["jpg", "jpeg", "png", "gif", "tiff", "bmp", "jfif"].includes(file.storageFilename.split(".")[1])));
+                                // return result.set("fileStorageRef", ServerConfig.FILE_STORAGE.DB_ID)
+                                //         .set("siteRef", ServerConfig.SITE_ID)
+                                //         .save();
+                            })
+                            // .then(result => {
+                            //     console.log("After save ", result);
+                            //     res.json(result);
+                            // })
                             .catch(err => res.send(err.message));
         });
         return router;

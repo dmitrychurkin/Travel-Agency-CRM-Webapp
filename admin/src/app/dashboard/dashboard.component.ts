@@ -30,7 +30,7 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit, Aft
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private ordersService: OrdersService,
+    public ordersService: OrdersService,
     private backendService: BackendService,
     private errorEmmiter: ErrorEmmiter,
     private adminDataResolver: AdminCredentialsDataResolver,

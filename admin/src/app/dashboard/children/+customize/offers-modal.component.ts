@@ -71,7 +71,7 @@ export class OffersModalComponent extends BasicComponentClass implements AfterVi
 
     offers: IPortOffersResponse;
     selectedMenuItem: MenuActions = MenuActions.Resize;
-    constructor(@Inject(DOCUMENT) public document: Document, injector: Injector) {
+    constructor(@Inject(DOCUMENT) public document: any, injector: Injector) {
         super(injector);
     }
     get currentMaxWidth() {

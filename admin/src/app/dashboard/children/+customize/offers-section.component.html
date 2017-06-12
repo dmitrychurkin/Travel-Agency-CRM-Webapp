@@ -1,8 +1,8 @@
 <div *ngIf="offers; else Spinner" fxLayout="column">
     <md-card fxFlexAlign="center" style="width:92%; margin: 30px 0">
         <md-card-content>
-            <md-tab-group *ngIf="offers.data.length; else NoContent" [dynamicHeight]="true" [(selectedIndex)]="index">
-                <md-tab label="Offer {{i + 1}}" [disabled]="isNeedEdit && index != i" *ngFor="let offer of offers.data; index as i">
+            <md-tab-group *ngIf="offers.data.length; else NoContent" [dynamicHeight]="true" [(selectedIndex)]="tabIndex">
+                <md-tab label="Offer {{i + 1}}" [disabled]="isNeedEdit && tabIndex != i" *ngFor="let offer of offers.data; index as i">
                     <md-card>
                         <md-card-header>
                             <md-card-title>{{offer.attributes.fileName}}</md-card-title>

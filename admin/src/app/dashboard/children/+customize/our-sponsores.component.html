@@ -1,0 +1,81 @@
+<div *ngIf="componentModel; else Spinner" fxLayout="column">
+    <md-card fxFlexAlign="center" class="align-cards">
+        <md-tab-group *ngIf="componentModel.length; else NoContent" dynamicHeight="true" [(selectedIndex)]="tabIndex">
+            <md-tab [disabled]="_isEditing && tabIndex != index" *ngFor="let sponsor of componentModel; index as index">
+                <ng-template md-tab-label>
+                    <span *ngIf="!sponsor.avatarUrl">{{notSpecifiedMessage}}</span>
+                    <img class="tab-avatar" *ngIf="sponsor.avatarUrl" [src]="sponsor.avatarUrl">
+                </ng-template>
+
+                <div fxLayout="column" fxLayoutAlign="space-around center" style="min-height:300px">
+                    <img *ngIf="avatarModel.content || sponsor.avatarUrl; else NotSpecified" style="max-width:500px;margin:30px" [src]="avatarModel.content || sponsor.avatarUrl">
+                    <ng-container *ngIf="avatarModel.isEditing">
+                        <ng-container *ngIf="!publicImages.isRequestSent; else Spinner">
+                            <ng-container *ngIf="publicImages.data?.length > 0; else PublicEmpty">
+                                <md-tab-group style="width:100%" [dynamicHeight]="true">
+                                    <md-tab *ngFor="let image of publicImages.data; index as i">
+                                        <ng-template md-tab-label>
+                                            <span>Image {{i + 1}}</span>
+                                            <img style="width:30px;position:relative;top:10px;left:20px" [src]="image.links.self">
+                                        </ng-template>
+                                        <div fxLayout="row">
+                                            <div>
+                                                <img #slideImgRef (click)="onBackgroundImgClick(avatarModel, image, slideImgRef)" [style.width.px]="publicImages.forChip ? 100 : 300" style="cursor:pointer;transition:.7s" [src]="image.links.self">
+                                            </div>
+                                            <div style="margin-left:25%">
+                                                <p><i>Natural image size:</i></p>
+                                                <p>{{getNaturalSize(slideImgRef, 'naturalWidth')}} &#10006; {{getNaturalSize(slideImgRef, 'naturalHeight')}}</p>
+                                            </div>
+                                        </div>
+                                    </md-tab>
+                                </md-tab-group>
+                            </ng-container>
+                        </ng-container>
+                    </ng-container>
+                    <div style="width:100%" fxLayout="column" fxLayoutAlign="center center">
+                        <hr style="width:100%">
+                        <div fxLayout="row" fxLayoutAlign="space-around">
+                            <button class="action-btn-cont" *ngIf="!avatarModel.isEditing" (click)="onEdit(sponsor.avatarUrl, avatarModel, 'i', true, true)" md-raised-button color="accent">{{!sponsor.avatarUrl ? 'SELECT SPONSOR' : 'EDIT'}}</button>
+                            <button #btnOkRef [disabled]="!avatarModel.clickedImgRef" class="action-btn-cont" *ngIf="avatarModel.isEditing" (click)="onOk({ subject: sponsor, prop: 'avatarUrl', model: avatarModel })" md-raised-button color="warn">OK</button>
+                            <button class="action-btn-cont ok-btn-gap" (click)="openDialog(deleteSubjectBasic(index), 'sponsor')" md-raised-button color="warn">DELETE SPONSOR</button>
+                        </div>
+                    </div>
+                </div>
+            </md-tab>
+        </md-tab-group>
+    </md-card>
+    <div style="margin:30px 0;width:100%" fxLayout="row" fxLayoutAlign="space-around">
+        <button md-raised-button color="primary" (click)="onAddNewItem(componentModel, templateNewSponsor)">ADD NEW SPONSOR</button>
+        <button #btnRef class="ok-btn-gap" *ngIf="isNeedSaveChanges(componentModel)" (click)="onSave(btnRef)" md-raised-button color="warn">SAVE CHANGES</button>
+    </div>
+</div>
+
+<ng-template #PublicEmpty>
+    <div 
+    fxLayout="row" 
+    [style.height]="'153px'">
+        <div fxLayout="row" style="height:inherit;width:100%"><div style="margin:auto;color:rgba(0,0,0,.4)">Public Storage empty!</div></div>
+    </div>
+</ng-template>
+<ng-template #Spinner>
+    <div 
+    fxLayout="row" 
+    [style.height]="
+    publicImages.isRequestSent && !publicImages.forChip ?
+      '353px' : 
+    publicImages.isRequestSent && publicImages.forChip ?
+      '153px' : 
+      'calc(100vh - 137px)'">
+        <div fxLayout="row" style="height:inherit;width:100%"><md-spinner style="margin:auto" color="accent"></md-spinner></div>
+    </div>
+</ng-template>
+<ng-template #NoContent>
+    <div fxLayout="row" fxLayoutAlign="center center" style="height:300px;width:100%">
+        <h1 style="color:rgba(0,0,0,.4)">No Sponsors here yet...</h1>
+    </div>
+</ng-template>
+<ng-template #NotSpecified>
+    <div fxLayout="row" fxLayoutAlign="center center" style="height:300px;width:100%">
+        <h1 style="color:rgba(0,0,0,.4)"><span>{{notSpecifiedMessage}}</span></h1>
+    </div>
+</ng-template>
