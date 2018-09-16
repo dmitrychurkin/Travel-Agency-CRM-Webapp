@@ -3,21 +3,17 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "debug": "SET DEBUG=tester-bundler* & nodemon --inspect ./dist/bin/www",
-    "compile:client": "tsc -w -p src/client/tsconfig.json",
-    "compile:server": "tsc -w -p src/server/tsconfig.json",
+    "start": "gulp prod & node dist",
+    "prebuild:dev": "tslint --test src",
+    "build:dev": "gulp dev",
+    "build:prod": "gulp prod",
+    "debug": "SET DEBUG=tester-bundler* & nodemon --inspect ./dist",
     "server:dev": "SET DEBUG=tester-bundler* & nodemon",
-    "build:js": "gulp buildjs",
-    "server": "node ./dist/bin/www",
     "prebuild:ru": "tslint --test src",
     "build:ru": "rollup -c rollup.config.main.js",
     "build:services": "tslint --test src & rollup -c rollup.config.services.js",
     "watch:main": "tslint --test src & rollup -c rollup.config.main.js -w",
-    "watch:services": "tslint --test src & rollup -c rollup.config.services.js -w",
-    "pretest": "npm run build",
-    "test": "mocha",
-    "wp": "gulp clean & webpack --config webpack.dev.js",
-    "tsc:test": "tsc -p src/client/tsconfig.client.json"
+    "watch:services": "tslint --test src & rollup -c rollup.config.services.js -w"
   },
   "dependencies": {
     "body-parser": "~1.15.2",
