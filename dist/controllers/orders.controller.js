@@ -29,7 +29,7 @@ class OrdersController {
                         throw new Error("Order not added!");
                     }
                     if (isOnline && webSoketId && sessionToken) {
-                        app_1.Application.socketIO.emitOnNewOrder(sessionToken, webSoketId, NORMALIZED_ORDER);
+                        app_1.default.socketIO.emitOnNewOrder(sessionToken, webSoketId, NORMALIZED_ORDER);
                     }
                     const orderPort = { info: "Your data has been sent, our agent will contact you.", reqId: NORMALIZED_ORDER.orderId };
                     res.json(orderPort);
@@ -41,23 +41,25 @@ class OrdersController {
     }
     selectOrdersForAdminAsync({ adminId, lastTimestamp }) {
         adminId = typeof adminId !== "string" ? "" : adminId;
-        return models_1.AdminModel.aggregate([
+        return new Promise((resolve, reject) => models_1.AdminModel.aggregate([
             { $match: { sessionToken: adminId, isOnline: true } },
             { $project: { _id: 0, orders: { $filter: { input: "$orders", as: "order", cond: { $lt: ["$$order.timestamp", lastTimestamp] } } } } },
         ])
+            .cursor({})
             .exec()
-            .then((resultSetArray) => {
-            if (Array.isArray(resultSetArray)) {
-                let [ordersField] = resultSetArray;
+            .stream()
+            .on("data", ({ orders }) => {
+            if (Array.isArray(orders)) {
                 const OUT = [];
-                for (let end = ordersField.orders.length - 1; end >= 0; end--) {
-                    delete ordersField.orders[end]._id;
-                    OUT.push(ordersField.orders[end]);
+                for (let end = orders.length - 1; end >= 0; end--) {
+                    delete orders[end]._id;
+                    OUT.push(orders[end]);
                 }
-                return OUT;
+                return resolve(OUT);
             }
-            throw "No Such Admin!";
-        });
+            reject("No Such Admin!");
+        })
+            .on("error", reject));
     }
     deleteOrderController() {
         return (req, res) => {
@@ -79,7 +81,7 @@ class OrdersController {
                     const { ok, nModified, n } = result;
                     if (ok && nModified && n) {
                         if (sessionToken && isOnline) {
-                            app_1.Application.socketIO.emitOnUserCanceledOrder(sessionToken, webSoketId, reqId);
+                            app_1.default.socketIO.emitOnUserCanceledOrder(sessionToken, webSoketId, reqId);
                         }
                         return res.send("Your request successfully canceled.");
                     }

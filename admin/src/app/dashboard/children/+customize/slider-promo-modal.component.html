@@ -9,10 +9,10 @@
                     <div class="S8__s-c">
                         <div class="S8__t">
                             <a class="S8__t-h-link">
-                                <button>{{slide.title}}</button>
+                                <button>{{slide.title | titlecase}}</button>
                             </a>
                             <p class="S8__t-desc">{{slide.description}}</p>
-                            <a class="S8__t-link"><button>Read more</button></a>
+                            <a class="S8__t-link"><button>{{slide.buttonDesc}}</button></a>
                         </div>
                         <div class="S8__plugin">
                             <div class="chips-material">

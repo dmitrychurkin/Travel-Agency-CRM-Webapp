@@ -1,9 +1,7 @@
 "use strict";
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(require("./application.error"));
-__export(require("./token-validation.error"));
-__export(require("./authentication.error"));
-__export(require("./registration.error"));
+const tslib_1 = require("tslib");
+tslib_1.__exportStar(require("./application.error"), exports);
+tslib_1.__exportStar(require("./token-validation.error"), exports);
+tslib_1.__exportStar(require("./authentication.error"), exports);
+tslib_1.__exportStar(require("./registration.error"), exports);

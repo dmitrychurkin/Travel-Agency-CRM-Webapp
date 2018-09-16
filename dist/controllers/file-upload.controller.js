@@ -118,7 +118,7 @@ class FileUploadController {
         return (req, res) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             try {
                 const uuid = req.params.uuid;
-                const SelectedFileArray = yield models_1.FileStorageModel.aggregate([{
+                const SelectedFileObject = yield new Promise((resolve, reject) => models_1.FileStorageModel.aggregate([{
                         $project: {
                             _id: 0,
                             currentStorageSize: 1,
@@ -133,8 +133,13 @@ class FileUploadController {
                                 }
                             }
                         }
-                    }]).exec();
-                const SelectedFileEntity = SelectedFileArray[0].files[0];
+                    }])
+                    .cursor({})
+                    .exec()
+                    .stream()
+                    .on("data", resolve)
+                    .on("error", reject));
+                const SelectedFileEntity = SelectedFileObject.files[0];
                 if (SelectedFileEntity) {
                     const { fileSize, storageFilename, locationFlag, _id } = SelectedFileEntity;
                     return this._deleteFileHelper({ fileSize, storageFilename, locationFlag, _id }, res);
@@ -147,14 +152,14 @@ class FileUploadController {
         });
     }
     _cacheSync(resultAfterUpdate) {
-        let CACHE = app_1.Application.express.get("offers");
+        let CACHE = app_1.default.express.get("offers");
         const { files, offers } = resultAfterUpdate;
         if (!CACHE) {
             CACHE = {};
         }
         CACHE.files = files.filter((file) => file.locationFlag === "O");
         CACHE.offers = offers;
-        app_1.Application.express.set("offers", CACHE);
+        app_1.default.express.set("offers", CACHE);
     }
     _getAppropriateLocation(fileName, isToServe = false) {
         for (const extensionGroup of FileUploadController.fileExtensionRelation) {
@@ -246,7 +251,7 @@ class FileUploadController {
             return models_1.FileStorageModel.findById(serverConfig_1.default.FILE_STORAGE.DB_ID)
                 .select("-_id files offers")
                 .then(({ files, offers }) => {
-                let CACHE = app_1.Application.express.get("offers");
+                let CACHE = app_1.default.express.get("offers");
                 const responseData = {
                     links: {
                         self: services_1.getResourceUrl(req) + req.originalUrl
@@ -287,7 +292,7 @@ class FileUploadController {
                 });
                 if (CACHE.new) {
                     delete CACHE.new;
-                    app_1.Application.express.set("offers", CACHE);
+                    app_1.default.express.set("offers", CACHE);
                 }
                 services_1.JsonAPI.sendData(responseData, res);
             })
@@ -440,7 +445,7 @@ FileUploadController.fileExtensionRelation = [
         serveLocation: serverConfig_1.default.FILE_STORAGE.SERVED_PUBLIC_IMAGES
     },
     {
-        extensions: ["avi", "mp4", "mpeg", "webm", "ogv", "ogg", "mp3", "weba", "wav", "oga", "aac"],
+        extensions: ["avi", "mp4", "flv", "webm", "ogv", "ogg", "mp3", "weba", "wav", "oga", "aac"],
         location: serverConfig_1.default.FILE_STORAGE.PATH_TO_PUBLIC_MEDIA,
         serveLocation: serverConfig_1.default.FILE_STORAGE.SERVED_PUBLIC_MEDIA
     },

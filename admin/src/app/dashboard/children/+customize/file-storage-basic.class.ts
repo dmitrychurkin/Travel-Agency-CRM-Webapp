@@ -28,8 +28,8 @@ export class FileStorageBasic extends BasicComponentClass {
             exts: ['jpg', 'jpeg', 'png', 'gif', 'tiff', 'bmp', 'jfif']
         },
         media: {
-            mimes: 'video/avi,video/mpeg,video/webm,video/ogg,audio/ogg,audio/webm,audio/x-wav,audio/aac,',
-            exts: ['avi', 'mp4', 'mpeg', 'webm', 'ogv', 'ogg', 'mp3', 'weba', 'wav', 'oga', 'aac']
+            mimes: 'video/avi,video/mp4,video/x-flv,video/webm,video/ogg,audio/mp3,audio/ogg,audio/webm,audio/x-wav,audio/aac,',
+            exts: ['avi', 'mp4', 'flv', 'webm', 'ogv', 'ogg', 'mp3', 'weba', 'wav', 'oga', 'aac']
         },
         docs: {
             mimes: 'application/pdf,text/plain,application/msword',
@@ -73,7 +73,7 @@ export class FileStorageBasic extends BasicComponentClass {
         }
 
         return this._getResource(jsRes => FileStorageBasic._files = this.filesResponse = jsRes, filesUrl)
-                    .then(() => this.filesResponse.data);
+                    .then(() => !this.filesResponse ? [] : this.filesResponse.data);
     }
     protected MOVE(file: IFileAttr, response: Response, moveToFlag: 'S' | 'P' | 'O') {
         const{ status, ok } = response;
@@ -131,7 +131,7 @@ export class FileStorageBasic extends BasicComponentClass {
         if (ACTION !== 'RENAME') {
             this._progressBarService.emmiter.emit(true);
         }
-        return this._patchRequest(`${filesUrl}/${file.id}`, { id, type: 'files', attr: baseObject, meta })
+        return this._patchRequest(`${filesUrl}/${file.id}`, { id, type: 'files', attr: baseObject, meta }, { method })
                 .then((response: Response) => this[ACTION](file, response, metaInfo))
                 .catch(() => this._showErrMess(0))
                 .then(() => {
@@ -159,6 +159,7 @@ export class FileStorageBasic extends BasicComponentClass {
     }
     private _addFileOnComplete__QQ(uploadedFileProps: IFileEntity) {
         this.filesResponse.data.push(uploadedFileProps);
+        this._setFTP_Flags_IsEmpty();
     }
     private _removeFileOnDelete__QQ(deletedPayload: Array<any>) {
         for (const deletedItem of deletedPayload) {
@@ -171,6 +172,7 @@ export class FileStorageBasic extends BasicComponentClass {
                 });
             }
         }
+        this._setFTP_Flags_IsEmpty();
     }
     protected _getFileExt(fileName: string) {
         return fileName.split('.')[1];

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const dotEnv = require("dotenv");
 const http = require("http");
 const express = require("express");
 const path = require("path");
@@ -12,6 +13,7 @@ const errors_1 = require("./errors");
 const routes_1 = require("./routes");
 const database_1 = require("./database");
 const serverConfig_1 = require("./serverConfig");
+dotEnv.config();
 class App {
     constructor() {
         const app = express();
@@ -30,12 +32,12 @@ class App {
         app.set("view engine", "ejs");
     }
     _middleware(app) {
-        app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
+        app.use(favicon(path.join(__dirname, "assets", "favicon", "favicon.ico")));
         app.use(logger("dev"));
         app.use(bodyParser.json({ type: "application/*" }));
         app.use(bodyParser.urlencoded({ extended: false }));
         app.use(cookieParser(serverConfig_1.default.COOKIE_SECRET));
-        app.use(express.static(path.join(__dirname, "public")));
+        app.use(express.static(path.join(__dirname, "assets")));
         this.appRouter.securityMiddleware();
     }
     _routes(app) {
@@ -48,10 +50,8 @@ class App {
             err.status = 404;
             next(err);
         });
-        app.use(function (...args) {
-            const err = args[0];
-            const req = args[1];
-            const res = args[2];
+        app.use((err, req, res, next) => {
+            next;
             res.locals.message = err.message;
             res.locals.error = req.app.get("env") === "development" ? err : {};
             res.status(err.status || 500);
@@ -59,6 +59,4 @@ class App {
         });
     }
 }
-const Application = new App();
-exports.Application = Application;
-module.exports = Application;
+exports.default = new App;

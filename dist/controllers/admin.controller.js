@@ -11,25 +11,6 @@ class AdminController {
         this.inMemoryStorage = new Map();
         this.isMessage = process.env.NODE_ENV === "development";
     }
-    recordToDB() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            let adminCredentialsString = yield services_1.readFileAsync("credentialsForAdminRegistration.json");
-            let { login, password } = JSON.parse(adminCredentialsString.toString());
-            let salt = "6267697b9df59c89f317d37f372eeddd71de9460788cd1277f13e379c83c92bd6bf4f80637552487d73303450ef44d50";
-            let hash = yield services_1.encryptPwdAsync(password, salt.toString());
-            return new models_1.SiteModel({
-                _id: serverConfig_1.default.SITE_ID,
-                login,
-                password: hash,
-                passwordSalt: salt.toString()
-            }).save((err, product, numAffected) => {
-                if (err)
-                    console.log(err);
-                console.log("Admin Credentils is ", product);
-                console.log("Status code ", numAffected);
-            });
-        });
-    }
     cancelTimer(uuidToken) {
         if (uuidToken && this.inMemoryStorage.has(uuidToken)) {
             let timerId = this.inMemoryStorage.get(uuidToken);
@@ -100,14 +81,14 @@ class AdminController {
             ({ password: hash, passwordSalt, _id, name, role } = ADMIN_DOC = admin);
             return services_1.comparePwdsAsync()(hash, passwordSalt, pass);
         })
-            .then(ComparedResult => {
+            .then((ComparedResult) => {
             if (ComparedResult) {
                 sessionToken = uuid.v4();
                 return services_1.issueTokenJWTAsync({ subject: sessionToken });
             }
             throw new errors_1.AuthenticationError("Wrong password");
         })
-            .then(jwt => {
+            .then((jwt) => {
             JWT = jwt;
             return ADMIN_DOC.update({ sessionToken, isOnline: true });
         })
@@ -182,7 +163,7 @@ class AdminController {
             try {
                 yield this._checkIfAdminWasSignedAsync(req);
                 for (let promise of [this.adminSingInAsync(req, res), this.checkForNewComerAsync(req, res)]) {
-                    yield promise.catch(err => console.log(err.message));
+                    yield promise.catch((err) => console.log(err.message));
                 }
                 if (!res.headersSent) {
                     res.status(401).end();

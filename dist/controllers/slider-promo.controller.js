@@ -6,7 +6,7 @@ const models_1 = require("../models");
 const serverConfig_1 = require("../serverConfig");
 class SliderPromoController {
     _slidesFetcher() {
-        const CACHE = app_1.Application.express.get("sliderPromo");
+        const CACHE = app_1.default.express.get("sliderPromo");
         if (CACHE) {
             return Promise.resolve(CACHE);
         }
@@ -14,7 +14,7 @@ class SliderPromoController {
             .select("sliderPromo -_id")
             .then(({ sliderPromo }) => {
             if (!CACHE) {
-                app_1.Application.express.set("sliderPromo", sliderPromo);
+                app_1.default.express.set("sliderPromo", sliderPromo);
             }
             return sliderPromo;
         });
@@ -47,7 +47,7 @@ class SliderPromoController {
                 const { slides: sliderPromo } = req.body.data.attributes;
                 return models_1.LandingPageModel.findByIdAndUpdate(serverConfig_1.default.LANDING_PAGE_ID, { $set: { sliderPromo } }, { new: true, select: "sliderPromo -_id" })
                     .then(({ sliderPromo }) => {
-                    app_1.Application.express.set("sliderPromo", sliderPromo);
+                    app_1.default.express.set("sliderPromo", sliderPromo);
                     return res.status(204).end();
                 })
                     .catch(() => res.status(500).end());

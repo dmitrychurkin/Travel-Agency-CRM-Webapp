@@ -42,6 +42,7 @@ export class SliderPromoSectionComponent extends BasicActionsComponent implement
 
     modelChips: Array<IEditedChip> = [];
 
+    modelButtonDesc = new ModelBasic;
     /*modelTemplate: ISlideProps = {
             type: 'slide',
             title: '',
@@ -68,7 +69,8 @@ export class SliderPromoSectionComponent extends BasicActionsComponent implement
             this.modelTitle,
             this.modelDesc,
             this.modelBgImg,
-            this.modelChips
+            this.modelChips,
+            this.modelButtonDesc
         );
     }
     ngOnInit() {
@@ -80,7 +82,8 @@ export class SliderPromoSectionComponent extends BasicActionsComponent implement
             title: '',
             backgroundImage: '',
             description: '',
-            chips: []
+            chips: [],
+            buttonDesc: ''
         };
     }
     get chipTemplate(): IChipProps {
@@ -307,7 +310,7 @@ interface ISlideProps {
     title: string;
     description: string;
     chips: IChipProps[];
-
+    buttonDesc: string;
 }
 /*interface IChipProps {
     destination: string;

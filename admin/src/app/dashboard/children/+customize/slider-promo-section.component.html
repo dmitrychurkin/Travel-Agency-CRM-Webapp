@@ -158,6 +158,24 @@
                     </div>
                 </div>
                 <hr>
+                <div>
+                    <h3>Button name</h3>
+                    <h4>{{(modelButtonDesc.content || slide.buttonDesc || notSpecifiedMessage)}}</h4>
+                </div>
+                <div *ngIf="modelButtonDesc.isEditing">
+                    <md-input-container dividerColor="accent">
+                        <input mdInput placeholder="Edit button name" [(ngModel)]="modelButtonDesc.content" >
+                        <md-hint [style.color]="'#f44336'" align="end">Remember to be short and sweet!</md-hint>
+                    </md-input-container>
+                </div>
+                <div class="action-btn-cont" fxLayout="row">
+                    <button *ngIf="!modelButtonDesc.isEditing" (click)="onEdit(slide.buttonDesc, modelButtonDesc)" md-raised-button color="accent">EDIT</button>
+                    <ng-container *ngIf="modelButtonDesc.isEditing">
+                        <button (click)="onCancelEdit(modelButtonDesc)" md-raised-button color="accent">CANCEL</button>
+                        <button class="ok-btn-gap" (click)="onOk({ subject: slide, prop: 'buttonDesc', model: modelButtonDesc})" md-raised-button color="warn">OK</button>
+                    </ng-container>
+                </div>
+                <hr>
                 <div style="margin:30px 0" fxLayout="row">
                     <button md-raised-button color="warn" (click)="openDialog(deleteSubject(i), 'slide')">DELETE SLIDE</button>
                 </div>

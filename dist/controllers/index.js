@@ -1,15 +1,13 @@
 "use strict";
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(require("./orders.controller"));
-__export(require("./admin.controller"));
-__export(require("./file-upload.controller"));
-__export(require("./key-people.controller"));
-__export(require("./customer-reviews.controller"));
-__export(require("./our-sponsores.controller"));
-__export(require("./offers-imgs.controller"));
-__export(require("./site-contacts.controller"));
-__export(require("./slider-promo.controller"));
-__export(require("./main.controller"));
+const tslib_1 = require("tslib");
+tslib_1.__exportStar(require("./orders.controller"), exports);
+tslib_1.__exportStar(require("./admin.controller"), exports);
+tslib_1.__exportStar(require("./file-upload.controller"), exports);
+tslib_1.__exportStar(require("./key-people.controller"), exports);
+tslib_1.__exportStar(require("./customer-reviews.controller"), exports);
+tslib_1.__exportStar(require("./our-sponsores.controller"), exports);
+tslib_1.__exportStar(require("./offers-imgs.controller"), exports);
+tslib_1.__exportStar(require("./site-contacts.controller"), exports);
+tslib_1.__exportStar(require("./slider-promo.controller"), exports);
+tslib_1.__exportStar(require("./main.controller"), exports);

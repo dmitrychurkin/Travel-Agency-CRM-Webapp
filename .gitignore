@@ -33,8 +33,6 @@ credentialsForAdminRegistration.json
 rootAdmin.json
 deprecated
 .vscode
-dist/fileUploads
-dist/public/images
-dist/public/offers
-dist/public/docs
-dist/public/media
+dist
+.env
+.gitignore

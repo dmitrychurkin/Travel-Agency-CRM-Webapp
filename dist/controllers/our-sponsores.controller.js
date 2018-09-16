@@ -6,14 +6,14 @@ const serverConfig_1 = require("../serverConfig");
 const models_1 = require("../models");
 class SponsoresController {
     _resourceFetcher() {
-        const CACHE = app_1.Application.express.get("sponsores");
+        const CACHE = app_1.default.express.get("sponsores");
         if (CACHE) {
             return Promise.resolve(CACHE);
         }
         return models_1.LandingPageModel.findById(serverConfig_1.default.LANDING_PAGE_ID)
             .select("sponsores -_id")
             .then(({ sponsores }) => {
-            app_1.Application.express.set("sponsores", sponsores);
+            app_1.default.express.set("sponsores", sponsores);
             return sponsores;
         });
     }
@@ -46,7 +46,7 @@ class SponsoresController {
                 const { sponsores } = req.body.data.attributes;
                 return models_1.LandingPageModel.findByIdAndUpdate(serverConfig_1.default.LANDING_PAGE_ID, { $set: { sponsores } }, { new: true, select: "sponsores -_id" })
                     .then(({ sponsores }) => {
-                    app_1.Application.express.set("sponsores", sponsores);
+                    app_1.default.express.set("sponsores", sponsores);
                     return res.status(204).end();
                 })
                     .catch(() => res.status(500).end());

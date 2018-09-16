@@ -6,14 +6,14 @@ const serverConfig_1 = require("../serverConfig");
 const app_1 = require("../app");
 class SiteContactsController {
     _contactsFetcher() {
-        const CACHE = app_1.Application.express.get("siteContacts");
+        const CACHE = app_1.default.express.get("siteContacts");
         if (CACHE) {
             return Promise.resolve(CACHE);
         }
         return models_1.LandingPageModel.findById(serverConfig_1.default.LANDING_PAGE_ID)
             .select("siteContacts -_id")
             .then(({ siteContacts }) => {
-            app_1.Application.express.set("siteContacts", siteContacts);
+            app_1.default.express.set("siteContacts", siteContacts);
             return siteContacts;
         });
     }
@@ -47,7 +47,7 @@ class SiteContactsController {
                 const siteContacts = { siteContacts: contacts };
                 return models_1.LandingPageModel.findByIdAndUpdate(serverConfig_1.default.LANDING_PAGE_ID, { $set: siteContacts }, { new: true, select: "siteContacts -_id" })
                     .then(({ siteContacts }) => {
-                    app_1.Application.express.set("siteContacts", siteContacts);
+                    app_1.default.express.set("siteContacts", siteContacts);
                     res.status(204).end();
                 })
                     .catch(() => res.status(500).end());

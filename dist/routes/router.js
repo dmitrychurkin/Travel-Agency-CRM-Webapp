@@ -1,12 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const express_1 = require("express");
 const fs = require("fs");
 const path = require("path");
 const shortid = require("shortid");
 const serverConfig_1 = require("../serverConfig");
-const models_1 = require("../models");
 const controllers_1 = require("../controllers");
 class AppRouter {
     constructor(app) {
@@ -46,50 +44,10 @@ class AppRouter {
     configureAppRoutes() {
         const { Router: router } = this;
         router.get("/", controllers_1.mainController.getSitePropsController());
-        router.get("/air-ticketing-and-reservation/", (...args) => {
-            const res = args[1];
-            res.render("services/air_ticketing_and_reservation");
-        });
-        router.get("/visa-assist/", (...args) => {
-            const res = args[1];
-            res.render("services/visa_assist");
-        });
-        router.get("/travel-insurance/", (...args) => {
-            const res = args[1];
-            res.render("services/travel_insurance");
-        });
-        router.get("/consular-services/", (...args) => {
-            const res = args[1];
-            res.render("services/consular_services");
-        });
-        router.get("/hotel-booking/", (...args) => {
-            const res = args[1];
-            res.render("services/world_wide_hotel_booking");
-        });
-        router.get("/group-travel/", (...args) => {
-            const res = args[1];
-            res.render("services/incentive_group_travel");
-        });
-        router.get("/honeymoon-packages/", (...args) => {
-            const res = args[1];
-            res.render("services/honeymoon_packages");
-        });
-        router.get("/family-packages/", (...args) => {
-            const res = args[1];
-            res.render("services/family_packages");
-        });
-        router.get("/holiday-packages/", (...args) => {
-            const res = args[1];
-            res.render("services/holiday_packages");
-        });
-        router.get("/pilgrimage-travel/", (...args) => {
-            const res = args[1];
-            res.render("services/pilgrimage_travel");
-        });
         router.get("/services/", (...args) => {
             const res = args[1];
             res.setHeader("content-type", "application/json");
-            fs.createReadStream(path.resolve(__dirname, "servicesModel.json")).pipe(res);
+            fs.createReadStream(path.resolve(__dirname, "../app-files/servicesModel.json")).pipe(res);
         });
         router.post("/order/", controllers_1.ordersController.addNewOrderController());
         router.delete("/order/", controllers_1.ordersController.deleteOrderController());
@@ -128,109 +86,6 @@ class AppRouter {
         router.patch("/api/slider-promo/", [controllers_1.adminController.tokenValidatorController(true), controllers_1.sliderPromoController.setSlides_JsonAPI()]);
         router.get("/api/sponsores", [controllers_1.adminController.tokenValidatorController(true), controllers_1.sponsoresController.getSponsores_JsonAPI()]);
         router.patch("/api/sponsores", [controllers_1.adminController.tokenValidatorController(true), controllers_1.sponsoresController.updateSponsores_JsonAPI()]);
-        router.get("/api/sign-admin", (...args) => {
-            const res = args[1];
-            const req = args[0];
-            controllers_1.adminController.signInController()(req, res);
-        });
-        router.get("/api/register-new-admin", (req, res) => {
-            controllers_1.adminController.registerNewAdminController()(req, res);
-        });
-        router.get("/api/add-site-to-db", (...args) => {
-            const res = args[1];
-            controllers_1.adminController.recordToDB().then(() => res.send("Saved!")).catch(err => res.send(err.message));
-        });
-        router.get("/api/validate-tokens", (...args) => {
-            const res = args[1];
-            const req = args[0];
-            const next = args[2];
-            controllers_1.adminController.tokenValidatorController()(req, res, next);
-        });
-        router.get("/api/check-signin", (...args) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const res = args[1];
-            const req = args[0];
-            try {
-                let payload = yield controllers_1.adminController.adminSingInAsync(req, res);
-                console.log("payload= ", payload);
-                if (!res.headersSent)
-                    return res.send(payload);
-            }
-            catch (e) {
-                return res.status(500).end(e.message);
-            }
-        }));
-        router.get("/api/order", (...args) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const res = args[1];
-            try {
-                let RESULT = yield models_1.AdminModel.aggregate([
-                    { $match: { name: "Dmitry" } },
-                    {
-                        $project: {
-                            _id: false,
-                            orders: {
-                                $filter: {
-                                    input: "$orders",
-                                    as: "order",
-                                    cond: { $lt: ["$$order.timestamp", Date.now()] }
-                                }
-                            }
-                        }
-                    },
-                    {
-                        $project: {
-                            orders: {
-                                $slice: ["$orders", -10]
-                            }
-                        }
-                    }
-                ])
-                    .exec();
-                let [orderField] = RESULT;
-                const OUT = [];
-                for (let end = orderField.orders.length - 1; end >= 0; end--) {
-                    delete orderField.orders[end]._id;
-                    OUT.push(orderField.orders[end]);
-                }
-                res.json(OUT);
-            }
-            catch (e) {
-                res.send(e.message);
-            }
-        }));
-        router.get("/api/order1", (...args) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const res = args[1];
-            try {
-                let RESULT = yield models_1.AdminModel.where("status", "admin")
-                    .sort("ordersCount")
-                    .limit(1)
-                    .then(result => {
-                    return result[0].update({ $inc: { ordersCount: 1 } }, { new: true });
-                });
-                res.json(RESULT);
-            }
-            catch (err) {
-                res.send(err.message);
-            }
-        }));
-        router.get("/test-aggr", (...args) => {
-            let [, res] = args;
-            models_1.FileStorageModel.aggregate({
-                $project: {
-                    _id: 0,
-                    files: {
-                        $filter: {
-                            input: "$files",
-                            as: "file",
-                            cond: { $and: [{ $eq: ["fall-autumn-season.jpg", "$$file.storageFilename"] }] }
-                        }
-                    }
-                }
-            })
-                .then((files) => {
-                res.json(files);
-            })
-                .catch(err => res.send(err.message));
-        });
         return router;
     }
 }

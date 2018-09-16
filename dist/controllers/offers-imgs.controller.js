@@ -6,11 +6,11 @@ const services_1 = require("../services");
 const serverConfig_1 = require("../serverConfig");
 class OffersImgsController {
     _offersFetcher() {
-        const CACHE = app_1.Application.express.get("offers");
+        const CACHE = app_1.default.express.get("offers");
         if (CACHE) {
             return Promise.resolve(CACHE);
         }
-        return models_1.FileStorageModel.aggregate({
+        return new Promise((resolve, reject) => models_1.FileStorageModel.aggregate({
             $project: {
                 _id: 0,
                 files: {
@@ -23,13 +23,16 @@ class OffersImgsController {
                 offers: 1
             }
         })
-            .then((result) => {
-            const resultObject = result[0];
+            .cursor({})
+            .exec()
+            .stream()
+            .on("data", (data) => {
             if (!CACHE) {
-                app_1.Application.express.set("offers", resultObject);
+                app_1.default.express.set("offers", data);
             }
-            return resultObject;
-        });
+            resolve(data);
+        })
+            .on("error", reject));
     }
     getOffers_JsonAPI() {
         return (req, res) => {
@@ -81,7 +84,10 @@ class OffersImgsController {
                 }
                 return services_1.JsonAPI.sendData(responseResult, res);
             })
-                .catch(() => res.status(500).end());
+                .catch((err) => {
+                console.log(err);
+                res.status(500).end();
+            });
         };
     }
     editSliderMeta_JsonAPI(req, res) {
@@ -90,7 +96,7 @@ class OffersImgsController {
         if (req && req.body && req.body.data && req.body.data.attributes) {
             const { attributes } = req.body.data;
             const dbSetOptions = { $set: {} };
-            const CACHE = app_1.Application.express.get("offers");
+            const CACHE = app_1.default.express.get("offers");
             for (const metaField in attributes) {
                 if (attributes[metaField]) {
                     dbSetOptions.$set[`offers.${metaField}`] = attributes[metaField];
@@ -103,7 +109,7 @@ class OffersImgsController {
                 .then(({ ok, nModified, n }) => {
                 if (ok && nModified && n) {
                     if (CACHE) {
-                        app_1.Application.express.set("offers", CACHE);
+                        app_1.default.express.set("offers", CACHE);
                     }
                     return res.status(204).end();
                 }
@@ -119,7 +125,7 @@ class OffersImgsController {
         if (req && req.params && req.params.fileid && req.body && req.body.data && req.body.data.attributes) {
             const { data: { attributes: { meta } } } = req.body;
             const { fileid } = req.params;
-            const CACHE = app_1.Application.express.get("offers");
+            const CACHE = app_1.default.express.get("offers");
             return models_1.FileStorageModel.update({ _id: serverConfig_1.default.FILE_STORAGE.DB_ID, "files._id": fileid }, { $set: { "files.$.meta": meta } })
                 .then(({ ok, nModified, n }) => {
                 if (ok && nModified && n) {
@@ -129,7 +135,7 @@ class OffersImgsController {
                                 file.meta = meta;
                             }
                         }
-                        app_1.Application.express.set("offers", CACHE);
+                        app_1.default.express.set("offers", CACHE);
                     }
                     return res.status(204).end();
                 }

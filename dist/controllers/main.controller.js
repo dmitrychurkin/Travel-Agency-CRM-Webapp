@@ -19,21 +19,21 @@ class MainController {
             [, res] = args;
             try {
                 for (const siteProperty of this._siteProperties.split(" ")) {
-                    let CachedProps = app_1.Application.express.get(siteProperty);
+                    let CachedProps = app_1.default.express.get(siteProperty);
                     if (!CachedProps) {
                         if (!DBRef) {
                             DBRef = yield this._DBRef.select(this._siteProperties).exec();
                         }
                         CachedProps = DBRef.get(siteProperty);
                         if (CachedProps) {
-                            app_1.Application.express.set(siteProperty, CachedProps);
+                            app_1.default.express.set(siteProperty, CachedProps);
                         }
                         else {
                             throw new errors_1.ApplicationError("Property can't to be undefined");
                         }
                     }
                 }
-                res.render("index", { app: app_1.Application.express.locals.settings });
+                res.render("index", { app: app_1.default.express.locals.settings });
             }
             catch (err) {
                 res.status(500).end(err.message);

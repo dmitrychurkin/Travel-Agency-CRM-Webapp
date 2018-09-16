@@ -1,1 +1,0 @@
-SET DEBUG=tester-bundler:* & npm start

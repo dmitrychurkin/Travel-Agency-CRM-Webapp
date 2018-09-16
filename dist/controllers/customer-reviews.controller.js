@@ -6,14 +6,14 @@ const serverConfig_1 = require("../serverConfig");
 const models_1 = require("../models");
 class CustomerReviewsController {
     _resourceFetcher() {
-        const CACHE = app_1.Application.express.get("customerReviews");
+        const CACHE = app_1.default.express.get("customerReviews");
         if (CACHE) {
             return Promise.resolve(CACHE);
         }
         return models_1.LandingPageModel.findById(serverConfig_1.default.LANDING_PAGE_ID)
             .select("customerReviews -_id")
             .then(({ customerReviews }) => {
-            app_1.Application.express.set("customerReviews", customerReviews);
+            app_1.default.express.set("customerReviews", customerReviews);
             return customerReviews;
         });
     }
@@ -46,7 +46,7 @@ class CustomerReviewsController {
                 const { customerReviews } = req.body.data.attributes;
                 return models_1.LandingPageModel.findByIdAndUpdate(serverConfig_1.default.LANDING_PAGE_ID, { $set: { customerReviews } }, { new: true, select: "customerReviews -_id" })
                     .then(({ customerReviews }) => {
-                    app_1.Application.express.set("customerReviews", customerReviews);
+                    app_1.default.express.set("customerReviews", customerReviews);
                     return res.status(204).end();
                 })
                     .catch(() => res.status(500).end());

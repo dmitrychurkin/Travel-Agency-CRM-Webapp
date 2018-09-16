@@ -55,7 +55,12 @@ const LandingPageSchema = new mongoose.Schema({
                     avatar: String,
                     starCount: Number
                 }
-            ]
+            ],
+            buttonDesc: {
+                type: String,
+                trim: true,
+                default: "Read more"
+            }
         }
     ],
     keyPeople: {
