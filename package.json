@@ -23,7 +23,6 @@
     "ejs": "~2.5.2",
     "express": "~4.14.0",
     "hashids": "^1.1.1",
-    "httpmodule": "^1.0.0",
     "jsonwebtoken": "^7.3.0",
     "mongoose": "^4.9.3",
     "morgan": "~1.7.0",
