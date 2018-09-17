@@ -72,17 +72,7 @@ export class AppRouter {
 
 /**Admin panel */
         router.use(["/login", "/dashboard", "/registration"], express.static(path.resolve(__dirname, "../../admin/dist")));
-        /*.get(["/login", "/dashboard", "/dashboard/*", "/registration"], (...args: Array<any>) => {
-            const pathToExperimentalFile = path.resolve(__dirname, "../../admin/dist/index.html");
-            const res: Response = args[1];
-            res.setHeader("content-type", "text/html");
-            fs.createReadStream(pathToExperimentalFile).pipe(res);
-        });*/
 
-        /*router.get(["/*\.js", "/*\.map", "/*\.css", "/fontawesome-webfont.*"], (req: Request, res: Response) => {
-            const PATH_TO_FILES = path.resolve(__dirname, "../../admin/dist/", req.path.slice(1));
-            fs.createReadStream(PATH_TO_FILES).pipe(res);
-        });*/
         router.head("/api/validate/",  adminController.tokenValidatorController());
         router.get("/api/get-admin-info/", [adminController.tokenValidatorController(true), adminController.getAdminInfoController()]);
         router.post("/api/register/", adminController.signInController());
