@@ -1,5 +1,4 @@
 import { Application, Router, Request, Response, NextFunction } from "express";
-import * as express from "express";
 import * as fs from "fs";
 import * as path from "path";
 import * as shortid from "shortid";
@@ -71,7 +70,12 @@ export class AppRouter {
 
 
 /**Admin panel */
-        router.use(["/login", "/dashboard", "/registration"], express.static(path.resolve(__dirname, "../../admin/dist")));
+        router.get(["/login", "/dashboard", "/registration"], (...args: Array<any>) => {
+            args[1].sendFile(path.resolve(__dirname, "../assets/admin", "index.html"));
+        });
+        router.get(["/*\.js", "/*\.css", "/*\.map"], (req: Request, res: Response) => {
+            res.sendFile(path.resolve(__dirname, "../assets/admin", req.path.slice(1)));
+        });
 
         router.head("/api/validate/",  adminController.tokenValidatorController());
         router.get("/api/get-admin-info/", [adminController.tokenValidatorController(true), adminController.getAdminInfoController()]);

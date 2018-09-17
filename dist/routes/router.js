@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const shortid = require("shortid");
@@ -52,7 +51,12 @@ class AppRouter {
         });
         router.post("/order/", controllers_1.ordersController.addNewOrderController());
         router.delete("/order/", controllers_1.ordersController.deleteOrderController());
-        router.use(["/login", "/dashboard", "/registration"], express.static(path.resolve(__dirname, "../../admin/dist")));
+        router.get(["/login", "/dashboard", "/registration"], (...args) => {
+            args[1].sendFile(path.resolve(__dirname, "../assets/admin", "index.html"));
+        });
+        router.get(["/*\.js", "/*\.css", "/*\.map"], (req, res) => {
+            res.sendFile(path.resolve(__dirname, "../assets/admin", req.path.slice(1)));
+        });
         router.head("/api/validate/", controllers_1.adminController.tokenValidatorController());
         router.get("/api/get-admin-info/", [controllers_1.adminController.tokenValidatorController(true), controllers_1.adminController.getAdminInfoController()]);
         router.post("/api/register/", controllers_1.adminController.signInController());

@@ -34,7 +34,7 @@ function gulpCopy(...args) {
 
     for (const { from, to } of args) {
 
-      const stream = gulp.src(from).pipe(gulp.dest(to));
+      const stream = gulp.src(from, { allowEmpty: true }).pipe(gulp.dest(to));
       stream.on('end', done);
 
     }
@@ -56,6 +56,9 @@ gulp.task('copy', gulpCopy({
 },{
   from: [`${SRC_FOLDER}/assets/**`, ...(isDevelopment ? [] : [`!${SRC_FOLDER}/images`, `!${SRC_FOLDER}/offers`])],
   to: `${DESTINATION_FOLDER}/assets`
+},{
+  from: './admin/dist/**/*.*',
+  to: `${DESTINATION_FOLDER}/assets/admin`
 }));
 
 gulp.task('imagemin', 
