@@ -33,6 +33,4 @@ credentialsForAdminRegistration.json
 rootAdmin.json
 deprecated
 .vscode
-dist
-.env
 .gitignore

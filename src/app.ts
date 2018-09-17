@@ -3,6 +3,7 @@ import * as http from "http";
 import { Server } from "http";
 import { Express, Request, Response, NextFunction } from "express";
 import * as express from "express";
+import * as compression from "compression";
 import * as path from "path";
 import * as favicon from "serve-favicon";
 import * as logger from "morgan";
@@ -35,12 +36,16 @@ class App {
   constructor() {
     const app = express();
 
+    if (process.env.NODE_ENV === "production") {
+      app.use(compression());
+      app.disable("x-powered-by");
+    }
+    this._views(app);
     this.express = app;
     this.server = http.createServer(app);
     this.socketIO = IO.createSocketIOServer(this.server);
     this.appRouter = new AppRouter(app);
     this._middleware(app);
-    this._views(app);
     this._routes(app);
     this._errorHandlers(app);
     MongoDB.configureAndCreate();
@@ -51,13 +56,13 @@ class App {
     app.set("view engine", "ejs");
   }
   private _middleware(app: Express) {
+    app.use(logger("dev"));
     // uncomment after placing your favicon in /public
     app.use(favicon(path.join(__dirname, "assets", "favicon", "favicon.ico")));
-    app.use(logger("dev"));
+    app.use(express.static(path.join(__dirname, "assets")));
     app.use(bodyParser.json({ type: "application/*" }));
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(cookieParser(ServerConfig.COOKIE_SECRET));
-    app.use(express.static(path.join(__dirname, "assets")));
     this.appRouter.securityMiddleware();
   }
   private _routes(app: Express) {

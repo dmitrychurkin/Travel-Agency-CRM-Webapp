@@ -58,6 +58,6 @@ server.on("listening", () => {
   let bind = typeof addr === "string"
     ? "pipe " + addr
     : "port " + addr.port;
-  console.log("Listening port " + addr.port);
-  debug("Listening on " + bind);
+
+  typeof debug === "function" && debug("Listening on " + bind);
 });

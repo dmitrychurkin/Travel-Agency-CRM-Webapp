@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
+const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const shortid = require("shortid");
@@ -51,16 +52,7 @@ class AppRouter {
         });
         router.post("/order/", controllers_1.ordersController.addNewOrderController());
         router.delete("/order/", controllers_1.ordersController.deleteOrderController());
-        router.get(["/login", "/dashboard", "/dashboard/*", "/registration"], (...args) => {
-            const pathToExperimentalFile = path.resolve(__dirname, "../../admin/dist/index.html");
-            const res = args[1];
-            res.setHeader("content-type", "text/html");
-            fs.createReadStream(pathToExperimentalFile).pipe(res);
-        });
-        router.get(["/*\.js", "/*\.map", "/*\.css", "/fontawesome-webfont.*"], (req, res) => {
-            const PATH_TO_FILES = path.resolve(__dirname, "../../admin/dist/", req.path.slice(1));
-            fs.createReadStream(PATH_TO_FILES).pipe(res);
-        });
+        router.use(["/login", "/dashboard", "/registration"], express.static(path.resolve(__dirname, "../../admin/dist")));
         router.head("/api/validate/", controllers_1.adminController.tokenValidatorController());
         router.get("/api/get-admin-info/", [controllers_1.adminController.tokenValidatorController(true), controllers_1.adminController.getAdminInfoController()]);
         router.post("/api/register/", controllers_1.adminController.signInController());

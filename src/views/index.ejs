@@ -31,6 +31,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.1/plugins/CSSPlugin.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.1/plugins/AttrPlugin.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.1/plugins/ScrollToPlugin.min.js"></script>
+    <script src="/js/runtime.js"></script>
     <script>
         (function(){
             if ( !('fetch' in window && 'assign' in Object) ) {
@@ -42,7 +43,6 @@
             }
         })()
     </script>
-    <script src="/js/runtime.js"></script>
 </head>
 <body class="B">
     <div class="Root__w">
@@ -420,8 +420,8 @@
                     </div>
                     <div class="S8__slides">
                     <% let slideBGLeft = 50, slideLeft = -100; app.sliderPromo.forEach( (slide, slideIndex) => {  -%>
-                        <div class="S8__slide S8__s<%=slideIndex%> <%= slideIndex==0 ? 'S8__active' : ''%>" style="left: <%=slideLeft += 100%>%">
-                            <div class="S8__s-b" data-background-url="<%=slide.backgroundImage%>" style="left: <%=slideBGLeft -= 50%>%"></div>
+                        <div class="S8__slide S8__s<%=slideIndex%> <%= slideIndex==0 ? 'S8__active' : ''%>" style="left: <%=(slideLeft += 100) + '%'%>">
+                            <div class="S8__s-b" data-background-url="<%=slide.backgroundImage%>" style="left: <%=(slideBGLeft -= 50) + '%'%>"></div>
                             <div class="S8__s-c">
                                 <div class="S8__ctrl S8__c_left S8__inactive"></div>
                                 <div class="S8__ctrl S8__c_right"></div>
