@@ -6,5 +6,6 @@ Fully featured backend - Node JS with NoSQL database MongoDB + Web Sockets.
 Client & Server written 100% with Typescript.   
 Admin Panel - Angular Framework.   
 
+demo app: https://wingsforworld.herokuapp.com
 
 #### TODO: continue add pages with content   
