@@ -56,7 +56,7 @@
     "@types/uuid": "^2.0.29",
     "css-loader": "^0.28.9",
     "del": "^3.0.0",
-    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp": "^4.0.0",
     "gulp-clean-css": "^3.9.2",
     "gulp-concat": "^2.6.1",
     "gulp-html-minifier": "^0.1.8",
